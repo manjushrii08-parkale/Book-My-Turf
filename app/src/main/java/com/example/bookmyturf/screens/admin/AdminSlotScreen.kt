@@ -1,0 +1,806 @@
+package com.example.bookmyturf.screens.admin
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ToggleOff
+import androidx.compose.material.icons.filled.ToggleOn
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bookmyturf.data.model.slot.Slot
+import com.example.bookmyturf.data.remote.RetrofitClient
+import com.example.bookmyturf.data.repository.AdminSlotRepository
+import com.example.bookmyturf.viewmodel.AdminSlotViewModel
+
+private val SlotGreen = Color(0xFF14532D)
+private val SlotBackground = Color(0xFFF8FAFC)
+private val SlotDark = Color(0xFF0F172A)
+private val SlotGray = Color(0xFF64748B)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminSlotScreen(
+    token: String,
+    turfId: Int,
+    onBack: () -> Unit
+) {
+
+    // =========================================================
+    // REPOSITORY
+    // =========================================================
+
+    val repository = remember {
+        AdminSlotRepository(
+            RetrofitClient.api
+        )
+    }
+
+    // =========================================================
+    // VIEWMODEL FACTORY
+    // =========================================================
+
+    val factory = remember {
+        AdminSlotViewModelFactory(
+            repository
+        )
+    }
+
+    // =========================================================
+    // VIEWMODEL
+    // =========================================================
+
+    val viewModel: AdminSlotViewModel = viewModel(
+        factory = factory
+    )
+
+    // =========================================================
+    // STATE
+    // =========================================================
+
+    val slots by viewModel.slots.collectAsState()
+
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    val error by viewModel.error.collectAsState()
+
+    var showAddSlotDialog by remember {
+        mutableStateOf(false)
+    }
+
+    // =========================================================
+    // LOAD SLOTS
+    // =========================================================
+
+    LaunchedEffect(turfId, token) {
+
+        viewModel.loadSlots(
+            token = token,
+            turfId = turfId
+        )
+    }
+
+    // =========================================================
+    // SCREEN
+    // =========================================================
+
+    Scaffold(
+
+        containerColor = SlotBackground,
+
+        // =====================================================
+        // TOP BAR
+        // =====================================================
+
+        topBar = {
+
+            TopAppBar(
+
+                title = {
+
+                    Column {
+
+                        Text(
+                            text = "Manage Slots",
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            text = "Turf #$turfId",
+                            fontSize = 12.sp,
+                            color = SlotGray
+                        )
+                    }
+                },
+
+                navigationIcon = {
+
+                    IconButton(
+                        onClick = onBack
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White
+                )
+            )
+        }
+
+    ) { paddingValues ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+
+            // =================================================
+            // HEADER
+            // =================================================
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 14.dp
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+
+                    Text(
+                        text = "Turf Slots",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = SlotDark
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(3.dp)
+                    )
+
+                    Text(
+                        text = "${slots.size} slots configured",
+                        color = SlotGray,
+                        fontSize = 13.sp
+                    )
+                }
+
+                Button(
+                    onClick = {
+
+                        showAddSlotDialog = true
+                    },
+
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(5.dp)
+                    )
+
+                    Text(
+                        text = "Add Slot"
+                    )
+                }
+            }
+
+            // =================================================
+            // LOADING
+            // =================================================
+
+            if (isLoading) {
+
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    CircularProgressIndicator(
+                        color = SlotGreen
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
+
+                    Text(
+                        text = "Loading slots...",
+                        color = SlotGray
+                    )
+                }
+
+                return@Column
+            }
+
+            // =================================================
+            // ERROR
+            // =================================================
+
+            if (!error.isNullOrBlank()) {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = "Unable to load slots",
+                        fontWeight = FontWeight.Bold,
+                        color = SlotDark
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    Text(
+                        text = error ?: "",
+                        color = SlotGray,
+                        fontSize = 13.sp
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(16.dp)
+                    )
+
+                    Button(
+                        onClick = {
+
+                            viewModel.clearError()
+
+                            viewModel.loadSlots(
+                                token = token,
+                                turfId = turfId
+                            )
+                        }
+                    ) {
+
+                        Text(
+                            text = "Retry"
+                        )
+                    }
+                }
+
+                return@Column
+            }
+
+            // =================================================
+            // EMPTY
+            // =================================================
+
+            if (slots.isEmpty()) {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.AccessTime,
+                        contentDescription = null,
+                        modifier = Modifier.height(60.dp),
+                        tint = SlotGreen
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(16.dp)
+                    )
+
+                    Text(
+                        text = "No Slots Added",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = SlotDark
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(6.dp)
+                    )
+
+                    Text(
+                        text = "Create your first time slot for this turf.",
+                        color = SlotGray,
+                        fontSize = 14.sp
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(18.dp)
+                    )
+
+                    Button(
+                        onClick = {
+
+                            showAddSlotDialog = true
+                        },
+
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null
+                        )
+
+                        Spacer(
+                            modifier = Modifier.width(6.dp)
+                        )
+
+                        Text(
+                            text = "Create First Slot"
+                        )
+                    }
+                }
+
+                return@Column
+            }
+
+            // =================================================
+            // SLOT LIST
+            // =================================================
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+
+                verticalArrangement =
+                    Arrangement.spacedBy(12.dp),
+
+                contentPadding =
+                    PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 30.dp
+                    )
+            ) {
+
+                items(
+                    items = slots,
+                    key = { it.id }
+                ) { slot ->
+
+                    SlotCard(
+
+                        slot = slot,
+
+                        onEdit = {
+                            // Edit Slot will be connected next
+                        },
+
+                        onToggleStatus = {
+
+                            val newStatus =
+                                if (
+                                    slot.status.equals(
+                                        "ACTIVE",
+                                        ignoreCase = true
+                                    )
+                                ) {
+                                    "INACTIVE"
+                                } else {
+                                    "ACTIVE"
+                                }
+
+                            viewModel.updateSlotStatus(
+
+                                token = token,
+
+                                turfId = turfId,
+
+                                slotId = slot.id,
+
+                                status = newStatus
+                            )
+                        },
+
+                        onDelete = {
+
+                            viewModel.deleteSlot(
+
+                                token = token,
+
+                                turfId = turfId,
+
+                                slotId = slot.id,
+
+                                onSuccess = {
+                                    // Slot list is refreshed by ViewModel
+                                }
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    // ADD SLOT DIALOG
+    // =========================================================
+
+    if (showAddSlotDialog) {
+
+        AlertDialog(
+
+            onDismissRequest = {
+
+                showAddSlotDialog = false
+            },
+
+            title = {
+
+                Text(
+                    text = "Add Slot"
+                )
+            },
+
+            text = {
+
+                Text(
+                    text =
+                        "Add Slot form will be connected next."
+                )
+            },
+
+            confirmButton = {
+
+                TextButton(
+
+                    onClick = {
+
+                        showAddSlotDialog = false
+                    }
+                ) {
+
+                    Text(
+                        text = "OK"
+                    )
+                }
+            },
+
+            dismissButton = {
+
+                TextButton(
+
+                    onClick = {
+
+                        showAddSlotDialog = false
+                    }
+                ) {
+
+                    Text(
+                        text = "Cancel"
+                    )
+                }
+            }
+        )
+    }
+}
+
+
+// =============================================================
+// SLOT CARD
+// =============================================================
+
+@Composable
+private fun SlotCard(
+    slot: Slot,
+    onEdit: () -> Unit,
+    onToggleStatus: () -> Unit,
+    onDelete: () -> Unit
+) {
+
+    val isActive =
+        slot.status.equals(
+            "ACTIVE",
+            ignoreCase = true
+        )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+
+        shape =
+            RoundedCornerShape(16.dp),
+
+        colors =
+            CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
+
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = 2.dp
+            )
+    ) {
+
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+
+            // =================================================
+            // TIME
+            // =================================================
+
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.AccessTime,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        SlotGreen
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.width(8.dp)
+                )
+
+                Text(
+                    text =
+                        "${formatSlotTime(slot.startTime)} - " +
+                                formatSlotTime(slot.endTime),
+
+                    fontSize =
+                        17.sp,
+
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    color =
+                        SlotDark
+                )
+            }
+
+            Spacer(
+                modifier =
+                    Modifier.height(12.dp)
+            )
+
+            // =================================================
+            // PRICE + STATUS
+            // =================================================
+
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth(),
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
+
+                    Text(
+                        text =
+                            "Price per slot",
+
+                        fontSize =
+                            11.sp,
+
+                        color =
+                            SlotGray
+                    )
+
+                    Text(
+                        text =
+                            "₹${formatSlotPrice(slot.price)}",
+
+                        fontSize =
+                            16.sp,
+
+                        fontWeight =
+                            FontWeight.Bold,
+
+                        color =
+                            SlotDark
+                    )
+                }
+
+                Text(
+                    text =
+                        if (isActive) {
+                            "ACTIVE"
+                        } else {
+                            "INACTIVE"
+                        },
+
+                    color =
+                        if (isActive) {
+                            SlotGreen
+                        } else {
+                            Color.Gray
+                        },
+
+                    fontSize =
+                        11.sp,
+
+                    fontWeight =
+                        FontWeight.Bold
+                )
+            }
+
+            Spacer(
+                modifier =
+                    Modifier.height(10.dp)
+            )
+
+            // =================================================
+            // ACTIONS
+            // =================================================
+
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth(),
+
+                horizontalArrangement =
+                    Arrangement.End
+            ) {
+
+                IconButton(
+                    onClick =
+                        onEdit
+                ) {
+
+                    Icon(
+                        imageVector =
+                            Icons.Default.Edit,
+
+                        contentDescription =
+                            "Edit Slot",
+
+                        tint =
+                            SlotGreen
+                    )
+                }
+
+                IconButton(
+                    onClick =
+                        onToggleStatus
+                ) {
+
+                    Icon(
+                        imageVector =
+                            if (isActive) {
+                                Icons.Default.ToggleOn
+                            } else {
+                                Icons.Default.ToggleOff
+                            },
+
+                        contentDescription =
+                            "Change Status",
+
+                        tint =
+                            if (isActive) {
+                                SlotGreen
+                            } else {
+                                Color.Gray
+                            }
+                    )
+                }
+
+                IconButton(
+                    onClick =
+                        onDelete
+                ) {
+
+                    Icon(
+                        imageVector =
+                            Icons.Default.Delete,
+
+                        contentDescription =
+                            "Delete Slot",
+
+                        tint =
+                            Color(0xFFDC2626)
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+// =============================================================
+// TIME FORMAT
+// =============================================================
+
+private fun formatSlotTime(
+    time: String
+): String {
+
+    return time
+        .trim()
+        .uppercase()
+}
+
+
+// =============================================================
+// PRICE FORMAT
+// =============================================================
+
+private fun formatSlotPrice(
+    price: Double
+): String {
+
+    return if (price % 1.0 == 0.0) {
+
+        price.toInt().toString()
+
+    } else {
+
+        "%.2f".format(price)
+    }
+}

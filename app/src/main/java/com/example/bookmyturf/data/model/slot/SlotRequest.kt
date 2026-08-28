@@ -1,3 +1,4 @@
+
 package com.example.bookmyturf.data.model.slot
 
 import com.google.gson.annotations.SerializedName
@@ -10,25 +11,26 @@ data class CreateSlotRequest(
     @SerializedName("end_time")
     val endTime: String,
 
-    val price: Double,
-
-    val status: String = "AVAILABLE"
+    @SerializedName("price")
+    val price: Double
 )
+
 
 data class UpdateSlotRequest(
 
     @SerializedName("start_time")
-    val startTime: String? = null,
+    val startTime: String,
 
     @SerializedName("end_time")
-    val endTime: String? = null,
+    val endTime: String,
 
-    val price: Double? = null,
-
-    val status: String? = null
+    @SerializedName("price")
+    val price: Double
 )
+
 
 data class UpdateSlotStatusRequest(
 
+    @SerializedName("status")
     val status: String
 )

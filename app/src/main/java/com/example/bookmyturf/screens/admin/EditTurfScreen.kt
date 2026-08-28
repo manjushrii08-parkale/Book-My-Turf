@@ -1,6 +1,7 @@
-
 package com.example.bookmyturf.screens.admin
 
+import android.app.TimePickerDialog
+import android.content.Context
 import android.net.Uri
 
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,9 +29,9 @@ import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Save
 
@@ -66,8 +67,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -93,16 +96,26 @@ private val TurfGray = Color(0xFF64748B)
 
 // =============================================================
 // TIME VALIDATION
-// Laravel format: H:i
-// Examples: 09:00, 18:30, 22:00
+//
+// Laravel format:
+// h:i A
+//
+// Examples:
+// 09:00 AM
+// 01:30 PM
+// 10:00 PM
 // =============================================================
 
-private fun isValidTime(value: String): Boolean {
+private fun isValidTime(
+    value: String
+): Boolean {
 
     return Regex(
-        """^(?:[01]\d|2[0-3]):[0-5]\d$"""
+        """^(0[1-9]|1[0-2]):[0-5]\d\s(AM|PM)$"""
     ).matches(
-        value.trim()
+        value
+            .trim()
+            .uppercase()
     )
 }
 
@@ -116,15 +129,225 @@ private fun normalizeTime(
 ): String? {
 
     val trimmed =
-        value.trim()
+        value
+            .trim()
+            .uppercase()
 
     return if (
-        isValidTime(trimmed)
+        isValidTime(
+            trimmed
+        )
     ) {
+
         trimmed
+
     } else {
+
         null
     }
+}
+
+
+// =============================================================
+// CONVERT TIME TO MINUTES
+//
+// Examples:
+//
+// 09:00 AM = 540
+// 01:00 PM = 780
+// 10:00 PM = 1320
+//
+// Used for comparing opening and closing times.
+// =============================================================
+
+private fun timeToMinutes(
+    value: String
+): Int {
+
+    val parts =
+        value
+            .trim()
+            .uppercase()
+            .split(" ")
+
+    val timeParts =
+        parts[0]
+            .split(":")
+
+    var hour =
+        timeParts[0]
+            .toInt()
+
+    val minute =
+        timeParts[1]
+            .toInt()
+
+    val period =
+        parts[1]
+
+    if (
+        period == "AM" &&
+        hour == 12
+    ) {
+
+        hour = 0
+    }
+
+    if (
+        period == "PM" &&
+        hour != 12
+    ) {
+
+        hour += 12
+    }
+
+    return hour * 60 + minute
+}
+
+
+// =============================================================
+// PARSE h:i A TIME
+//
+// Converts:
+//
+// 09:00 AM → 09:00
+// 01:30 PM → 13:30
+//
+// Used when opening existing turf data.
+// =============================================================
+
+private fun parseTimeTo24Hour(
+    value: String
+): Pair<Int, Int>? {
+
+    val normalized =
+        normalizeTime(
+            value
+        )
+            ?: return null
+
+    val parts =
+        normalized.split(" ")
+
+    val timeParts =
+        parts[0].split(":")
+
+    var hour =
+        timeParts[0]
+            .toInt()
+
+    val minute =
+        timeParts[1]
+            .toInt()
+
+    val period =
+        parts[1]
+
+    if (
+        period == "AM" &&
+        hour == 12
+    ) {
+
+        hour = 0
+    }
+
+    if (
+        period == "PM" &&
+        hour != 12
+    ) {
+
+        hour += 12
+    }
+
+    return Pair(
+        hour,
+        minute
+    )
+}
+
+
+// =============================================================
+// SHOW TIME PICKER
+//
+// Display:
+// 9:00 AM
+// 1:30 PM
+// 10:00 PM
+//
+// Save to state:
+// 09:00 AM
+// 01:30 PM
+// 10:00 PM
+// =============================================================
+
+private fun showTimePicker(
+    context: Context,
+    initialTime: String,
+    onTimeSelected: (String) -> Unit
+) {
+
+    val parsedTime =
+        parseTimeTo24Hour(
+            initialTime
+        )
+
+    val initialHour =
+        parsedTime?.first
+            ?: 9
+
+    val initialMinute =
+        parsedTime?.second
+            ?: 0
+
+    TimePickerDialog(
+
+        context,
+
+        { _, selectedHour, selectedMinute ->
+
+            val period =
+                if (
+                    selectedHour < 12
+                ) {
+
+                    "AM"
+
+                } else {
+
+                    "PM"
+                }
+
+            var displayHour =
+                selectedHour % 12
+
+            if (
+                displayHour == 0
+            ) {
+
+                displayHour = 12
+            }
+
+            val formattedTime =
+                String.format(
+                    "%02d:%02d %s",
+                    displayHour,
+                    selectedMinute,
+                    period
+                )
+
+            onTimeSelected(
+                formattedTime
+            )
+        },
+
+        initialHour,
+
+        initialMinute,
+
+        // false = 12-hour picker with AM/PM
+        false
+
+    ).show()
 }
 
 
@@ -145,6 +368,14 @@ fun EditTurfScreen(
     onSuccess: () -> Unit
 
 ) {
+
+    // =========================================================
+    // CONTEXT
+    // =========================================================
+
+    val context =
+        LocalContext.current
+
 
     // =========================================================
     // REPOSITORY
@@ -429,6 +660,10 @@ fun EditTurfScreen(
 
             // -------------------------------------------------
             // TIME
+            //
+            // Laravel should return:
+            // 09:00 AM
+            // 10:00 PM
             // -------------------------------------------------
 
             openingTime =
@@ -1078,12 +1313,11 @@ fun EditTurfScreen(
                     },
 
                     keyboardOptions =
-                        androidx.compose.foundation.text
-                            .KeyboardOptions(
+                        KeyboardOptions(
 
-                                keyboardType =
-                                    KeyboardType.Decimal
-                            ),
+                            keyboardType =
+                                KeyboardType.Decimal
+                        ),
 
                     singleLine = true
                 )
@@ -1109,12 +1343,11 @@ fun EditTurfScreen(
                     },
 
                     keyboardOptions =
-                        androidx.compose.foundation.text
-                            .KeyboardOptions(
+                        KeyboardOptions(
 
-                                keyboardType =
-                                    KeyboardType.Decimal
-                            ),
+                            keyboardType =
+                                KeyboardType.Decimal
+                        ),
 
                     singleLine = true
                 )
@@ -1320,12 +1553,11 @@ fun EditTurfScreen(
                 },
 
                 keyboardOptions =
-                    androidx.compose.foundation.text
-                        .KeyboardOptions(
+                    KeyboardOptions(
 
-                            keyboardType =
-                                KeyboardType.Decimal
-                        ),
+                        keyboardType =
+                            KeyboardType.Decimal
+                    ),
 
                 singleLine = true
             )
@@ -1344,7 +1576,7 @@ fun EditTurfScreen(
             Text(
 
                 text =
-                    "Use 24-hour format: HH:mm",
+                    "Select time using 12-hour format with AM/PM.",
 
                 style =
                     MaterialTheme
@@ -1377,18 +1609,9 @@ fun EditTurfScreen(
                     value =
                         openingTime,
 
-                    onValueChange = { value ->
-
-                        if (
-                            value.length <= 5
-                        ) {
-
-                            openingTime =
-                                value
-
-                            validationError =
-                                null
-                        }
+                    onValueChange = {
+                        // Read-only.
+                        // Time selected from TimePicker.
                     },
 
                     modifier =
@@ -1404,29 +1627,65 @@ fun EditTurfScreen(
 
                     placeholder = {
                         Text(
-                            "09:00"
+                            "09:00 AM"
                         )
                     },
 
                     supportingText = {
 
                         Text(
-                            "HH:mm"
+                            "hh:mm AM/PM"
                         )
                     },
 
+                    readOnly = true,
+
                     singleLine = true,
 
-                    keyboardOptions =
-                        androidx.compose.foundation.text
-                            .KeyboardOptions(
+                    trailingIcon = {
 
-                                keyboardType =
-                                    KeyboardType.Number
-                            ),
+                        IconButton(
+
+                            onClick = {
+
+                                showTimePicker(
+
+                                    context =
+                                        context,
+
+                                    initialTime =
+                                        openingTime
+
+                                ) { selectedTime ->
+
+                                    openingTime =
+                                        selectedTime
+
+                                    validationError =
+                                        null
+                                }
+                            },
+
+                            enabled =
+                                !isLoading
+                        ) {
+
+                            Icon(
+
+                                imageVector =
+                                    Icons.Default.AccessTime,
+
+                                contentDescription =
+                                    "Select Opening Time",
+
+                                tint =
+                                    TurfGreen
+                            )
+                        }
+                    },
 
                     isError =
-                        openingTime.isNotEmpty() &&
+                        openingTime.isNotBlank() &&
                                 !isValidTime(
                                     openingTime
                                 )
@@ -1442,18 +1701,9 @@ fun EditTurfScreen(
                     value =
                         closingTime,
 
-                    onValueChange = { value ->
-
-                        if (
-                            value.length <= 5
-                        ) {
-
-                            closingTime =
-                                value
-
-                            validationError =
-                                null
-                        }
+                    onValueChange = {
+                        // Read-only.
+                        // Time selected from TimePicker.
                     },
 
                     modifier =
@@ -1469,32 +1719,98 @@ fun EditTurfScreen(
 
                     placeholder = {
                         Text(
-                            "22:00"
+                            "10:00 PM"
                         )
                     },
 
                     supportingText = {
 
                         Text(
-                            "HH:mm"
+                            "hh:mm AM/PM"
                         )
                     },
 
+                    readOnly = true,
+
                     singleLine = true,
 
-                    keyboardOptions =
-                        androidx.compose.foundation.text
-                            .KeyboardOptions(
+                    trailingIcon = {
 
-                                keyboardType =
-                                    KeyboardType.Number
-                            ),
+                        IconButton(
+
+                            onClick = {
+
+                                showTimePicker(
+
+                                    context =
+                                        context,
+
+                                    initialTime =
+                                        closingTime
+
+                                ) { selectedTime ->
+
+                                    closingTime =
+                                        selectedTime
+
+                                    validationError =
+                                        null
+                                }
+                            },
+
+                            enabled =
+                                !isLoading
+                        ) {
+
+                            Icon(
+
+                                imageVector =
+                                    Icons.Default.AccessTime,
+
+                                contentDescription =
+                                    "Select Closing Time",
+
+                                tint =
+                                    TurfGreen
+                            )
+                        }
+                    },
 
                     isError =
-                        closingTime.isNotEmpty() &&
+                        closingTime.isNotBlank() &&
                                 !isValidTime(
                                     closingTime
                                 )
+                )
+            }
+
+
+            // =================================================
+            // SELECTED OPERATING HOURS
+            // =================================================
+
+            if (
+
+                openingTime.isNotBlank() &&
+                closingTime.isNotBlank()
+
+            ) {
+
+                Text(
+
+                    text =
+                        "Operating Hours: $openingTime - $closingTime",
+
+                    style =
+                        MaterialTheme
+                            .typography
+                            .bodySmall,
+
+                    color =
+                        TurfGreen,
+
+                    fontWeight =
+                        FontWeight.SemiBold
                 )
             }
 
@@ -1698,7 +2014,7 @@ fun EditTurfScreen(
                 onClick = {
 
                     // -------------------------------------------------
-                    // CLEAR OLD VALIDATION
+                    // CLEAR VALIDATION
                     // -------------------------------------------------
 
                     validationError =
@@ -1706,7 +2022,7 @@ fun EditTurfScreen(
 
 
                     // -------------------------------------------------
-                    // BASIC VALIDATION
+                    // CLEAN VALUES
                     // -------------------------------------------------
 
                     val cleanName =
@@ -1780,6 +2096,21 @@ fun EditTurfScreen(
 
 
                     // -------------------------------------------------
+                    // SPORTS
+                    // -------------------------------------------------
+
+                    if (
+                        selectedSports.isEmpty()
+                    ) {
+
+                        validationError =
+                            "Please select at least one sport."
+
+                        return@Button
+                    }
+
+
+                    // -------------------------------------------------
                     // PRICE
                     // -------------------------------------------------
 
@@ -1804,7 +2135,7 @@ fun EditTurfScreen(
                     ) {
 
                         validationError =
-                            "Opening time must be in HH:mm format, for example 09:00."
+                            "Please select a valid opening time."
 
                         return@Button
                     }
@@ -1819,7 +2150,7 @@ fun EditTurfScreen(
                     ) {
 
                         validationError =
-                            "Closing time must be in HH:mm format, for example 22:00."
+                            "Please select a valid closing time."
 
                         return@Button
                     }
@@ -1830,8 +2161,15 @@ fun EditTurfScreen(
                     // -------------------------------------------------
 
                     if (
-                        cleanOpeningTime >=
-                        cleanClosingTime
+
+                        timeToMinutes(
+                            cleanOpeningTime
+                        ) >=
+
+                        timeToMinutes(
+                            cleanClosingTime
+                        )
+
                     ) {
 
                         validationError =
@@ -1896,8 +2234,13 @@ fun EditTurfScreen(
                             price =
                                 turfPrice,
 
-                            // IMPORTANT:
-                            // Laravel expects H:i
+                            // =================================================
+                            // Laravel h:i A format
+                            //
+                            // Example:
+                            // 09:00 AM
+                            // 10:00 PM
+                            // =================================================
 
                             openingTime =
                                 cleanOpeningTime,
@@ -1999,10 +2342,6 @@ fun EditTurfScreen(
                 }
             }
 
-
-            // =================================================
-            // BOTTOM SPACE
-            // =================================================
 
             Spacer(
 
@@ -2113,10 +2452,6 @@ private fun TurfImageItem(
         )
 
 
-        // =====================================================
-        // REMOVE BUTTON
-        // =====================================================
-
         Surface(
 
             modifier =
@@ -2170,4 +2505,3 @@ private fun TurfImageItem(
         }
     }
 }
-

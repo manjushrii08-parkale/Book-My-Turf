@@ -1933,12 +1933,19 @@ private fun isValidTime(
 ): Boolean {
 
     return Regex(
-        "^([01]\\d|2[0-3]):[0-5]\\d$"
-    ).matches(time)
+        "^(0[1-9]|1[0-2]):[0-5][0-9]\\s(AM|PM)$"
+    ).matches(
+        time.trim()
+    )
 }
 
 // =============================================================
 // TIME PICKER
+// =============================================================
+
+// =============================================================
+// TIME PICKER - 12 HOUR WITH AM / PM
+// =============================================================
 // =============================================================
 
 private fun showTimePicker(
@@ -1947,44 +1954,60 @@ private fun showTimePicker(
     onTimeSelected: (String) -> Unit
 ) {
 
-    val calendar =
-        Calendar.getInstance()
+    val calendar = Calendar.getInstance()
 
     var hour =
-        calendar.get(
-            Calendar.HOUR_OF_DAY
-        )
+        calendar.get(Calendar.HOUR_OF_DAY)
 
     var minute =
-        calendar.get(
-            Calendar.MINUTE
-        )
+        calendar.get(Calendar.MINUTE)
 
     // =========================================================
     // USE PREVIOUSLY SELECTED TIME
+    // Laravel format: h:i A
+    // Example: 09:00 AM
     // =========================================================
 
     if (!initialTime.isNullOrBlank()) {
 
-        val parts =
-            initialTime.split(":")
+        try {
 
-        if (parts.size == 2) {
+            val formatter =
+                java.text.SimpleDateFormat(
+                    "hh:mm a",
+                    java.util.Locale.ENGLISH
+                )
 
-            hour =
-                parts[0]
-                    .toIntOrNull()
-                    ?: hour
+            val date =
+                formatter.parse(initialTime)
 
-            minute =
-                parts[1]
-                    .toIntOrNull()
-                    ?: minute
+            if (date != null) {
+
+                val selectedCalendar =
+                    Calendar.getInstance()
+
+                selectedCalendar.time = date
+
+                hour =
+                    selectedCalendar.get(
+                        Calendar.HOUR_OF_DAY
+                    )
+
+                minute =
+                    selectedCalendar.get(
+                        Calendar.MINUTE
+                    )
+            }
+
+        } catch (e: Exception) {
+
+            // Use current time if parsing fails
         }
     }
 
     // =========================================================
     // TIME PICKER
+    // false = 12-hour format
     // =========================================================
 
     TimePickerDialog(
@@ -1993,17 +2016,39 @@ private fun showTimePicker(
 
         { _, selectedHour, selectedMinute ->
 
-            // =============================================
-            // IMPORTANT
-            // Laravel requires H:i
-            // Example: 09:00
-            // =============================================
+            // =================================================
+            // CONVERT TO Laravel h:i A
+            //
+            // 09:00 -> 09:00 AM
+            // 13:30 -> 01:30 PM
+            // 22:00 -> 10:00 PM
+            // =================================================
+
+            val selectedCalendar =
+                Calendar.getInstance().apply {
+
+                    set(
+                        Calendar.HOUR_OF_DAY,
+                        selectedHour
+                    )
+
+                    set(
+                        Calendar.MINUTE,
+                        selectedMinute
+                    )
+                }
+
+            val formatter =
+                java.text.SimpleDateFormat(
+                    "hh:mm a",
+                    java.util.Locale.ENGLISH
+                )
 
             val formattedTime =
-                String.format(
-                    "%02d:%02d",
-                    selectedHour,
-                    selectedMinute
+                formatter.format(
+                    selectedCalendar.time
+                ).uppercase(
+                    java.util.Locale.ENGLISH
                 )
 
             onTimeSelected(
@@ -2014,8 +2059,9 @@ private fun showTimePicker(
         hour,
         minute,
 
-        // 24-hour format
-        true
+        // 12-hour clock with AM / PM
+        false
 
     ).show()
 }
+
