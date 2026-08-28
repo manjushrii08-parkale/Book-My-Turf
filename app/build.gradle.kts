@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "com.example.bookmyturf"
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
@@ -55,4 +55,14 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+    implementation(libs.androidx.navigation.compose)
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+
 }
