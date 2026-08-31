@@ -10,6 +10,12 @@ object Routes {
 
     const val USER_HOME = "user_home"
 
+    const val TURF_DETAILS = "turf_details/{turfId}"
+
+    fun turfDetails(turfId: Int): String {
+        return "turf_details/$turfId"
+    }
+
     const val ADMIN_HOME = "admin_home"
 
     const val ADMIN_ENTRY = "admin_entry"

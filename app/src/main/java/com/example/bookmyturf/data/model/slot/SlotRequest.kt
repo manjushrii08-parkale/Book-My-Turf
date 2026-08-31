@@ -15,7 +15,6 @@ data class CreateSlotRequest(
     val price: Double
 )
 
-
 data class UpdateSlotRequest(
 
     @SerializedName("start_time")
@@ -27,6 +26,7 @@ data class UpdateSlotRequest(
     @SerializedName("price")
     val price: Double
 )
+
 
 
 data class UpdateSlotStatusRequest(

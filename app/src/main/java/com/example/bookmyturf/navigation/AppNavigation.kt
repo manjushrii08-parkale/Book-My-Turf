@@ -24,6 +24,10 @@ import com.example.bookmyturf.screens.role.RoleSelectionScreen
 import com.example.bookmyturf.screens.superadmin.SuperAdminHomeScreen
 import com.example.bookmyturf.screens.user.UserHomeScreen
 import com.example.bookmyturf.viewmodel.AdminViewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import androidx.compose.material3.*
+import com.example.bookmyturf.screens.user.TurfDetailsScreen
 
 @Composable
 fun AppNavigation(
@@ -392,7 +396,20 @@ fun AppNavigation(
                 role == "USER"
             ) {
 
-                UserHomeScreen()
+                UserHomeScreen(
+
+                    onTurfClick = { turfId ->
+
+                        Log.d(
+                            "USER_TURF",
+                            "Opening turf details: $turfId"
+                        )
+
+                        navController.navigate(
+                            Routes.turfDetails(turfId)
+                        )
+                    }
+                )
 
             } else {
 
@@ -406,6 +423,36 @@ fun AppNavigation(
                     logout()
                 }
             }
+        }
+        // =====================================================
+        // USER TURF DETAILS
+        // =====================================================
+
+        composable(
+            route = Routes.TURF_DETAILS,
+
+            arguments = listOf(
+                navArgument("turfId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+
+            val turfId =
+                backStackEntry.arguments
+                    ?.getInt("turfId")
+                    ?: -1
+
+            /*
+             * TurfDetailsScreen पुढच्या step मध्ये
+             * actual API मधून turf घेईल.
+             *
+             * आत्ता navigation structure तयार करत आहोत.
+             */
+
+            Text(
+                text = "Turf Details\nTurf ID: $turfId"
+            )
         }
 
         // =====================================================

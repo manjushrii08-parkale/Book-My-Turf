@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-
 class AdminSlotViewModel(
     private val repository: AdminSlotRepository
 ) : ViewModel() {
@@ -92,12 +91,14 @@ class AdminSlotViewModel(
 
                     _error.value =
                         response.message
+                            ?: "Unable to load slots."
                 }
 
             } catch (e: Exception) {
 
                 _error.value =
-                    e.message ?: "Unable to load slots."
+                    e.message
+                        ?: "Unable to load slots."
 
             } finally {
 
@@ -146,11 +147,21 @@ class AdminSlotViewModel(
 
                     _successMessage.value =
                         response.message
+                            ?: "Slot created successfully."
 
-                    loadSlots(
-                        token = token,
-                        turfId = turfId
-                    )
+                    // Refresh list
+                    val slotsResponse =
+                        repository.getSlots(
+                            token = token,
+                            turfId = turfId
+                        )
+
+                    if (slotsResponse.success) {
+
+                        _slots.value =
+                            slotsResponse.data?.slots
+                                ?: emptyList()
+                    }
 
                     onSuccess()
 
@@ -158,12 +169,14 @@ class AdminSlotViewModel(
 
                     _error.value =
                         response.message
+                            ?: "Unable to create slot."
                 }
 
             } catch (e: Exception) {
 
                 _error.value =
-                    e.message ?: "Unable to create slot."
+                    e.message
+                        ?: "Unable to create slot."
 
             } finally {
 
@@ -214,11 +227,21 @@ class AdminSlotViewModel(
 
                     _successMessage.value =
                         response.message
+                            ?: "Slot updated successfully."
 
-                    loadSlots(
-                        token = token,
-                        turfId = turfId
-                    )
+                    // Refresh list
+                    val slotsResponse =
+                        repository.getSlots(
+                            token = token,
+                            turfId = turfId
+                        )
+
+                    if (slotsResponse.success) {
+
+                        _slots.value =
+                            slotsResponse.data?.slots
+                                ?: emptyList()
+                    }
 
                     onSuccess()
 
@@ -226,12 +249,14 @@ class AdminSlotViewModel(
 
                     _error.value =
                         response.message
+                            ?: "Unable to update slot."
                 }
 
             } catch (e: Exception) {
 
                 _error.value =
-                    e.message ?: "Unable to update slot."
+                    e.message
+                        ?: "Unable to update slot."
 
             } finally {
 
@@ -269,17 +294,27 @@ class AdminSlotViewModel(
                 _successMessage.value =
                     "Slot deleted successfully."
 
-                loadSlots(
-                    token = token,
-                    turfId = turfId
-                )
+                // Refresh list
+                val slotsResponse =
+                    repository.getSlots(
+                        token = token,
+                        turfId = turfId
+                    )
+
+                if (slotsResponse.success) {
+
+                    _slots.value =
+                        slotsResponse.data?.slots
+                            ?: emptyList()
+                }
 
                 onSuccess()
 
             } catch (e: Exception) {
 
                 _error.value =
-                    e.message ?: "Unable to delete slot."
+                    e.message
+                        ?: "Unable to delete slot."
 
             } finally {
 
@@ -290,7 +325,7 @@ class AdminSlotViewModel(
 
 
     // =========================================================
-    // UPDATE STATUS
+    // UPDATE SLOT STATUS
     // =========================================================
 
     fun updateSlotStatus(
@@ -321,11 +356,21 @@ class AdminSlotViewModel(
 
                     _successMessage.value =
                         response.message
+                            ?: "Slot status updated successfully."
 
-                    loadSlots(
-                        token = token,
-                        turfId = turfId
-                    )
+                    // Refresh list
+                    val slotsResponse =
+                        repository.getSlots(
+                            token = token,
+                            turfId = turfId
+                        )
+
+                    if (slotsResponse.success) {
+
+                        _slots.value =
+                            slotsResponse.data?.slots
+                                ?: emptyList()
+                    }
 
                     onSuccess()
 
@@ -333,12 +378,14 @@ class AdminSlotViewModel(
 
                     _error.value =
                         response.message
+                            ?: "Unable to update slot status."
                 }
 
             } catch (e: Exception) {
 
                 _error.value =
-                    e.message ?: "Unable to update slot status."
+                    e.message
+                        ?: "Unable to update slot status."
 
             } finally {
 
@@ -359,7 +406,7 @@ class AdminSlotViewModel(
 
 
     // =========================================================
-    // CLEAR SUCCESS
+    // CLEAR SUCCESS MESSAGE
     // =========================================================
 
     fun clearSuccessMessage() {
@@ -367,3 +414,4 @@ class AdminSlotViewModel(
         _successMessage.value = null
     }
 }
+

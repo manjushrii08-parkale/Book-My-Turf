@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
@@ -30,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -59,6 +61,7 @@ private val SlotGreen = Color(0xFF14532D)
 private val SlotBackground = Color(0xFFF8FAFC)
 private val SlotDark = Color(0xFF0F172A)
 private val SlotGray = Color(0xFF64748B)
+private val SlotRed = Color(0xFFDC2626)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,7 +82,7 @@ fun AdminSlotScreen(
     }
 
     // =========================================================
-    // VIEWMODEL FACTORY
+    // FACTORY
     // =========================================================
 
     val factory = remember {
@@ -106,8 +109,26 @@ fun AdminSlotScreen(
 
     val error by viewModel.error.collectAsState()
 
-    var showAddSlotDialog by remember {
+    val successMessage by viewModel.successMessage.collectAsState()
+
+    // =========================================================
+    // DIALOG STATES
+    // =========================================================
+
+    var showSlotDialog by remember {
         mutableStateOf(false)
+    }
+
+    var editingSlot by remember {
+        mutableStateOf<Slot?>(null)
+    }
+
+    var deletingSlot by remember {
+        mutableStateOf<Slot?>(null)
+    }
+
+    var togglingSlot by remember {
+        mutableStateOf<Slot?>(null)
     }
 
     // =========================================================
@@ -129,10 +150,6 @@ fun AdminSlotScreen(
     Scaffold(
 
         containerColor = SlotBackground,
-
-        // =====================================================
-        // TOP BAR
-        // =====================================================
 
         topBar = {
 
@@ -221,7 +238,8 @@ fun AdminSlotScreen(
                 Button(
                     onClick = {
 
-                        showAddSlotDialog = true
+                        editingSlot = null
+                        showSlotDialog = true
                     },
 
                     shape = RoundedCornerShape(12.dp)
@@ -243,10 +261,32 @@ fun AdminSlotScreen(
             }
 
             // =================================================
+            // ERROR
+            // =================================================
+
+            if (!error.isNullOrBlank()) {
+
+                Text(
+                    text = error ?: "",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 16.dp
+                        ),
+                    color = SlotRed,
+                    fontSize = 13.sp
+                )
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+            }
+
+            // =================================================
             // LOADING
             // =================================================
 
-            if (isLoading) {
+            if (isLoading && slots.isEmpty()) {
 
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -272,65 +312,10 @@ fun AdminSlotScreen(
             }
 
             // =================================================
-            // ERROR
-            // =================================================
-
-            if (!error.isNullOrBlank()) {
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-
-                    Text(
-                        text = "Unable to load slots",
-                        fontWeight = FontWeight.Bold,
-                        color = SlotDark
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(8.dp)
-                    )
-
-                    Text(
-                        text = error ?: "",
-                        color = SlotGray,
-                        fontSize = 13.sp
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(16.dp)
-                    )
-
-                    Button(
-                        onClick = {
-
-                            viewModel.clearError()
-
-                            viewModel.loadSlots(
-                                token = token,
-                                turfId = turfId
-                            )
-                        }
-                    ) {
-
-                        Text(
-                            text = "Retry"
-                        )
-                    }
-                }
-
-                return@Column
-            }
-
-            // =================================================
             // EMPTY
             // =================================================
 
-            if (slots.isEmpty()) {
+            if (!isLoading && slots.isEmpty()) {
 
                 Column(
                     modifier = Modifier
@@ -363,7 +348,8 @@ fun AdminSlotScreen(
                     )
 
                     Text(
-                        text = "Create your first time slot for this turf.",
+                        text =
+                            "Create your first time slot for this turf.",
                         color = SlotGray,
                         fontSize = 14.sp
                     )
@@ -375,7 +361,8 @@ fun AdminSlotScreen(
                     Button(
                         onClick = {
 
-                            showAddSlotDialog = true
+                            editingSlot = null
+                            showSlotDialog = true
                         },
 
                         shape = RoundedCornerShape(12.dp)
@@ -427,49 +414,19 @@ fun AdminSlotScreen(
                         slot = slot,
 
                         onEdit = {
-                            // Edit Slot will be connected next
+
+                            editingSlot = slot
+                            showSlotDialog = true
                         },
 
                         onToggleStatus = {
 
-                            val newStatus =
-                                if (
-                                    slot.status.equals(
-                                        "ACTIVE",
-                                        ignoreCase = true
-                                    )
-                                ) {
-                                    "INACTIVE"
-                                } else {
-                                    "ACTIVE"
-                                }
-
-                            viewModel.updateSlotStatus(
-
-                                token = token,
-
-                                turfId = turfId,
-
-                                slotId = slot.id,
-
-                                status = newStatus
-                            )
+                            togglingSlot = slot
                         },
 
                         onDelete = {
 
-                            viewModel.deleteSlot(
-
-                                token = token,
-
-                                turfId = turfId,
-
-                                slotId = slot.id,
-
-                                onSuccess = {
-                                    // Slot list is refreshed by ViewModel
-                                }
-                            )
+                            deletingSlot = slot
                         }
                     )
                 }
@@ -478,22 +435,96 @@ fun AdminSlotScreen(
     }
 
     // =========================================================
-    // ADD SLOT DIALOG
+    // ADD / EDIT SLOT DIALOG
     // =========================================================
 
-    if (showAddSlotDialog) {
+    if (showSlotDialog) {
+
+        SlotFormDialog(
+
+            slot = editingSlot,
+
+            isLoading = isLoading,
+
+            onDismiss = {
+
+                if (!isLoading) {
+                    showSlotDialog = false
+                    editingSlot = null
+                }
+            },
+
+            onSave = { startTime, endTime, price ->
+
+                val existingSlot = editingSlot
+
+                if (existingSlot == null) {
+
+                    viewModel.createSlot(
+
+                        token = token,
+
+                        turfId = turfId,
+
+                        startTime = startTime,
+
+                        endTime = endTime,
+
+                        price = price,
+
+                        onSuccess = {
+
+                            showSlotDialog = false
+                            editingSlot = null
+                        }
+                    )
+
+                } else {
+
+                    viewModel.updateSlot(
+
+                        token = token,
+
+                        turfId = turfId,
+
+                        slotId = existingSlot.id,
+
+                        startTime = startTime,
+
+                        endTime = endTime,
+
+                        price = price,
+
+                        onSuccess = {
+
+                            showSlotDialog = false
+                            editingSlot = null
+                        }
+                    )
+                }
+            }
+        )
+    }
+
+    // =========================================================
+    // DELETE CONFIRMATION
+    // =========================================================
+
+    deletingSlot?.let { slot ->
 
         AlertDialog(
 
             onDismissRequest = {
 
-                showAddSlotDialog = false
+                if (!isLoading) {
+                    deletingSlot = null
+                }
             },
 
             title = {
 
                 Text(
-                    text = "Add Slot"
+                    text = "Delete Slot"
                 )
             },
 
@@ -501,7 +532,9 @@ fun AdminSlotScreen(
 
                 Text(
                     text =
-                        "Add Slot form will be connected next."
+                        "Are you sure you want to delete " +
+                                "${formatSlotTime(slot.startTime)} - " +
+                                "${formatSlotTime(slot.endTime)}?"
                 )
             },
 
@@ -511,12 +544,27 @@ fun AdminSlotScreen(
 
                     onClick = {
 
-                        showAddSlotDialog = false
-                    }
+                        viewModel.deleteSlot(
+
+                            token = token,
+
+                            turfId = turfId,
+
+                            slotId = slot.id,
+
+                            onSuccess = {
+
+                                deletingSlot = null
+                            }
+                        )
+                    },
+
+                    enabled = !isLoading
                 ) {
 
                     Text(
-                        text = "OK"
+                        text = "Delete",
+                        color = SlotRed
                     )
                 }
             },
@@ -527,8 +575,10 @@ fun AdminSlotScreen(
 
                     onClick = {
 
-                        showAddSlotDialog = false
-                    }
+                        deletingSlot = null
+                    },
+
+                    enabled = !isLoading
                 ) {
 
                     Text(
@@ -538,6 +588,423 @@ fun AdminSlotScreen(
             }
         )
     }
+
+    // =========================================================
+    // STATUS CONFIRMATION
+    // =========================================================
+
+    togglingSlot?.let { slot ->
+
+        val isActive =
+            slot.status.equals(
+                "ACTIVE",
+                ignoreCase = true
+            )
+
+        val newStatus =
+            if (isActive) {
+                "INACTIVE"
+            } else {
+                "ACTIVE"
+            }
+
+        AlertDialog(
+
+            onDismissRequest = {
+
+                if (!isLoading) {
+                    togglingSlot = null
+                }
+            },
+
+            title = {
+
+                Text(
+                    text =
+                        if (isActive) {
+                            "Deactivate Slot"
+                        } else {
+                            "Activate Slot"
+                        }
+                )
+            },
+
+            text = {
+
+                Text(
+                    text =
+                        if (isActive) {
+                            "Are you sure you want to deactivate this slot?"
+                        } else {
+                            "Are you sure you want to activate this slot?"
+                        }
+                )
+            },
+
+            confirmButton = {
+
+                TextButton(
+
+                    onClick = {
+
+                        viewModel.updateSlotStatus(
+
+                            token = token,
+
+                            turfId = turfId,
+
+                            slotId = slot.id,
+
+                            status = newStatus,
+
+                            onSuccess = {
+
+                                togglingSlot = null
+                            }
+                        )
+                    },
+
+                    enabled = !isLoading
+                ) {
+
+                    Text(
+                        text =
+                            if (isActive) {
+                                "Deactivate"
+                            } else {
+                                "Activate"
+                            },
+
+                        color = SlotGreen
+                    )
+                }
+            },
+
+            dismissButton = {
+
+                TextButton(
+
+                    onClick = {
+
+                        togglingSlot = null
+                    },
+
+                    enabled = !isLoading
+                ) {
+
+                    Text(
+                        text = "Cancel"
+                    )
+                }
+            }
+        )
+    }
+
+    // =========================================================
+    // SUCCESS MESSAGE
+    // =========================================================
+
+    if (!successMessage.isNullOrBlank()) {
+
+        LaunchedEffect(successMessage) {
+
+            kotlinx.coroutines.delay(1500)
+
+            viewModel.clearSuccessMessage()
+        }
+    }
+}
+
+
+// =============================================================
+// SLOT FORM DIALOG
+// =============================================================
+
+@Composable
+private fun SlotFormDialog(
+    slot: Slot?,
+    isLoading: Boolean,
+    onDismiss: () -> Unit,
+    onSave: (
+        startTime: String,
+        endTime: String,
+        price: Double
+    ) -> Unit
+) {
+
+    var startTime by remember(slot?.id) {
+
+        mutableStateOf(
+            slot?.startTime ?: ""
+        )
+    }
+
+    var endTime by remember(slot?.id) {
+
+        mutableStateOf(
+            slot?.endTime ?: ""
+        )
+    }
+
+    var price by remember(slot?.id) {
+
+        mutableStateOf(
+            if (slot != null) {
+                if (slot.price % 1.0 == 0.0) {
+                    slot.price.toInt().toString()
+                } else {
+                    slot.price.toString()
+                }
+            } else {
+                ""
+            }
+        )
+    }
+
+    var validationError by remember(slot?.id) {
+
+        mutableStateOf<String?>(null)
+    }
+
+    AlertDialog(
+
+        onDismissRequest = {
+
+            if (!isLoading) {
+                onDismiss()
+            }
+        },
+
+        title = {
+
+            Text(
+                text =
+                    if (slot == null) {
+                        "Add Slot"
+                    } else {
+                        "Edit Slot"
+                    }
+            )
+        },
+
+        text = {
+
+            Column {
+
+                // =================================================
+                // START TIME
+                // =================================================
+
+                OutlinedTextField(
+
+                    value = startTime,
+
+                    onValueChange = {
+
+                        startTime = it
+                        validationError = null
+                    },
+
+                    modifier = Modifier.fillMaxWidth(),
+
+                    label = {
+                        Text("Start Time")
+                    },
+
+                    placeholder = {
+                        Text("09:00 AM")
+                    },
+
+                    singleLine = true,
+
+                    enabled = !isLoading
+                )
+
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+                // =================================================
+                // END TIME
+                // =================================================
+
+                OutlinedTextField(
+
+                    value = endTime,
+
+                    onValueChange = {
+
+                        endTime = it
+                        validationError = null
+                    },
+
+                    modifier = Modifier.fillMaxWidth(),
+
+                    label = {
+                        Text("End Time")
+                    },
+
+                    placeholder = {
+                        Text("10:00 AM")
+                    },
+
+                    singleLine = true,
+
+                    enabled = !isLoading
+                )
+
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+                // =================================================
+                // PRICE
+                // =================================================
+
+                OutlinedTextField(
+
+                    value = price,
+
+                    onValueChange = { value ->
+
+                        if (
+                            value.isEmpty() ||
+                            value.matches(
+                                Regex(
+                                    "^\\d*(\\.\\d{0,2})?$"
+                                )
+                            )
+                        ) {
+
+                            price = value
+                            validationError = null
+                        }
+                    },
+
+                    modifier = Modifier.fillMaxWidth(),
+
+                    label = {
+                        Text("Price per Slot")
+                    },
+
+                    placeholder = {
+                        Text("500")
+                    },
+
+                    singleLine = true,
+
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType =
+                                KeyboardType.Decimal
+                        ),
+
+                    enabled = !isLoading
+                )
+
+                if (!validationError.isNullOrBlank()) {
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    Text(
+                        text = validationError ?: "",
+                        color = SlotRed,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        },
+
+        confirmButton = {
+
+            Button(
+
+                onClick = {
+
+                    val cleanStart =
+                        startTime.trim()
+
+                    val cleanEnd =
+                        endTime.trim()
+
+                    val priceValue =
+                        price.toDoubleOrNull()
+
+                    when {
+
+                        cleanStart.isBlank() -> {
+
+                            validationError =
+                                "Please enter start time."
+                        }
+
+                        cleanEnd.isBlank() -> {
+
+                            validationError =
+                                "Please enter end time."
+                        }
+
+                        priceValue == null ||
+                                priceValue <= 0 -> {
+
+                            validationError =
+                                "Please enter a valid price."
+                        }
+
+                        else -> {
+
+                            onSave(
+                                cleanStart,
+                                cleanEnd,
+                                priceValue
+                            )
+                        }
+                    }
+                },
+
+                enabled = !isLoading,
+
+                shape = RoundedCornerShape(10.dp)
+            ) {
+
+                if (isLoading) {
+
+                    CircularProgressIndicator(
+                        modifier = Modifier.height(18.dp),
+                        strokeWidth = 2.dp
+                    )
+
+                } else {
+
+                    Text(
+                        text =
+                            if (slot == null) {
+                                "Create"
+                            } else {
+                                "Update"
+                            }
+                    )
+                }
+            }
+        },
+
+        dismissButton = {
+
+            TextButton(
+
+                onClick = onDismiss,
+
+                enabled = !isLoading
+            ) {
+
+                Text(
+                    text = "Cancel"
+                )
+            }
+        }
+    )
 }
 
 
@@ -764,7 +1231,7 @@ private fun SlotCard(
                             "Delete Slot",
 
                         tint =
-                            Color(0xFFDC2626)
+                            SlotRed
                     )
                 }
             }
@@ -804,3 +1271,4 @@ private fun formatSlotPrice(
         "%.2f".format(price)
     }
 }
+
