@@ -13,14 +13,10 @@ class TurfDetailsViewModelFactory(
         modelClass: Class<T>
     ): T {
 
-        if (
-            modelClass.isAssignableFrom(
-                TurfDetailsViewModel::class.java
-            )
-        ) {
+        if (modelClass.isAssignableFrom(TurfDetailsViewModel::class.java)) {
 
             return TurfDetailsViewModel(
-                repository
+                repository = repository
             ) as T
         }
 

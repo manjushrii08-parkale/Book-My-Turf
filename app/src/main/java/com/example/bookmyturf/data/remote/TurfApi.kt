@@ -2,6 +2,8 @@ package com.example.bookmyturf.data.remote
 
 import com.example.bookmyturf.data.model.turf.TurfListResponse
 import com.example.bookmyturf.data.model.turf.TurfResponse
+import com.example.bookmyturf.data.model.slot.SlotsResponse
+
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -17,11 +19,21 @@ interface TurfApi {
 
 
     // =========================================================
-    // GET SINGLE TURF
+    // GET SINGLE TURF BY ID
     // =========================================================
 
     @GET("api/v1/user/turfs/{id}")
     suspend fun getTurfById(
-        @Path("id") id: Int
+        @Path("id") turfId: Int
     ): Response<TurfResponse>
+
+// =========================================================
+// GET ALL SLOTS FOR USER TURF
+// =========================================================
+
+    @GET("api/v1/user/turfs/{turfId}/slots")
+    suspend fun getSlots(
+        @Path("turfId") turfId: Int
+    ): Response<SlotsResponse>
+
 }

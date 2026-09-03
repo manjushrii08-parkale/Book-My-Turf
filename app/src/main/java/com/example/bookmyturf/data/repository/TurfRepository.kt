@@ -5,7 +5,9 @@ import com.example.bookmyturf.data.remote.RetrofitClient
 
 class TurfRepository {
 
-    private val turfApi = RetrofitClient.turfApi
+    private val turfApi =
+        RetrofitClient.turfApi
+
 
     // =========================================================
     // GET ALL ACTIVE TURFS
@@ -15,23 +17,27 @@ class TurfRepository {
 
         return try {
 
-            val response = turfApi.getTurfs()
+            val response =
+                turfApi.getTurfs()
 
             if (response.isSuccessful) {
 
-                val body = response.body()
+                val body =
+                    response.body()
 
                 if (body?.success == true) {
 
                     Result.success(
-                        body.data?.turfs ?: emptyList()
+                        body.data?.turfs
+                            ?: emptyList()
                     )
 
                 } else {
 
                     Result.failure(
                         Exception(
-                            body?.message ?: "Unable to load turfs."
+                            body?.message
+                                ?: "Unable to load turfs."
                         )
                     )
                 }
@@ -57,13 +63,13 @@ class TurfRepository {
     // =========================================================
 
     suspend fun getTurfById(
-        id: Int
+        turfId: Int
     ): Result<Turf> {
 
         return try {
 
             val response =
-                turfApi.getTurfById(id)
+                turfApi.getTurfById(turfId)
 
             if (response.isSuccessful) {
 
@@ -93,7 +99,7 @@ class TurfRepository {
                     Result.failure(
                         Exception(
                             body?.message
-                                ?: "Unable to load turf."
+                                ?: "Unable to load turf details."
                         )
                     )
                 }
@@ -112,4 +118,56 @@ class TurfRepository {
             Result.failure(e)
         }
     }
+
+// =========================================================
+// GET SLOTS FOR TURF
+// =========================================================
+
+    suspend fun getSlots(
+        turfId: Int
+    ): Result<List<com.example.bookmyturf.data.model.slot.Slot>> {
+
+        return try {
+
+            val response =
+                turfApi.getSlots(turfId)
+
+            if (response.isSuccessful) {
+
+                val body =
+                    response.body()
+
+                if (body?.success == true) {
+
+                    Result.success(
+                        body.data?.slots
+                            ?: emptyList()
+                    )
+
+                } else {
+
+                    Result.failure(
+                        Exception(
+                            body?.message
+                                ?: "Unable to load slots."
+                        )
+                    )
+                }
+
+            } else {
+
+                Result.failure(
+                    Exception(
+                        "Server error: ${response.code()}"
+                    )
+                )
+            }
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
+        }
+    }
+
+
 }

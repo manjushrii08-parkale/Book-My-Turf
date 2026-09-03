@@ -34,6 +34,22 @@ import com.example.bookmyturf.data.model.slot.UpdateSlotRequest
 import com.example.bookmyturf.data.model.slot.UpdateSlotStatusRequest
 
 // =========================================================
+// FAVORITE MODELS
+// =========================================================
+
+import com.example.bookmyturf.data.model.favorite.FavoriteCheckResponse
+import com.example.bookmyturf.data.model.favorite.FavoriteListResponse
+import com.example.bookmyturf.data.model.favorite.FavoriteResponse
+
+// =========================================================
+// BOOKING MODELS
+// =========================================================
+
+import com.example.bookmyturf.data.model.booking.BookingListResponse
+import com.example.bookmyturf.data.model.booking.BookingResponse
+import com.example.bookmyturf.data.model.booking.CreateBookingRequest
+
+// =========================================================
 // RETROFIT
 // =========================================================
 
@@ -120,6 +136,67 @@ interface ApiService {
     suspend fun getAdminDashboard(
         @Header("Authorization") authorization: String
     ): AdminDashboardResponse
+
+
+    // =========================================================
+    // USER FAVORITES
+    // =========================================================
+
+    // GET ALL FAVORITE TURFS
+
+    @GET("api/v1/user/favorites")
+    suspend fun getFavorites(
+        @Header("Authorization") authorization: String
+    ): FavoriteListResponse
+
+
+    // ADD TURF TO FAVORITES
+
+    @POST("api/v1/user/favorites/{turfId}")
+    suspend fun addFavorite(
+        @Header("Authorization") authorization: String,
+        @Path("turfId") turfId: Int
+    ): FavoriteResponse
+
+
+    // REMOVE TURF FROM FAVORITES
+
+    @DELETE("api/v1/user/favorites/{turfId}")
+    suspend fun removeFavorite(
+        @Header("Authorization") authorization: String,
+        @Path("turfId") turfId: Int
+    ): FavoriteResponse
+
+
+    // CHECK FAVORITE STATUS
+
+    @GET("api/v1/user/favorites/{turfId}/check")
+    suspend fun checkFavorite(
+        @Header("Authorization") authorization: String,
+        @Path("turfId") turfId: Int
+    ): FavoriteCheckResponse
+
+// =========================================================
+// USER BOOKINGS
+// =========================================================
+
+// CREATE BOOKING
+
+    @POST("api/v1/user/bookings")
+    suspend fun createBooking(
+        @Header("Authorization") authorization: String,
+        @Body request: CreateBookingRequest
+    ): BookingResponse
+
+
+// GET MY BOOKINGS
+
+    @GET("api/v1/user/bookings")
+    suspend fun getMyBookings(
+        @Header("Authorization") authorization: String
+    ): BookingListResponse
+
+
 
 
     // =========================================================

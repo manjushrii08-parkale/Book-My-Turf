@@ -2,32 +2,43 @@ package com.example.bookmyturf.navigation
 
 import android.net.Uri
 import android.util.Log
+
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+
 import androidx.lifecycle.viewmodel.compose.viewModel
+
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.NavHostController
+import androidx.navigation.navArgument
+
 import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminRepository
+
 import com.example.bookmyturf.screens.admin.AdminEntryScreen
 import com.example.bookmyturf.screens.admin.AdminHomeScreen
 import com.example.bookmyturf.screens.admin.AdminPaidPlansScreen
 import com.example.bookmyturf.screens.admin.AdminSubscriptionScreen
 import com.example.bookmyturf.screens.admin.AdminViewModelFactory
+
 import com.example.bookmyturf.screens.auth.OtpVerificationScreen
 import com.example.bookmyturf.screens.auth.PhoneLoginScreen
+
 import com.example.bookmyturf.screens.role.RoleSelectionScreen
+
 import com.example.bookmyturf.screens.superadmin.SuperAdminHomeScreen
-import com.example.bookmyturf.screens.user.UserHomeScreen
-import com.example.bookmyturf.viewmodel.AdminViewModel
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import androidx.compose.material3.*
+
 import com.example.bookmyturf.screens.user.TurfDetailsScreen
+import com.example.bookmyturf.screens.user.UserMainScreen
+
+import com.example.bookmyturf.viewmodel.AdminViewModel
+
 
 @Composable
 fun AppNavigation(
@@ -40,6 +51,7 @@ fun AppNavigation(
 
     val context = LocalContext.current
 
+
     // =========================================================
     // SESSION MANAGER
     // =========================================================
@@ -47,6 +59,7 @@ fun AppNavigation(
     val sessionManager = remember {
         SessionManager(context)
     }
+
 
     // =========================================================
     // AUTO LOGIN
@@ -57,6 +70,7 @@ fun AppNavigation(
 
     val savedRole =
         sessionManager.getRole()
+
 
     val startDestination = remember {
 
@@ -77,6 +91,7 @@ fun AppNavigation(
                 Routes.USER_HOME
             }
 
+
             // =================================================
             // ADMIN
             // =================================================
@@ -92,6 +107,7 @@ fun AppNavigation(
                 Routes.ADMIN_ENTRY
             }
 
+
             // =================================================
             // SUPER ADMIN
             // =================================================
@@ -106,6 +122,7 @@ fun AppNavigation(
 
                 Routes.SUPER_ADMIN_HOME
             }
+
 
             // =================================================
             // NO SESSION
@@ -123,6 +140,7 @@ fun AppNavigation(
         }
     }
 
+
     // =========================================================
     // GLOBAL LOGOUT
     // =========================================================
@@ -134,45 +152,42 @@ fun AppNavigation(
             "Logout started"
         )
 
+
         // -----------------------------------------------------
-        // 1. Clear session
+        // CLEAR SESSION
         // -----------------------------------------------------
 
         sessionManager.clearSession()
+
 
         Log.d(
             "LOGOUT",
             "Session cleared"
         )
 
+
         // -----------------------------------------------------
-        // 2. Navigate to Role Selection
+        // NAVIGATE TO ROLE
         // -----------------------------------------------------
 
         navController.navigate(
             Routes.ROLE
         ) {
 
-            // -------------------------------------------------
-            // Clear the complete navigation stack
-            // -------------------------------------------------
-
             popUpTo(0) {
                 inclusive = true
             }
 
-            // -------------------------------------------------
-            // Don't create duplicate Role screen
-            // -------------------------------------------------
-
             launchSingleTop = true
         }
+
 
         Log.d(
             "LOGOUT",
             "Logout navigation completed"
         )
     }
+
 
     // =========================================================
     // NAVIGATION HOST
@@ -183,11 +198,14 @@ fun AppNavigation(
         startDestination = startDestination
     ) {
 
+
         // =====================================================
         // ROLE SELECTION
         // =====================================================
 
-        composable(Routes.ROLE) {
+        composable(
+            Routes.ROLE
+        ) {
 
             RoleSelectionScreen(
 
@@ -198,6 +216,7 @@ fun AppNavigation(
                     )
                 },
 
+
                 onAdminClick = {
 
                     navController.navigate(
@@ -205,12 +224,14 @@ fun AppNavigation(
                     )
                 },
 
+
                 onSuperAdminClick = {
 
                     navController.navigate(
                         "login/SUPER_ADMIN"
                     )
                 },
+
 
                 onLoginClick = {
 
@@ -221,16 +242,20 @@ fun AppNavigation(
             )
         }
 
+
         // =====================================================
         // LOGIN
         // =====================================================
 
-        composable(Routes.LOGIN) { backStackEntry ->
+        composable(
+            Routes.LOGIN
+        ) { backStackEntry ->
 
             val role =
                 backStackEntry.arguments
                     ?.getString("role")
                     ?: "USER"
+
 
             PhoneLoginScreen(
 
@@ -241,6 +266,7 @@ fun AppNavigation(
                     val encodedEmail =
                         Uri.encode(email)
 
+
                     navController.navigate(
                         "otp/$encodedEmail/$role"
                     )
@@ -248,21 +274,26 @@ fun AppNavigation(
             )
         }
 
+
         // =====================================================
         // OTP
         // =====================================================
 
-        composable(Routes.OTP) { backStackEntry ->
+        composable(
+            Routes.OTP
+        ) { backStackEntry ->
 
             val email =
                 backStackEntry.arguments
                     ?.getString("email")
                     ?: ""
 
+
             val role =
                 backStackEntry.arguments
                     ?.getString("role")
                     ?: "USER"
+
 
             OtpVerificationScreen(
 
@@ -275,9 +306,10 @@ fun AppNavigation(
                         token,
                         userId ->
 
-                    // =============================================
+
+                    // =========================================
                     // SAVE SESSION
-                    // =============================================
+                    // =========================================
 
                     sessionManager.saveSession(
                         token = token,
@@ -285,20 +317,25 @@ fun AppNavigation(
                         role = loggedInRole
                     )
 
+
                     Log.d(
                         "AUTO_LOGIN",
                         "Session saved: $loggedInRole"
                     )
 
-                    // =============================================
-                    // NAVIGATION BY ROLE
-                    // =============================================
 
-                    when (loggedInRole.uppercase()) {
+                    // =========================================
+                    // ROLE BASED NAVIGATION
+                    // =========================================
 
-                        // =========================================
+                    when (
+                        loggedInRole.uppercase()
+                    ) {
+
+
+                        // =====================================
                         // USER
-                        // =========================================
+                        // =====================================
 
                         "USER" -> {
 
@@ -316,16 +353,18 @@ fun AppNavigation(
                             }
                         }
 
-                        // =========================================
+
+                        // =====================================
                         // ADMIN
-                        // =========================================
+                        // =====================================
 
                         "ADMIN" -> {
 
                             Log.d(
                                 "ADMIN_ENTRY",
-                                "Opening admin subscription check"
+                                "Opening subscription check"
                             )
+
 
                             navController.navigate(
                                 Routes.ADMIN_ENTRY
@@ -341,9 +380,10 @@ fun AppNavigation(
                             }
                         }
 
-                        // =========================================
+
+                        // =====================================
                         // SUPER ADMIN
-                        // =========================================
+                        // =====================================
 
                         "SUPER_ADMIN" -> {
 
@@ -361,9 +401,10 @@ fun AppNavigation(
                             }
                         }
 
-                        // =========================================
+
+                        // =====================================
                         // UNKNOWN ROLE
-                        // =========================================
+                        // =====================================
 
                         else -> {
 
@@ -379,11 +420,14 @@ fun AppNavigation(
             )
         }
 
+
         // =====================================================
-        // USER HOME
+        // USER MAIN
         // =====================================================
 
-        composable(Routes.USER_HOME) {
+        composable(
+            Routes.USER_HOME
+        ) {
 
             val token =
                 sessionManager.getToken()
@@ -391,25 +435,33 @@ fun AppNavigation(
             val role =
                 sessionManager.getRole()
 
+
             if (
                 !token.isNullOrBlank() &&
                 role == "USER"
             ) {
 
-                UserHomeScreen(
+
+                UserMainScreen(
+
+                    // -------------------------------------------------
+                    // TURF CARD CLICK
+                    // -------------------------------------------------
 
                     onTurfClick = { turfId ->
 
                         Log.d(
-                            "USER_TURF",
+                            "USER_NAVIGATION",
                             "Opening turf details: $turfId"
                         )
+
 
                         navController.navigate(
                             Routes.turfDetails(turfId)
                         )
                     }
                 )
+
 
             } else {
 
@@ -424,42 +476,63 @@ fun AppNavigation(
                 }
             }
         }
+
+
         // =====================================================
         // USER TURF DETAILS
         // =====================================================
 
         composable(
+
             route = Routes.TURF_DETAILS,
 
             arguments = listOf(
-                navArgument("turfId") {
-                    type = NavType.IntType
+
+                navArgument(
+                    "turfId"
+                ) {
+
+                    type =
+                        NavType.IntType
                 }
             )
         ) { backStackEntry ->
+
 
             val turfId =
                 backStackEntry.arguments
                     ?.getInt("turfId")
                     ?: -1
 
-            /*
-             * TurfDetailsScreen पुढच्या step मध्ये
-             * actual API मधून turf घेईल.
-             *
-             * आत्ता navigation structure तयार करत आहोत.
-             */
 
-            Text(
-                text = "Turf Details\nTurf ID: $turfId"
-            )
+            if (turfId > 0) {
+
+                TurfDetailsScreen(
+
+                    turfId = turfId,
+
+                    onBackClick = {
+
+                        navController.popBackStack()
+                    }
+                )
+
+            } else {
+
+                Text(
+                    text = "Invalid turf."
+                )
+            }
         }
+
 
         // =====================================================
         // ADMIN ENTRY
         // =====================================================
 
-        composable(Routes.ADMIN_ENTRY) {
+        composable(
+            Routes.ADMIN_ENTRY
+        ) {
 
             val token =
                 sessionManager.getToken()
@@ -467,10 +540,12 @@ fun AppNavigation(
             val role =
                 sessionManager.getRole()
 
+
             if (
                 !token.isNullOrBlank() &&
                 role == "ADMIN"
             ) {
+
 
                 val repository =
                     remember {
@@ -480,6 +555,7 @@ fun AppNavigation(
                         )
                     }
 
+
                 val factory =
                     remember {
 
@@ -488,10 +564,12 @@ fun AppNavigation(
                         )
                     }
 
+
                 val adminViewModel: AdminViewModel =
                     viewModel(
                         factory = factory
                     )
+
 
                 AdminEntryScreen(
 
@@ -499,9 +577,10 @@ fun AppNavigation(
 
                     viewModel = adminViewModel,
 
-                    // =========================================
+
+                    // =============================================
                     // ACTIVE
-                    // =========================================
+                    // =============================================
 
                     onSubscriptionActive = {
 
@@ -509,6 +588,7 @@ fun AppNavigation(
                             "ADMIN_ENTRY",
                             "Subscription ACTIVE"
                         )
+
 
                         navController.navigate(
                             Routes.ADMIN_HOME
@@ -524,9 +604,10 @@ fun AppNavigation(
                         }
                     },
 
-                    // =========================================
-                    // NOT ACTIVE
-                    // =========================================
+
+                    // =============================================
+                    // SUBSCRIPTION REQUIRED
+                    // =============================================
 
                     onSubscriptionRequired = {
 
@@ -534,6 +615,7 @@ fun AppNavigation(
                             "ADMIN_ENTRY",
                             "Subscription required"
                         )
+
 
                         navController.navigate(
                             Routes.ADMIN_SUBSCRIPTION
@@ -549,16 +631,18 @@ fun AppNavigation(
                         }
                     },
 
-                    // =========================================
+
+                    // =============================================
                     // ERROR
-                    // =========================================
+                    // =============================================
 
                     onError = { message ->
 
                         Log.e(
                             "ADMIN_ENTRY",
-                            "Subscription error: $message"
+                            message
                         )
+
 
                         navController.navigate(
                             Routes.ADMIN_SUBSCRIPTION
@@ -574,6 +658,7 @@ fun AppNavigation(
                         }
                     }
                 )
+
 
             } else {
 
@@ -589,11 +674,14 @@ fun AppNavigation(
             }
         }
 
+
         // =====================================================
         // ADMIN SUBSCRIPTION
         // =====================================================
 
-        composable(Routes.ADMIN_SUBSCRIPTION) {
+        composable(
+            Routes.ADMIN_SUBSCRIPTION
+        ) {
 
             val token =
                 sessionManager.getToken()
@@ -601,10 +689,12 @@ fun AppNavigation(
             val role =
                 sessionManager.getRole()
 
+
             if (
                 !token.isNullOrBlank() &&
                 role == "ADMIN"
             ) {
+
 
                 val repository =
                     remember {
@@ -614,6 +704,7 @@ fun AppNavigation(
                         )
                     }
 
+
                 val factory =
                     remember {
 
@@ -622,10 +713,12 @@ fun AppNavigation(
                         )
                     }
 
+
                 val adminViewModel: AdminViewModel =
                     viewModel(
                         factory = factory
                     )
+
 
                 AdminSubscriptionScreen(
 
@@ -633,16 +726,12 @@ fun AppNavigation(
 
                     viewModel = adminViewModel,
 
-                    // =========================================
-                    // SUBSCRIPTION ACTIVE
-                    // =========================================
+
+                    // =============================================
+                    // ACTIVE
+                    // =============================================
 
                     onSubscriptionActive = {
-
-                        Log.d(
-                            "SUBSCRIPTION",
-                            "Subscription active"
-                        )
 
                         navController.navigate(
                             Routes.ADMIN_HOME
@@ -658,9 +747,10 @@ fun AppNavigation(
                         }
                     },
 
-                    // =========================================
+
+                    // =============================================
                     // PAID PLAN
-                    // =========================================
+                    // =============================================
 
                     onPaidPlanClick = {
 
@@ -672,6 +762,7 @@ fun AppNavigation(
                         }
                     }
                 )
+
 
             } else {
 
@@ -687,11 +778,14 @@ fun AppNavigation(
             }
         }
 
+
         // =====================================================
         // ADMIN PAID PLANS
         // =====================================================
 
-        composable(Routes.ADMIN_PAID_PLANS) {
+        composable(
+            Routes.ADMIN_PAID_PLANS
+        ) {
 
             val token =
                 sessionManager.getToken()
@@ -699,10 +793,12 @@ fun AppNavigation(
             val role =
                 sessionManager.getRole()
 
+
             if (
                 !token.isNullOrBlank() &&
                 role == "ADMIN"
             ) {
+
 
                 AdminPaidPlansScreen(
 
@@ -714,6 +810,7 @@ fun AppNavigation(
                             "PAID_PLAN",
                             "Plan selected"
                         )
+
 
                         navController.navigate(
                             Routes.ADMIN_SUBSCRIPTION
@@ -730,6 +827,7 @@ fun AppNavigation(
                     }
                 )
 
+
             } else {
 
                 LaunchedEffect(Unit) {
@@ -744,11 +842,14 @@ fun AppNavigation(
             }
         }
 
+
         // =====================================================
         // ADMIN HOME
         // =====================================================
 
-        composable(Routes.ADMIN_HOME) {
+        composable(
+            Routes.ADMIN_HOME
+        ) {
 
             val token =
                 sessionManager.getToken()
@@ -756,10 +857,12 @@ fun AppNavigation(
             val role =
                 sessionManager.getRole()
 
+
             if (
                 !token.isNullOrBlank() &&
                 role == "ADMIN"
             ) {
+
 
                 AdminHomeScreen(
 
@@ -770,6 +873,7 @@ fun AppNavigation(
                         logout()
                     }
                 )
+
 
             } else {
 
@@ -785,11 +889,14 @@ fun AppNavigation(
             }
         }
 
+
         // =====================================================
         // SUPER ADMIN HOME
         // =====================================================
 
-        composable(Routes.SUPER_ADMIN_HOME) {
+        composable(
+            Routes.SUPER_ADMIN_HOME
+        ) {
 
             val token =
                 sessionManager.getToken()
@@ -800,39 +907,47 @@ fun AppNavigation(
             val userId =
                 sessionManager.getUserId()
 
+
             Log.d(
                 "SUPER_ADMIN",
                 "Dashboard opened"
             )
+
 
             Log.d(
                 "SUPER_ADMIN",
                 "Token exists = ${!token.isNullOrBlank()}"
             )
 
+
             Log.d(
                 "SUPER_ADMIN",
                 "Role = $role"
             )
+
 
             Log.d(
                 "SUPER_ADMIN",
                 "User ID = $userId"
             )
 
+
             if (
                 !token.isNullOrBlank() &&
                 role == "SUPER_ADMIN"
             ) {
 
+
                 SuperAdminHomeScreen(
 
                     token = token,
+
 
                     onLogout = {
 
                         logout()
                     },
+
 
                     onUsersClick = {
 
@@ -842,6 +957,7 @@ fun AppNavigation(
                         )
                     },
 
+
                     onOwnersClick = {
 
                         Log.d(
@@ -849,6 +965,7 @@ fun AppNavigation(
                             "Turf Owners clicked"
                         )
                     },
+
 
                     onTurfsClick = {
 
@@ -858,6 +975,7 @@ fun AppNavigation(
                         )
                     },
 
+
                     onBookingsClick = {
 
                         Log.d(
@@ -865,6 +983,7 @@ fun AppNavigation(
                             "Bookings clicked"
                         )
                     },
+
 
                     onSubscriptionsClick = {
 
@@ -874,6 +993,7 @@ fun AppNavigation(
                         )
                     },
 
+
                     onSettingsClick = {
 
                         Log.d(
@@ -882,6 +1002,7 @@ fun AppNavigation(
                         )
                     }
                 )
+
 
             } else {
 

@@ -2,6 +2,7 @@ package com.example.bookmyturf.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bookmyturf.data.model.slot.Slot
 import com.example.bookmyturf.data.model.turf.Turf
 import com.example.bookmyturf.data.repository.TurfRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,18 @@ class TurfDetailsViewModel(
 
 
     // =========================================================
-    // LOADING
+    // SLOTS
+    // =========================================================
+
+    private val _slots =
+        MutableStateFlow<List<Slot>>(emptyList())
+
+    val slots: StateFlow<List<Slot>> =
+        _slots.asStateFlow()
+
+
+    // =========================================================
+    // TURF LOADING
     // =========================================================
 
     private val _isLoading =
@@ -33,6 +45,17 @@ class TurfDetailsViewModel(
 
     val isLoading: StateFlow<Boolean> =
         _isLoading.asStateFlow()
+
+
+    // =========================================================
+    // SLOT LOADING
+    // =========================================================
+
+    private val _isLoadingSlots =
+        MutableStateFlow(false)
+
+    val isLoadingSlots: StateFlow<Boolean> =
+        _isLoadingSlots.asStateFlow()
 
 
     // =========================================================
@@ -44,6 +67,17 @@ class TurfDetailsViewModel(
 
     val error: StateFlow<String?> =
         _error.asStateFlow()
+
+
+    // =========================================================
+    // SLOT ERROR
+    // =========================================================
+
+    private val _slotError =
+        MutableStateFlow<String?>(null)
+
+    val slotError: StateFlow<String?> =
+        _slotError.asStateFlow()
 
 
     // =========================================================
@@ -80,11 +114,63 @@ class TurfDetailsViewModel(
 
 
     // =========================================================
+    // LOAD SLOTS
+    // =========================================================
+
+    fun loadSlots(
+        turfId: Int
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoadingSlots.value = true
+            _slotError.value = null
+
+            val result =
+                repository.getSlots(
+                    turfId = turfId
+                )
+
+            result
+                .onSuccess { slotList ->
+
+                    _slots.value =
+                        slotList
+                            .filter { slot ->
+                                slot.status.equals(
+                                    "ACTIVE",
+                                    ignoreCase = true
+                                )
+                            }
+                }
+                .onFailure { exception ->
+
+                    _slotError.value =
+                        exception.message
+                            ?: "Unable to load slots."
+                }
+
+            _isLoadingSlots.value = false
+        }
+    }
+
+
+    // =========================================================
     // CLEAR ERROR
     // =========================================================
 
     fun clearError() {
 
         _error.value = null
+    }
+
+
+    // =========================================================
+    // CLEAR SLOT ERROR
+    // =========================================================
+
+    fun clearSlotError() {
+
+        _slotError.value = null
     }
 }
