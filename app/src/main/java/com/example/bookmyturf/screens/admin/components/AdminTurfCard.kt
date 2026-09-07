@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -23,17 +24,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import com.example.bookmyturf.data.model.turf.Turf
-
-private val TurfGreen = Color(0xFF14532D)
-private val TurfGray = Color(0xFF64748B)
-private val TurfGreenLight = Color(0xFFF0FDF4)
-
+import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
+import com.example.bookmyturf.ui.theme.AdminDarkGreen
+import com.example.bookmyturf.ui.theme.AdminForestGreen
+import com.example.bookmyturf.ui.theme.AdminGray
+import com.example.bookmyturf.ui.theme.AdminLightGreen
+import com.example.bookmyturf.ui.theme.AdminOffWhite
+import com.example.bookmyturf.ui.theme.AdminWhite
+import androidx.compose.foundation.layout.width
 @Composable
 fun AdminTurfCard(
     turf: Turf,
@@ -43,9 +47,9 @@ fun AdminTurfCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = AdminWhite
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
@@ -53,7 +57,8 @@ fun AdminTurfCard(
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
 
             // =================================================
@@ -65,17 +70,17 @@ fun AdminTurfCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Icon(
-                    imageVector = Icons.Default.SportsSoccer,
-                    contentDescription = null,
-                    tint = TurfGreen,
-                    modifier = Modifier
-                        .background(
-                            color = TurfGreenLight,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(10.dp)
+                // -------------------------------------------------
+                // TURF ICON
+                // -------------------------------------------------
+
+                BoxIcon(
+                    icon = Icons.Default.SportsSoccer
                 )
+
+                // -------------------------------------------------
+                // TURF NAME + CITY
+                // -------------------------------------------------
 
                 Column(
                     modifier = Modifier
@@ -85,6 +90,7 @@ fun AdminTurfCard(
 
                     Text(
                         text = turf.name,
+                        color = AdminDarkCharcoal,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -95,22 +101,25 @@ fun AdminTurfCard(
 
                     Text(
                         text = turf.city,
-                        color = TurfGray,
+                        color = AdminGray,
                         fontSize = 13.sp
                     )
                 }
 
-                Text(
-                    text = turf.status,
-                    color = TurfGreen,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                // -------------------------------------------------
+                // STATUS
+                // -------------------------------------------------
+
+                TurfStatus(
+                    status = turf.status
                 )
             }
 
+
             Spacer(
-                modifier = Modifier.height(14.dp)
+                modifier = Modifier.height(15.dp)
             )
+
 
             // =================================================
             // LOCATION
@@ -118,39 +127,82 @@ fun AdminTurfCard(
 
             Text(
                 text = turf.location,
-                color = TurfGray,
-                fontSize = 13.sp
+                color = AdminGray,
+                fontSize = 13.sp,
+                maxLines = 2
             )
+
 
             Spacer(
-                modifier = Modifier.height(8.dp)
+                modifier = Modifier.height(13.dp)
             )
 
+
             // =================================================
-            // PRICE + TIME
+            // PRICE + OPERATING HOURS
             // =================================================
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
-                Text(
-                    text = "₹${turf.price}/slot",
-                    fontWeight = FontWeight.Bold,
-                    color = TurfGreen
-                )
+                Column {
 
-                Text(
-                    text = "${turf.openingTime} - ${turf.closingTime}",
-                    color = TurfGray,
-                    fontSize = 13.sp
-                )
+                    Text(
+                        text = "Price",
+                        color = AdminGray,
+                        fontSize = 11.sp
+                    )
+
+                    Text(
+                        text = "₹${turf.price}/slot",
+                        color = AdminDarkGreen,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+
+                    Text(
+                        text = "Operating hours",
+                        color = AdminGray,
+                        fontSize = 11.sp
+                    )
+
+                    Text(
+                        text = "${turf.openingTime} - ${turf.closingTime}",
+                        color = AdminDarkCharcoal,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
+
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+
+            // =================================================
+            // DIVIDER
+            // =================================================
+
+            androidx.compose.material3.HorizontalDivider(
+                color = AdminOffWhite
+            )
+
 
             Spacer(
                 modifier = Modifier.height(14.dp)
             )
+
 
             // =================================================
             // ACTION BUTTONS
@@ -158,47 +210,147 @@ fun AdminTurfCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+
+                // -------------------------------------------------
+                // EDIT
+                // -------------------------------------------------
 
                 Button(
                     onClick = onEdit,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(13.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = TurfGreen
+                        containerColor = AdminDarkGreen,
+                        contentColor = AdminWhite
                     )
                 ) {
 
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit Turf"
+                        contentDescription = "Edit Turf",
+                        modifier = Modifier.size(18.dp)
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(6.dp)
                     )
 
                     Text(
-                        text = " Edit"
+                        text = "Edit",
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
+
+
+                // -------------------------------------------------
+                // MANAGE SLOTS
+                // -------------------------------------------------
 
                 Button(
                     onClick = onManageSlots,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(13.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = TurfGreen
+                        containerColor = AdminLightGreen,
+                        contentColor = AdminDarkCharcoal
                     )
                 ) {
 
                     Icon(
                         imageVector = Icons.Default.Timer,
-                        contentDescription = "Manage Slots"
+                        contentDescription = "Manage Slots",
+                        modifier = Modifier.size(18.dp)
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(6.dp)
                     )
 
                     Text(
-                        text = " Slots"
+                        text = "Slots",
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
         }
     }
 }
+
+
+// =============================================================
+// ICON BOX
+// =============================================================
+
+@Composable
+private fun BoxIcon(
+    icon: ImageVector
+) {
+
+    androidx.compose.foundation.layout.Box(
+        modifier = Modifier
+            .size(46.dp)
+            .clip(
+                RoundedCornerShape(13.dp)
+            )
+            .background(AdminOffWhite),
+        contentAlignment = Alignment.Center
+    ) {
+
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = AdminDarkGreen,
+            modifier = Modifier.size(22.dp)
+        )
+    }
+}
+
+
+// =============================================================
+// STATUS
+// =============================================================
+
+@Composable
+private fun TurfStatus(
+    status: String
+) {
+
+    val isActive =
+        status.equals(
+            "ACTIVE",
+            ignoreCase = true
+        )
+
+    val background =
+        if (isActive) {
+            AdminLightGreen.copy(alpha = 0.22f)
+        } else {
+            AdminOffWhite
+        }
+
+    val textColor =
+        if (isActive) {
+            AdminForestGreen
+        } else {
+            AdminGray
+        }
+
+    Text(
+        text = status.uppercase(),
+        color = textColor,
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier
+            .clip(
+                RoundedCornerShape(50)
+            )
+            .background(background)
+            .padding(
+                horizontal = 10.dp,
+                vertical = 5.dp
+            )
+    )
+}
+

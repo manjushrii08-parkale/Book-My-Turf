@@ -1,6 +1,5 @@
 package com.example.bookmyturf.screens.admin
 
-import android.app.TimePickerDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -31,7 +30,6 @@ import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -56,6 +54,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -96,18 +95,23 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 import java.io.ByteArrayOutputStream
-import java.util.Calendar
+
 
 // =============================================================
-// COLORS
+// ADMIN THEME
 // =============================================================
 
-private val TurfGreen = Color(0xFF14532D)
-private val TurfGreenDark = Color(0xFF0F3D21)
-private val TurfGreenLight = Color(0xFFF0FDF4)
-private val TurfBackground = Color(0xFFF8FAFC)
-private val TurfGray = Color(0xFF64748B)
+private val TurfGreen = Color(0xFF173D20)
+private val TurfGreenDark = Color(0xFF173D20)
+private val TurfGreenLight = Color(0xFFF8F8F5)
+private val TurfBackground = Color(0xFFF8F8F5)
+private val TurfGray = Color(0xFF737373)
 private val TurfRed = Color(0xFFDC2626)
+private val TurfWhite = Color(0xFFFFFFFF)
+private val TurfForestGreen = Color(0xFF2E6B35)
+private val TurfLightGreen = Color(0xFF7DBB4A)
+private val TurfDarkCharcoal = Color(0xFF1C1C1C)
+
 
 // =============================================================
 // CONSTANTS
@@ -115,6 +119,7 @@ private val TurfRed = Color(0xFFDC2626)
 
 private const val MAX_IMAGES = 8
 private const val MAX_IMAGE_SIZE = 2 * 1024 * 1024
+
 
 // =============================================================
 // SPORTS
@@ -130,6 +135,7 @@ private val Sports = listOf(
     "Volleyball",
     "Futsal"
 )
+
 
 // =============================================================
 // AMENITIES
@@ -148,6 +154,7 @@ private val Amenities = listOf(
     "Equipment Rental"
 )
 
+
 // =============================================================
 // ADD TURF SCREEN
 // =============================================================
@@ -160,114 +167,139 @@ fun AddTurfScreen(
     onSuccess: () -> Unit
 ) {
 
-    val context = LocalContext.current
+    val context =
+        LocalContext.current
 
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
+    val snackbarHostState =
+        remember {
+            SnackbarHostState()
+        }
 
-    val scope = rememberCoroutineScope()
+    val scope =
+        rememberCoroutineScope()
+
 
     // =========================================================
     // REPOSITORY
     // =========================================================
 
-    val repository = remember {
-        AdminRepository(
-            RetrofitClient.api
-        )
-    }
+    val repository =
+        remember {
+
+            AdminRepository(
+                RetrofitClient.api
+            )
+        }
+
 
     // =========================================================
     // VIEWMODEL FACTORY
     // =========================================================
 
-    val factory = remember {
-        AdminViewModelFactory(repository)
-    }
+    val factory =
+        remember {
+
+            AdminViewModelFactory(
+                repository
+            )
+        }
+
 
     // =========================================================
     // VIEWMODEL
     // =========================================================
 
-    val viewModel: AdminViewModel = viewModel(
-        factory = factory
-    )
+    val viewModel: AdminViewModel =
+        viewModel(
+            factory = factory
+        )
+
 
     // =========================================================
     // STATE
     // =========================================================
 
-    val isLoading by viewModel.isLoading.collectAsState()
-    val error by viewModel.error.collectAsState()
+    val isLoading by
+    viewModel.isLoading.collectAsState()
+
+    val error by
+    viewModel.error.collectAsState()
+
 
     // =========================================================
     // FORM STATE
     // =========================================================
 
-    var name by remember {
+    var name by
+    remember {
         mutableStateOf("")
     }
 
-    var description by remember {
+    var description by
+    remember {
         mutableStateOf("")
     }
 
-    var location by remember {
+    var location by
+    remember {
         mutableStateOf("")
     }
 
-    var city by remember {
+    var city by
+    remember {
         mutableStateOf("")
     }
 
-    var address by remember {
+    var address by
+    remember {
         mutableStateOf("")
     }
 
-    var price by remember {
+    var price by
+    remember {
         mutableStateOf("")
     }
 
-    var openingTime by remember {
-        mutableStateOf("")
-    }
-
-    var closingTime by remember {
-        mutableStateOf("")
-    }
 
     // =========================================================
     // VALIDATION
     // =========================================================
 
-    var validationMessage by remember {
+    var validationMessage by
+    remember {
         mutableStateOf<String?>(null)
     }
+
 
     // =========================================================
     // SPORTS
     // =========================================================
 
-    val selectedSports = remember {
-        mutableStateListOf<String>()
-    }
+    val selectedSports =
+        remember {
+            mutableStateListOf<String>()
+        }
+
 
     // =========================================================
     // AMENITIES
     // =========================================================
 
-    val selectedAmenities = remember {
-        mutableStateListOf<String>()
-    }
+    val selectedAmenities =
+        remember {
+            mutableStateListOf<String>()
+        }
+
 
     // =========================================================
     // IMAGES
     // =========================================================
 
-    val selectedImages = remember {
-        mutableStateListOf<Uri>()
-    }
+    val selectedImages =
+        remember {
+            mutableStateListOf<Uri>()
+        }
+
 
     // =========================================================
     // IMAGE PICKER
@@ -276,9 +308,10 @@ fun AddTurfScreen(
     val imagePicker =
         rememberLauncherForActivityResult(
             contract =
-                ActivityResultContracts.PickMultipleVisualMedia(
-                    maxItems = MAX_IMAGES
-                )
+                ActivityResultContracts
+                    .PickMultipleVisualMedia(
+                        maxItems = MAX_IMAGES
+                    )
         ) { uris ->
 
             if (uris.isEmpty()) {
@@ -295,7 +328,9 @@ fun AddTurfScreen(
                     }
                     .take(remaining)
 
-            selectedImages.addAll(newImages)
+            selectedImages.addAll(
+                newImages
+            )
 
             if (uris.size > remaining) {
 
@@ -307,6 +342,7 @@ fun AddTurfScreen(
                 }
             }
         }
+
 
     // =========================================================
     // ERROR SNACKBAR
@@ -322,6 +358,7 @@ fun AddTurfScreen(
         }
     }
 
+
     // =========================================================
     // SCREEN
     // =========================================================
@@ -331,10 +368,16 @@ fun AddTurfScreen(
         containerColor = TurfBackground,
 
         snackbarHost = {
+
             SnackbarHost(
-                hostState = snackbarHostState
+                hostState =
+                    snackbarHostState
             )
         },
+
+        // =====================================================
+        // TOP BAR
+        // =====================================================
 
         topBar = {
 
@@ -346,6 +389,7 @@ fun AddTurfScreen(
 
                         Text(
                             text = "Add Turf",
+                            color = TurfDarkCharcoal,
                             fontWeight = FontWeight.Bold
                         )
 
@@ -367,10 +411,17 @@ fun AddTurfScreen(
                         Icon(
                             imageVector =
                                 Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Back",
+                            tint = TurfGreen
                         )
                     }
-                }
+                },
+
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = TurfWhite,
+                        titleContentColor = TurfDarkCharcoal
+                    )
             )
         }
 
@@ -378,20 +429,22 @@ fun AddTurfScreen(
 
         Column(
 
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(
-                    rememberScrollState()
-                )
-                .padding(
-                    horizontal = 16.dp,
-                    vertical = 12.dp
-                ),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(
+                        rememberScrollState()
+                    )
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 12.dp
+                    ),
 
             verticalArrangement =
                 Arrangement.spacedBy(18.dp)
         ) {
+
 
             // =================================================
             // HEADER
@@ -430,14 +483,14 @@ fun AddTurfScreen(
                             null,
 
                         tint =
-                            Color.White,
+                            TurfWhite,
 
                         modifier =
                             Modifier
                                 .size(52.dp)
                                 .background(
                                     color =
-                                        Color.White.copy(
+                                        TurfWhite.copy(
                                             alpha = 0.15f
                                         ),
                                     shape =
@@ -446,10 +499,12 @@ fun AddTurfScreen(
                                 .padding(13.dp)
                     )
 
+
                     Spacer(
                         modifier =
                             Modifier.width(14.dp)
                     )
+
 
                     Column {
 
@@ -459,7 +514,7 @@ fun AddTurfScreen(
                                 "Create Your Turf",
 
                             color =
-                                Color.White,
+                                TurfWhite,
 
                             fontSize =
                                 19.sp,
@@ -479,7 +534,7 @@ fun AddTurfScreen(
                                 "Add complete turf details to attract more bookings.",
 
                             color =
-                                Color.White.copy(
+                                TurfWhite.copy(
                                     alpha = 0.85f
                                 ),
 
@@ -490,13 +545,15 @@ fun AddTurfScreen(
                 }
             }
 
+
             // =================================================
             // BASIC INFORMATION
             // =================================================
 
             FormSectionCard(
                 title = "Basic Information",
-                subtitle = "Enter the main details of your turf."
+                subtitle =
+                    "Enter the main details of your turf."
             ) {
 
                 OutlinedTextField(
@@ -504,6 +561,7 @@ fun AddTurfScreen(
                     value = name,
 
                     onValueChange = {
+
                         name = it
                         validationMessage = null
                     },
@@ -516,11 +574,14 @@ fun AddTurfScreen(
                     },
 
                     placeholder = {
-                        Text("e.g. Green Arena Turf")
+                        Text(
+                            "e.g. Green Arena Turf"
+                        )
                     },
 
                     singleLine = true
                 )
+
 
                 OutlinedTextField(
 
@@ -538,7 +599,9 @@ fun AddTurfScreen(
                     },
 
                     placeholder = {
-                        Text("Tell users about your turf...")
+                        Text(
+                            "Tell users about your turf..."
+                        )
                     },
 
                     minLines = 3,
@@ -547,13 +610,15 @@ fun AddTurfScreen(
                 )
             }
 
+
             // =================================================
             // LOCATION
             // =================================================
 
             FormSectionCard(
                 title = "Location",
-                subtitle = "Help customers find your turf easily."
+                subtitle =
+                    "Help customers find your turf easily."
             ) {
 
                 OutlinedTextField(
@@ -561,6 +626,7 @@ fun AddTurfScreen(
                     value = location,
 
                     onValueChange = {
+
                         location = it
                         validationMessage = null
                     },
@@ -573,7 +639,9 @@ fun AddTurfScreen(
                     },
 
                     placeholder = {
-                        Text("e.g. Hinjewadi Phase 1")
+                        Text(
+                            "e.g. Hinjewadi Phase 1"
+                        )
                     },
 
                     leadingIcon = {
@@ -581,19 +649,21 @@ fun AddTurfScreen(
                         Icon(
                             imageVector =
                                 Icons.Default.LocationOn,
-                            contentDescription =
-                                null
+                            contentDescription = null,
+                            tint = TurfGreen
                         )
                     },
 
                     singleLine = true
                 )
 
+
                 OutlinedTextField(
 
                     value = city,
 
                     onValueChange = {
+
                         city = it
                         validationMessage = null
                     },
@@ -612,6 +682,7 @@ fun AddTurfScreen(
                     singleLine = true
                 )
 
+
                 OutlinedTextField(
 
                     value = address,
@@ -628,7 +699,9 @@ fun AddTurfScreen(
                     },
 
                     placeholder = {
-                        Text("Enter complete address")
+                        Text(
+                            "Enter complete address"
+                        )
                     },
 
                     minLines = 2,
@@ -637,13 +710,15 @@ fun AddTurfScreen(
                 )
             }
 
+
             // =================================================
             // SPORTS
             // =================================================
 
             FormSectionCard(
                 title = "Sports",
-                subtitle = "Select all sports available at your turf."
+                subtitle =
+                    "Select all sports available at your turf."
             ) {
 
                 FlowRow(
@@ -658,7 +733,9 @@ fun AddTurfScreen(
                     Sports.forEach { sport ->
 
                         val selected =
-                            selectedSports.contains(sport)
+                            selectedSports.contains(
+                                sport
+                            )
 
                         FilterChip(
 
@@ -691,6 +768,7 @@ fun AddTurfScreen(
                                 if (selected) {
 
                                     Icon(
+
                                         imageVector =
                                             Icons.Default.SportsSoccer,
 
@@ -698,13 +776,17 @@ fun AddTurfScreen(
                                             null,
 
                                         modifier =
-                                            Modifier.size(17.dp)
+                                            Modifier.size(17.dp),
+
+                                        tint =
+                                            TurfGreen
                                     )
                                 }
                             }
                         )
                     }
                 }
+
 
                 if (selectedSports.isNotEmpty()) {
 
@@ -714,7 +796,7 @@ fun AddTurfScreen(
                             "${selectedSports.size} sports selected",
 
                         color =
-                            TurfGreen,
+                            TurfForestGreen,
 
                         fontSize =
                             12.sp,
@@ -725,13 +807,15 @@ fun AddTurfScreen(
                 }
             }
 
+
             // =================================================
             // AMENITIES
             // =================================================
 
             FormSectionCard(
                 title = "Amenities",
-                subtitle = "Select the facilities available."
+                subtitle =
+                    "Select the facilities available."
             ) {
 
                 FlowRow(
@@ -778,13 +862,15 @@ fun AddTurfScreen(
                 }
             }
 
+
             // =================================================
             // IMAGES
             // =================================================
 
             FormSectionCard(
                 title = "Turf Photos",
-                subtitle = "Add up to 8 high-quality turf photos."
+                subtitle =
+                    "Add up to 8 high-quality turf photos."
             ) {
 
                 Card(
@@ -826,18 +912,23 @@ fun AddTurfScreen(
                                 Modifier.size(42.dp)
                         )
 
+
                         Spacer(
                             modifier =
                                 Modifier.height(8.dp)
                         )
 
+
                         Text(
 
                             text =
-                                if (selectedImages.isEmpty())
+                                if (
+                                    selectedImages.isEmpty()
+                                ) {
                                     "No photos selected"
-                                else
-                                    "${selectedImages.size}/$MAX_IMAGES photos selected",
+                                } else {
+                                    "${selectedImages.size}/$MAX_IMAGES photos selected"
+                                },
 
                             fontWeight =
                                 FontWeight.Bold,
@@ -846,10 +937,12 @@ fun AddTurfScreen(
                                 TurfGreen
                         )
 
+
                         Spacer(
                             modifier =
                                 Modifier.height(4.dp)
                         )
+
 
                         Text(
 
@@ -863,10 +956,12 @@ fun AddTurfScreen(
                                 12.sp
                         )
 
+
                         Spacer(
                             modifier =
                                 Modifier.height(12.dp)
                         )
+
 
                         OutlinedButton(
 
@@ -907,6 +1002,7 @@ fun AddTurfScreen(
                     }
                 }
 
+
                 // =================================================
                 // IMAGE PREVIEW
                 // =================================================
@@ -922,8 +1018,12 @@ fun AddTurfScreen(
                             FontWeight.SemiBold,
 
                         fontSize =
-                            14.sp
+                            14.sp,
+
+                        color =
+                            TurfDarkCharcoal
                     )
+
 
                     FlowRow(
 
@@ -937,8 +1037,11 @@ fun AddTurfScreen(
                         selectedImages.forEach { uri ->
 
                             TurfImagePreview(
+
                                 uri = uri,
+
                                 onRemove = {
+
                                     selectedImages.remove(
                                         uri
                                     )
@@ -949,13 +1052,15 @@ fun AddTurfScreen(
                 }
             }
 
+
             // =================================================
-            // PRICING & TIMING
+            // PRICING
             // =================================================
 
             FormSectionCard(
-                title = "Pricing & Timing",
-                subtitle = "Set your standard slot pricing and hours."
+                title = "Pricing",
+                subtitle =
+                    "Set your standard slot price."
             ) {
 
                 OutlinedTextField(
@@ -984,7 +1089,9 @@ fun AddTurfScreen(
                         Text(
                             text = "₹",
                             fontWeight =
-                                FontWeight.Bold
+                                FontWeight.Bold,
+                            color =
+                                TurfDarkCharcoal
                         )
                     },
 
@@ -996,180 +1103,8 @@ fun AddTurfScreen(
 
                     singleLine = true
                 )
-
-                // =================================================
-                // TIME ROW
-                // =================================================
-
-                Row(
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    horizontalArrangement =
-                        Arrangement.spacedBy(10.dp)
-                ) {
-
-                    // =============================================
-                    // OPENING TIME
-                    // =============================================
-
-                    OutlinedTextField(
-
-                        value = openingTime,
-
-                        onValueChange = {
-                            // Read-only field.
-                            // Time is selected from TimePicker.
-                        },
-
-                        modifier =
-                            Modifier.weight(1f),
-
-                        label = {
-                            Text("Opening *")
-                        },
-
-                        placeholder = {
-                            Text("09:00")
-                        },
-
-                        readOnly = true,
-
-                        singleLine = true,
-
-                        trailingIcon = {
-
-                            IconButton(
-
-                                onClick = {
-
-                                    showTimePicker(
-                                        context = context,
-                                        initialTime = openingTime
-                                    ) { selectedTime ->
-
-                                        openingTime =
-                                            selectedTime
-
-                                        validationMessage =
-                                            null
-                                    }
-                                },
-
-                                enabled =
-                                    !isLoading
-                            ) {
-
-                                Icon(
-
-                                    imageVector =
-                                        Icons.Default.AccessTime,
-
-                                    contentDescription =
-                                        "Select opening time",
-
-                                    tint =
-                                        TurfGreen
-                                )
-                            }
-                        },
-
-                        isError =
-                            openingTime.isBlank()
-                    )
-
-                    // =============================================
-                    // CLOSING TIME
-                    // =============================================
-
-                    OutlinedTextField(
-
-                        value = closingTime,
-
-                        onValueChange = {
-                            // Read-only field.
-                            // Time is selected from TimePicker.
-                        },
-
-                        modifier =
-                            Modifier.weight(1f),
-
-                        label = {
-                            Text("Closing *")
-                        },
-
-                        placeholder = {
-                            Text("22:00")
-                        },
-
-                        readOnly = true,
-
-                        singleLine = true,
-
-                        trailingIcon = {
-
-                            IconButton(
-
-                                onClick = {
-
-                                    showTimePicker(
-                                        context = context,
-                                        initialTime = closingTime
-                                    ) { selectedTime ->
-
-                                        closingTime =
-                                            selectedTime
-
-                                        validationMessage =
-                                            null
-                                    }
-                                },
-
-                                enabled =
-                                    !isLoading
-                            ) {
-
-                                Icon(
-
-                                    imageVector =
-                                        Icons.Default.AccessTime,
-
-                                    contentDescription =
-                                        "Select closing time",
-
-                                    tint =
-                                        TurfGreen
-                                )
-                            }
-                        },
-
-                        isError =
-                            closingTime.isBlank()
-                    )
-                }
-
-                if (
-                    openingTime.isNotBlank() &&
-                    closingTime.isNotBlank()
-                ) {
-
-                    Text(
-
-                        text =
-                            "Operating hours: $openingTime - $closingTime",
-
-                        color =
-                            TurfGreen,
-
-                        fontSize =
-                            12.sp,
-
-                        fontWeight =
-                            FontWeight.Medium
-                    )
-                }
             }
+
 
             // =================================================
             // VALIDATION MESSAGE
@@ -1194,7 +1129,8 @@ fun AddTurfScreen(
 
                     Text(
 
-                        text = message,
+                        text =
+                            message,
 
                         color =
                             TurfRed,
@@ -1210,6 +1146,7 @@ fun AddTurfScreen(
                     )
                 }
             }
+
 
             // =================================================
             // CREATE TURF
@@ -1255,30 +1192,6 @@ fun AddTurfScreen(
                                 "Please enter a valid slot price."
                         }
 
-                        openingTime.isBlank() -> {
-
-                            validationMessage =
-                                "Please select opening time."
-                        }
-
-                        !isValidTime(openingTime) -> {
-
-                            validationMessage =
-                                "Invalid opening time."
-                        }
-
-                        closingTime.isBlank() -> {
-
-                            validationMessage =
-                                "Please select closing time."
-                        }
-
-                        !isValidTime(closingTime) -> {
-
-                            validationMessage =
-                                "Invalid closing time."
-                        }
-
                         selectedImages.isEmpty() -> {
 
                             validationMessage =
@@ -1289,11 +1202,11 @@ fun AddTurfScreen(
 
                             validationMessage = null
 
-                            // =================================
-                            // START UPLOAD
-                            // =================================
-
                             scope.launch {
+
+                                // =================================
+                                // IMAGE PROCESSING
+                                // =================================
 
                                 val multipartParts =
                                     withContext(
@@ -1305,12 +1218,12 @@ fun AddTurfScreen(
                                             uriToMultipart(
                                                 context =
                                                     context,
-
                                                 uri =
                                                     uri
                                             )
                                         }
                                     }
+
 
                                 // =================================
                                 // IMAGE PROCESSING FAILED
@@ -1325,6 +1238,7 @@ fun AddTurfScreen(
 
                                     return@launch
                                 }
+
 
                                 // =================================
                                 // UPLOAD IMAGES
@@ -1390,19 +1304,10 @@ fun AddTurfScreen(
                                                 price =
                                                     turfPrice,
 
-                                                // Laravel requires H:i
-                                                openingTime =
-                                                    openingTime
-                                                        .trim(),
-
-                                                // Laravel requires H:i
-                                                closingTime =
-                                                    closingTime
-                                                        .trim(),
-
                                                 status =
                                                     "ACTIVE"
                                             )
+
 
                                         // =================================
                                         // CREATE TURF API
@@ -1442,6 +1347,9 @@ fun AddTurfScreen(
                         containerColor =
                             TurfGreen,
 
+                        contentColor =
+                            TurfWhite,
+
                         disabledContainerColor =
                             TurfGreen.copy(
                                 alpha = 0.5f
@@ -1457,7 +1365,7 @@ fun AddTurfScreen(
                             Modifier.size(22.dp),
 
                         color =
-                            Color.White,
+                            TurfWhite,
 
                         strokeWidth =
                             2.5.dp
@@ -1500,6 +1408,7 @@ fun AddTurfScreen(
                 }
             }
 
+
             // =================================================
             // BOTTOM INFO
             // =================================================
@@ -1529,7 +1438,7 @@ fun AddTurfScreen(
                         null,
 
                     tint =
-                        TurfGreen,
+                        TurfForestGreen,
 
                     modifier =
                         Modifier.size(16.dp)
@@ -1556,6 +1465,7 @@ fun AddTurfScreen(
     }
 }
 
+
 // =============================================================
 // FORM SECTION CARD
 // =============================================================
@@ -1578,7 +1488,7 @@ private fun FormSectionCard(
         colors =
             CardDefaults.cardColors(
                 containerColor =
-                    Color.White
+                    TurfWhite
             ),
 
         elevation =
@@ -1628,6 +1538,7 @@ private fun FormSectionCard(
     }
 }
 
+
 // =============================================================
 // IMAGE PREVIEW
 // =============================================================
@@ -1638,19 +1549,22 @@ private fun TurfImagePreview(
     onRemove: () -> Unit
 ) {
 
-    val context = LocalContext.current
+    val context =
+        LocalContext.current
 
-    val bitmap = remember(uri) {
+    val bitmap =
+        remember(uri) {
 
-        context.contentResolver
-            .openInputStream(uri)
-            ?.use { stream ->
+            context.contentResolver
+                .openInputStream(uri)
+                ?.use { stream ->
 
-                BitmapFactory.decodeStream(
-                    stream
-                )
-            }
-    }
+                    BitmapFactory.decodeStream(
+                        stream
+                    )
+                }
+        }
+
 
     if (bitmap != null) {
 
@@ -1674,6 +1588,7 @@ private fun TurfImagePreview(
                 contentScale =
                     ContentScale.Crop
             )
+
 
             IconButton(
 
@@ -1707,7 +1622,7 @@ private fun TurfImagePreview(
                         "Remove photo",
 
                     tint =
-                        Color.White,
+                        TurfWhite,
 
                     modifier =
                         Modifier.size(17.dp)
@@ -1716,6 +1631,7 @@ private fun TurfImagePreview(
         }
     }
 }
+
 
 // =============================================================
 // URI → MULTIPART
@@ -1741,6 +1657,7 @@ private suspend fun uriToMultipart(
                     }
                     ?: return@withContext null
 
+
             // =============================================
             // RESIZE
             // =============================================
@@ -1757,6 +1674,7 @@ private suspend fun uriToMultipart(
                         1600
                 )
 
+
             // =============================================
             // COMPRESS
             // =============================================
@@ -1772,8 +1690,10 @@ private suspend fun uriToMultipart(
                 outputStream
             )
 
+
             while (
-                outputStream.size() > MAX_IMAGE_SIZE &&
+                outputStream.size() >
+                MAX_IMAGE_SIZE &&
                 quality > 40
             ) {
 
@@ -1788,12 +1708,14 @@ private suspend fun uriToMultipart(
                 )
             }
 
+
             val imageBytes =
                 outputStream.toByteArray()
 
             if (imageBytes.isEmpty()) {
                 return@withContext null
             }
+
 
             // =============================================
             // REQUEST BODY
@@ -1803,6 +1725,7 @@ private suspend fun uriToMultipart(
                 imageBytes.toRequestBody(
                     "image/jpeg".toMediaType()
                 )
+
 
             // =============================================
             // FILE NAME
@@ -1822,6 +1745,7 @@ private suspend fun uriToMultipart(
                     }
                     ?: "turf_image"
 
+
             // =============================================
             // MULTIPART
             // =============================================
@@ -1832,12 +1756,13 @@ private suspend fun uriToMultipart(
                 requestBody
             )
 
-        } catch (e: Exception) {
+        } catch (_: Exception) {
 
             null
         }
     }
 }
+
 
 // =============================================================
 // RESIZE BITMAP
@@ -1855,6 +1780,7 @@ private fun resizeBitmap(
     val height =
         bitmap.height
 
+
     if (
         width <= maxWidth &&
         height <= maxHeight
@@ -1863,17 +1789,20 @@ private fun resizeBitmap(
         return bitmap
     }
 
+
     val ratio =
         minOf(
             maxWidth.toFloat() / width,
             maxHeight.toFloat() / height
         )
 
+
     val newWidth =
         (width * ratio).toInt()
 
     val newHeight =
         (height * ratio).toInt()
+
 
     return Bitmap.createScaledBitmap(
         bitmap,
@@ -1882,6 +1811,7 @@ private fun resizeBitmap(
         true
     )
 }
+
 
 // =============================================================
 // GET FILE NAME
@@ -1922,146 +1852,5 @@ private fun getFileName(
         }
 
     return fileName
-}
-
-// =============================================================
-// VALIDATE TIME
-// =============================================================
-
-private fun isValidTime(
-    time: String
-): Boolean {
-
-    return Regex(
-        "^(0[1-9]|1[0-2]):[0-5][0-9]\\s(AM|PM)$"
-    ).matches(
-        time.trim()
-    )
-}
-
-// =============================================================
-// TIME PICKER
-// =============================================================
-
-// =============================================================
-// TIME PICKER - 12 HOUR WITH AM / PM
-// =============================================================
-// =============================================================
-
-private fun showTimePicker(
-    context: Context,
-    initialTime: String?,
-    onTimeSelected: (String) -> Unit
-) {
-
-    val calendar = Calendar.getInstance()
-
-    var hour =
-        calendar.get(Calendar.HOUR_OF_DAY)
-
-    var minute =
-        calendar.get(Calendar.MINUTE)
-
-    // =========================================================
-    // USE PREVIOUSLY SELECTED TIME
-    // Laravel format: h:i A
-    // Example: 09:00 AM
-    // =========================================================
-
-    if (!initialTime.isNullOrBlank()) {
-
-        try {
-
-            val formatter =
-                java.text.SimpleDateFormat(
-                    "hh:mm a",
-                    java.util.Locale.ENGLISH
-                )
-
-            val date =
-                formatter.parse(initialTime)
-
-            if (date != null) {
-
-                val selectedCalendar =
-                    Calendar.getInstance()
-
-                selectedCalendar.time = date
-
-                hour =
-                    selectedCalendar.get(
-                        Calendar.HOUR_OF_DAY
-                    )
-
-                minute =
-                    selectedCalendar.get(
-                        Calendar.MINUTE
-                    )
-            }
-
-        } catch (e: Exception) {
-
-            // Use current time if parsing fails
-        }
-    }
-
-    // =========================================================
-    // TIME PICKER
-    // false = 12-hour format
-    // =========================================================
-
-    TimePickerDialog(
-
-        context,
-
-        { _, selectedHour, selectedMinute ->
-
-            // =================================================
-            // CONVERT TO Laravel h:i A
-            //
-            // 09:00 -> 09:00 AM
-            // 13:30 -> 01:30 PM
-            // 22:00 -> 10:00 PM
-            // =================================================
-
-            val selectedCalendar =
-                Calendar.getInstance().apply {
-
-                    set(
-                        Calendar.HOUR_OF_DAY,
-                        selectedHour
-                    )
-
-                    set(
-                        Calendar.MINUTE,
-                        selectedMinute
-                    )
-                }
-
-            val formatter =
-                java.text.SimpleDateFormat(
-                    "hh:mm a",
-                    java.util.Locale.ENGLISH
-                )
-
-            val formattedTime =
-                formatter.format(
-                    selectedCalendar.time
-                ).uppercase(
-                    java.util.Locale.ENGLISH
-                )
-
-            onTimeSelected(
-                formattedTime
-            )
-        },
-
-        hour,
-        minute,
-
-        // 12-hour clock with AM / PM
-        false
-
-    ).show()
 }
 

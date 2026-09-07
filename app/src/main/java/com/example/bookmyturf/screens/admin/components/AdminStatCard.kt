@@ -20,19 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-private val TurfGreen = Color(0xFF14532D)
-private val TurfGreenLight = Color(0xFFF0FDF4)
-private val TurfDark = Color(0xFF0F172A)
-private val TurfGray = Color(0xFF64748B)
-private val TurfBorder = Color(0xFFE2E8F0)
-
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
+import com.example.bookmyturf.ui.theme.AdminDarkGreen
+import com.example.bookmyturf.ui.theme.AdminGray
+import com.example.bookmyturf.ui.theme.AdminOffWhite
+import com.example.bookmyturf.ui.theme.AdminWhite
+import androidx.compose.foundation.layout.width
 @Composable
 fun AdminStatCard(
     title: String,
@@ -49,16 +47,16 @@ fun AdminStatCard(
         shape = RoundedCornerShape(18.dp),
 
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = AdminWhite
         ),
 
         border = BorderStroke(
             width = 1.dp,
-            color = TurfBorder
+            color = AdminOffWhite
         ),
 
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
+            defaultElevation = 1.dp
         )
     ) {
 
@@ -89,21 +87,21 @@ fun AdminStatCard(
                         .clip(
                             RoundedCornerShape(11.dp)
                         )
-                        .background(TurfGreenLight),
+                        .background(AdminOffWhite),
 
                     contentAlignment = Alignment.Center
                 ) {
 
                     Icon(
                         imageVector = icon,
-                        contentDescription = null,
+                        contentDescription = title,
                         modifier = Modifier.size(19.dp),
-                        tint = TurfGreen
+                        tint = AdminDarkGreen
                     )
                 }
 
                 Spacer(
-                    modifier = Modifier.size(10.dp)
+                    modifier = Modifier.width(10.dp)
                 )
 
                 // =================================================
@@ -121,7 +119,7 @@ fun AdminStatCard(
 
                     fontWeight = FontWeight.Medium,
 
-                    color = TurfGray,
+                    color = AdminGray,
 
                     maxLines = 2,
 
@@ -146,7 +144,7 @@ fun AdminStatCard(
 
                 fontWeight = FontWeight.Bold,
 
-                color = TurfDark,
+                color = AdminDarkCharcoal,
 
                 maxLines = 1,
 

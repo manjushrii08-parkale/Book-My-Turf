@@ -2,6 +2,7 @@ package com.example.bookmyturf.screens.admin.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,16 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-private val TurfGreen = Color(0xFF14532D)
-private val TurfGreenLight = Color(0xFFDCFCE7)
-private val TurfGray = Color(0xFF64748B)
-
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
+import com.example.bookmyturf.ui.theme.AdminDarkGreen
+import com.example.bookmyturf.ui.theme.AdminGray
+import com.example.bookmyturf.ui.theme.AdminLightGreen
+import com.example.bookmyturf.ui.theme.AdminOffWhite
+import com.example.bookmyturf.ui.theme.AdminWhite
+import com.example.bookmyturf.ui.theme.AdminForestGreen
 @Composable
 fun AdminQuickAction(
     icon: ImageVector,
@@ -46,7 +48,7 @@ fun AdminQuickAction(
             },
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = AdminWhite
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp
@@ -66,13 +68,13 @@ fun AdminQuickAction(
 
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = title,
                 modifier = Modifier
                     .size(46.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(TurfGreenLight)
+                    .background(AdminOffWhite)
                     .padding(11.dp),
-                tint = TurfGreen
+                tint = AdminDarkGreen
             )
 
             Spacer(
@@ -83,20 +85,25 @@ fun AdminQuickAction(
             // TEXT
             // =====================================================
 
-            androidx.compose.foundation.layout.Column(
+            Column(
                 modifier = Modifier.weight(1f)
             ) {
 
                 Text(
                     text = title,
+                    color = AdminDarkCharcoal,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
 
+                Spacer(
+                    modifier = Modifier.size(3.dp)
+                )
+
                 Text(
                     text = description,
-                    fontSize = 12.sp,
-                    color = TurfGray
+                    color = AdminGray,
+                    fontSize = 12.sp
                 )
             }
 
@@ -106,8 +113,8 @@ fun AdminQuickAction(
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = TurfGray
+                contentDescription = "Open $title",
+                tint = AdminForestGreen
             )
         }
     }

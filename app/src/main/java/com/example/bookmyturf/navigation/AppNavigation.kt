@@ -36,6 +36,7 @@ import com.example.bookmyturf.screens.superadmin.SuperAdminHomeScreen
 
 import com.example.bookmyturf.screens.user.TurfDetailsScreen
 import com.example.bookmyturf.screens.user.UserMainScreen
+import com.example.bookmyturf.screens.user.UserSlotSelectionScreen
 
 import com.example.bookmyturf.viewmodel.AdminViewModel
 
@@ -192,7 +193,25 @@ fun AppNavigation(
     // =========================================================
     // NAVIGATION HOST
     // =========================================================
+    fun openAdminDashboard() {
 
+        Log.d(
+            "ADMIN_NAV",
+            "Opening Admin Dashboard"
+        )
+
+        navController.navigate(
+            Routes.ADMIN_HOME
+        ) {
+            popUpTo(
+                Routes.ADMIN_SUBSCRIPTION
+            ) {
+                inclusive = true
+            }
+
+            launchSingleTop = true
+        }
+    }
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -263,6 +282,10 @@ fun AppNavigation(
 
                 onOtpSent = { email ->
 
+                    // -------------------------------------------------
+                    // ENCODE EMAIL BEFORE NAVIGATION
+                    // -------------------------------------------------
+
                     val encodedEmail =
                         Uri.encode(email)
 
@@ -283,16 +306,31 @@ fun AppNavigation(
             Routes.OTP
         ) { backStackEntry ->
 
-            val email =
+            // -----------------------------------------------------
+            // DECODE EMAIL
+            // -----------------------------------------------------
+
+            val email = Uri.decode(
                 backStackEntry.arguments
                     ?.getString("email")
                     ?: ""
+            )
 
 
             val role =
                 backStackEntry.arguments
                     ?.getString("role")
                     ?: "USER"
+
+
+            // -----------------------------------------------------
+            // DEBUG LOG
+            // -----------------------------------------------------
+
+            Log.d(
+                "OTP_EMAIL",
+                "Email received = $email"
+            )
 
 
             OtpVerificationScreen(
@@ -307,26 +345,35 @@ fun AppNavigation(
                         userId ->
 
 
-                    // =========================================
+                    // =============================================
                     // SAVE SESSION
-                    // =========================================
+                    // =============================================
 
                     sessionManager.saveSession(
+
                         token = token,
+
                         userId = userId,
-                        role = loggedInRole
+
+                        role = loggedInRole,
+
+                        email = email
                     )
 
+
+                    // =============================================
+                    // DEBUG LOG
+                    // =============================================
 
                     Log.d(
                         "AUTO_LOGIN",
-                        "Session saved: $loggedInRole"
+                        "Session saved: role=$loggedInRole email=$email"
                     )
 
 
-                    // =========================================
+                    // =============================================
                     // ROLE BASED NAVIGATION
-                    // =========================================
+                    // =============================================
 
                     when (
                         loggedInRole.uppercase()
@@ -457,8 +504,52 @@ fun AppNavigation(
 
 
                         navController.navigate(
-                            Routes.turfDetails(turfId)
+                            Routes.turfDetails(
+                                turfId
+                            )
                         )
+                    },
+
+
+                    // -------------------------------------------------
+                    // EDIT PROFILE
+                    // -------------------------------------------------
+
+                    onEditProfileClick = {
+
+                        Log.d(
+                            "USER_PROFILE",
+                            "Edit Profile clicked"
+                        )
+
+                        // Edit Profile navigation
+                        // will be connected next.
+                    },
+
+
+                    // -------------------------------------------------
+                    // SETTINGS
+                    // -------------------------------------------------
+
+                    onSettingsClick = {
+
+                        Log.d(
+                            "USER_PROFILE",
+                            "Settings clicked"
+                        )
+
+                        // Settings navigation
+                        // will be connected later.
+                    },
+
+
+                    // -------------------------------------------------
+                    // LOGOUT
+                    // -------------------------------------------------
+
+                    onLogoutClick = {
+
+                        logout()
                     }
                 )
 
@@ -496,6 +587,7 @@ fun AppNavigation(
                         NavType.IntType
                 }
             )
+
         ) { backStackEntry ->
 
 
@@ -514,6 +606,99 @@ fun AppNavigation(
                     onBackClick = {
 
                         navController.popBackStack()
+                    },
+
+                    onBookNowClick = { selectedTurfId ->
+
+                        Log.d(
+                            "USER_NAVIGATION",
+                            "Opening slot selection: $selectedTurfId"
+                        )
+
+                        navController.navigate(
+                            Routes.slotSelection(
+                                selectedTurfId
+                            )
+                        )
+                    }
+                )
+
+            } else {
+
+                Text(
+                    text = "Invalid turf."
+                )
+            }
+        }
+
+
+        // =====================================================
+        // USER SLOT SELECTION
+        // =====================================================
+
+        composable(
+
+            route = Routes.SLOT_SELECTION,
+
+            arguments = listOf(
+
+                navArgument(
+                    "turfId"
+                ) {
+
+                    type =
+                        NavType.IntType
+                }
+            )
+
+        ) { backStackEntry ->
+
+            val turfId =
+                backStackEntry.arguments
+                    ?.getInt("turfId")
+                    ?: -1
+
+
+            if (turfId > 0) {
+
+                UserSlotSelectionScreen(
+
+                    turfId = turfId,
+
+                    onBackClick = {
+
+                        navController.popBackStack()
+                    },
+
+                    onContinueClick = {
+                            selectedTurfId,
+                            slotId,
+                            bookingDate ->
+
+
+                        Log.d(
+                            "BOOKING_NAVIGATION",
+                            "Turf ID: $selectedTurfId"
+                        )
+
+
+                        Log.d(
+                            "BOOKING_NAVIGATION",
+                            "Slot ID: $slotId"
+                        )
+
+
+                        Log.d(
+                            "BOOKING_NAVIGATION",
+                            "Booking Date: $bookingDate"
+                        )
+
+
+                        // =================================================
+                        // BOOKING SUMMARY
+                        // =================================================
+                        // Navigation will be connected next.
+
                     }
                 )
 
@@ -720,51 +905,51 @@ fun AppNavigation(
                     )
 
 
-                AdminSubscriptionScreen(
+                                                                                                                                                                                                                                                                                                                                                                                                            AdminSubscriptionScreen(
 
-                    token = token,
+                                                                                                                                                                                                                                                                                                                                                                                                                token = token,
 
-                    viewModel = adminViewModel,
-
-
-                    // =============================================
-                    // ACTIVE
-                    // =============================================
-
-                    onSubscriptionActive = {
-
-                        navController.navigate(
-                            Routes.ADMIN_HOME
-                        ) {
-
-                            popUpTo(
-                                Routes.ADMIN_SUBSCRIPTION
-                            ) {
-                                inclusive = true
-                            }
-
-                            launchSingleTop = true
-                        }
-                    },
+                                                                                                                                                                                                                                                                                                                                                                                                                viewModel = adminViewModel,
 
 
-                    // =============================================
-                    // PAID PLAN
-                    // =============================================
+                                                                                                                                                                                                                                                                                                                                                                                                                // =============================================
+                                                                                                                                                                                                                                                                                                                                                                                                                // ACTIVE
+                                                                                                                                                                                                                                                                                                                                                                                                                // =============================================
 
-                    onPaidPlanClick = {
+                                                                                                                                                                                                                                                                                                                                                                                                                onSubscriptionActive = {
 
-                        navController.navigate(
-                            Routes.ADMIN_PAID_PLANS
-                        ) {
+                                                                                                                                                                                                                                                                                                                                                                                                                    navController.navigate(
+                                                                                                                                                                                                                                                                                                                                                                                                                        Routes.ADMIN_HOME
+                                                                                                                                                                                                                                                                                                                                                                                                                    ) {
 
-                            launchSingleTop = true
-                        }
-                    }
-                )
+                                                                                                                                                                                                                                                                                                                                                                                                                        popUpTo(
+                                                                                                                                                                                                                                                                                                                                                                                                                            Routes.ADMIN_SUBSCRIPTION
+                                                                                                                                                                                                                                                                                                                                                                                                                        ) {
+                                                                                                                                                                                                                                                                                                                                                                                                                            inclusive = true
+                                                                                                                                                                                                                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                        launchSingleTop = true
+                                                                                                                                                                                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                                                                                                                                                                },
 
 
-            } else {
+                                                                                                                                                                                                                                                                                                                                                                                                                // =============================================
+                                                                                                                                                                                                                                                                                                                                                                                                                // PAID PLAN
+                                                                                                                                                                                                                                                                                                                                                                                                                // =============================================
+
+                                                                                                                                                                                                                                                                                                                                                                                                                onPaidPlanClick = {
+
+                                                                                                                                                                                                                                                                                                                                                                                                                    navController.navigate(
+                                                                                                                                                                                                                                                                                                                                                                                                                        Routes.ADMIN_PAID_PLANS
+                                                                                                                                                                                                                                                                                                                                                                                                                    ) {
+
+                                                                                                                                                                                                                                                                                                                                                                                                                        launchSingleTop = true
+                                                                                                                                                                                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                                                            )
+
+
+                                                                                                                                                                                                                                                                                                                                                                                                        } else {
 
                 LaunchedEffect(Unit) {
 

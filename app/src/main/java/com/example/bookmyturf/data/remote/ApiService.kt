@@ -48,7 +48,7 @@ import com.example.bookmyturf.data.model.favorite.FavoriteResponse
 import com.example.bookmyturf.data.model.booking.BookingListResponse
 import com.example.bookmyturf.data.model.booking.BookingResponse
 import com.example.bookmyturf.data.model.booking.CreateBookingRequest
-
+import com.example.bookmyturf.data.model.booking.CancelBookingRequest
 // =========================================================
 // RETROFIT
 // =========================================================
@@ -195,6 +195,15 @@ interface ApiService {
     suspend fun getMyBookings(
         @Header("Authorization") authorization: String
     ): BookingListResponse
+
+
+    // CANCEL BOOKING
+    @POST("api/v1/user/bookings/{bookingId}/cancel")
+    suspend fun cancelBooking(
+        @Header("Authorization")
+        authorization: String, @Path("bookingId")
+        bookingId: Int, @Body request: CancelBookingRequest
+    ): BookingResponse
 
 
 

@@ -177,7 +177,8 @@ class AuthViewModel(
                     sessionManager.saveSession(
                         token = token,
                         userId = user.id,
-                        role = user.role
+                        role = user.role,
+                        email=email
                     )
 
 

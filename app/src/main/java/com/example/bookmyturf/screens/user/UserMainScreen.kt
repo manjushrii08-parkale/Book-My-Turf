@@ -1,11 +1,7 @@
 package com.example.bookmyturf.screens.user
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
@@ -24,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,8 +29,8 @@ import com.example.bookmyturf.ui.theme.UserDarkGreen
 import com.example.bookmyturf.ui.theme.UserLightGreen
 import com.example.bookmyturf.viewmodel.BookingViewModel
 import com.example.bookmyturf.viewmodel.FavoriteViewModel
-
-
+import androidx.compose.ui.platform.LocalContext
+import com.example.bookmyturf.data.local.SessionManager
 // =========================================================
 // BOTTOM NAVIGATION ITEM
 // =========================================================
@@ -45,14 +40,16 @@ private data class UserBottomItem(
     val icon: ImageVector
 )
 
-
 // =========================================================
 // USER MAIN SCREEN
 // =========================================================
 
 @Composable
 fun UserMainScreen(
-    onTurfClick: (Int) -> Unit
+    onTurfClick: (Int) -> Unit,
+    onEditProfileClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
 
     // =====================================================
@@ -63,14 +60,12 @@ fun UserMainScreen(
         mutableIntStateOf(0)
     }
 
-
     // =====================================================
     // SHARED FAVORITE VIEWMODEL
     // =====================================================
 
     val favoriteViewModel: FavoriteViewModel =
         viewModel()
-
 
     // =====================================================
     // SHARED BOOKING VIEWMODEL
@@ -79,6 +74,16 @@ fun UserMainScreen(
     val bookingViewModel: BookingViewModel =
         viewModel()
 
+
+    val context = LocalContext.current
+
+    val sessionManager = remember(context) {
+        SessionManager(context)
+    }
+
+    val userEmail = remember(sessionManager) {
+        sessionManager.getEmail()
+    }
 
     // =====================================================
     // BOTTOM NAVIGATION ITEMS
@@ -106,7 +111,6 @@ fun UserMainScreen(
             icon = Icons.Default.Person
         )
     )
-
 
     // =====================================================
     // SCAFFOLD
@@ -183,7 +187,6 @@ fun UserMainScreen(
 
     ) { innerPadding ->
 
-
         // =================================================
         // SCREEN CONTENT
         // =================================================
@@ -197,7 +200,6 @@ fun UserMainScreen(
         ) {
 
             when (selectedItem) {
-
 
                 // =========================================
                 // HOME
@@ -218,7 +220,6 @@ fun UserMainScreen(
                             favoriteViewModel
                     )
                 }
-
 
                 // =========================================
                 // FAVORITES
@@ -245,7 +246,6 @@ fun UserMainScreen(
                     )
                 }
 
-
                 // =========================================
                 // BOOKINGS
                 // =========================================
@@ -264,78 +264,25 @@ fun UserMainScreen(
                     )
                 }
 
-
                 // =========================================
                 // PROFILE
                 // =========================================
 
                 3 -> {
 
-                    UserPlaceholderScreen(
-
-                        title =
-                            "Profile",
-
-                        subtitle =
-                            "Manage your profile and account."
+                    UserProfileScreen(
+                        userName = "BookMyTurf User",
+                        email = userEmail ?: "No email available",
+                        phone = "No phone available",
+                        onBackClick = {
+                            selectedItem = 0
+                        },
+                        onEditProfileClick = onEditProfileClick,
+                        onSettingsClick = onSettingsClick,
+                        onLogoutClick = onLogoutClick
                     )
                 }
             }
         }
     }
 }
-
-
-// =========================================================
-// PLACEHOLDER SCREEN
-// =========================================================
-
-@Composable
-private fun UserPlaceholderScreen(
-    title: String,
-    subtitle: String
-) {
-
-    Column(
-
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-
-        horizontalAlignment =
-            Alignment.CenterHorizontally,
-
-        verticalArrangement =
-            Arrangement.Center
-    ) {
-
-        Text(
-
-            text =
-                title,
-
-            style =
-                MaterialTheme
-                    .typography
-                    .headlineSmall
-        )
-
-        Spacer(
-            modifier =
-                Modifier.height(8.dp)
-        )
-
-        Text(
-
-            text =
-                subtitle,
-
-            color =
-                MaterialTheme
-                    .colorScheme
-                    .onSurfaceVariant
-        )
-    }
-}
-

@@ -19,14 +19,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookmyturf.data.model.AdminDashboardUser
-
-private val TurfGreen = Color(0xFF14532D)
-private val TurfGray = Color(0xFF64748B)
+import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
+import com.example.bookmyturf.ui.theme.AdminDarkGreen
+import com.example.bookmyturf.ui.theme.AdminGray
+import com.example.bookmyturf.ui.theme.AdminWhite
 
 @Composable
 fun AdminAccountCard(
@@ -38,7 +38,7 @@ fun AdminAccountCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = AdminWhite
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
@@ -60,7 +60,7 @@ fun AdminAccountCard(
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
-                    tint = TurfGreen
+                    tint = AdminDarkGreen
                 )
 
                 Spacer(
@@ -69,6 +69,7 @@ fun AdminAccountCard(
 
                 Text(
                     text = "Account Information",
+                    color = AdminDarkCharcoal,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -85,7 +86,7 @@ fun AdminAccountCard(
             AccountItem(
                 icon = Icons.Default.Person,
                 label = "Name",
-                value = admin?.name ?: "-"
+                value = admin?.name ?: "—"
             )
 
             Spacer(
@@ -99,7 +100,7 @@ fun AdminAccountCard(
             AccountItem(
                 icon = Icons.Default.Email,
                 label = "Email",
-                value = admin?.email ?: "-"
+                value = admin?.email ?: "—"
             )
 
             Spacer(
@@ -113,12 +114,16 @@ fun AdminAccountCard(
             AccountItem(
                 icon = Icons.Default.Verified,
                 label = "Account Status",
-                value = admin?.status ?: "-"
+                value = admin?.status ?: "—"
             )
         }
     }
 }
 
+
+// =============================================================
+// ACCOUNT ITEM
+// =============================================================
 
 @Composable
 private fun AccountItem(
@@ -134,9 +139,9 @@ private fun AccountItem(
 
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = label,
             modifier = Modifier.width(22.dp),
-            tint = TurfGreen
+            tint = AdminDarkGreen
         )
 
         Spacer(
@@ -150,17 +155,18 @@ private fun AccountItem(
             Text(
                 text = label,
                 fontSize = 11.sp,
-                color = TurfGray
+                color = AdminGray
             )
 
             Spacer(
-                modifier = Modifier.height(2.dp)
+                modifier = Modifier.height(3.dp)
             )
 
             Text(
                 text = value,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = AdminDarkCharcoal
             )
         }
     }

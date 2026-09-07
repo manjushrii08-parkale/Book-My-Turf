@@ -2,6 +2,7 @@ package com.example.bookmyturf.data.repository
 
 import com.example.bookmyturf.data.model.booking.Booking
 import com.example.bookmyturf.data.model.booking.BookingResponse
+import com.example.bookmyturf.data.model.booking.CancelBookingRequest
 import com.example.bookmyturf.data.model.booking.CreateBookingRequest
 import com.example.bookmyturf.data.remote.RetrofitClient
 
@@ -103,6 +104,85 @@ class BookingRepository {
                     Exception(
                         response.message.ifBlank {
                             "Unable to load bookings."
+                        }
+                    )
+                )
+            }
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
+        }
+    }
+
+
+    // =========================================================
+    // CANCEL BOOKING
+    // =========================================================
+
+    suspend fun cancelBooking(
+        token: String,
+        bookingId: Int,
+        reason: String? = null
+    ): Result<Booking> {
+
+        return try {
+
+            // -------------------------------------------------
+            // CREATE CANCEL REQUEST
+            // -------------------------------------------------
+
+            val request =
+                CancelBookingRequest(
+                    reason = reason
+                )
+
+            // -------------------------------------------------
+            // CALL API
+            // -------------------------------------------------
+
+            val response: BookingResponse =
+                bookingApi.cancelBooking(
+                    authorization =
+                        "Bearer $token",
+
+                    bookingId =
+                        bookingId,
+
+                    request =
+                        request
+                )
+
+            // -------------------------------------------------
+            // CHECK RESPONSE
+            // -------------------------------------------------
+
+            if (response.success) {
+
+                val booking =
+                    response.data?.booking
+
+                if (booking != null) {
+
+                    Result.success(
+                        booking
+                    )
+
+                } else {
+
+                    Result.failure(
+                        Exception(
+                            "Cancelled booking data not found."
+                        )
+                    )
+                }
+
+            } else {
+
+                Result.failure(
+                    Exception(
+                        response.message.ifBlank {
+                            "Unable to cancel booking."
                         }
                     )
                 )

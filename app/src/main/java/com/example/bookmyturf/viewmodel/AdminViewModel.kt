@@ -355,19 +355,54 @@ class AdminViewModel(
 
             try {
 
+                Log.d(
+                    "FREE_TRIAL",
+                    "Starting free trial..."
+                )
+
                 val response =
                     repository.startFreeTrial(token)
 
+                Log.d(
+                    "FREE_TRIAL",
+                    "success = ${response.success}"
+                )
+
+                Log.d(
+                    "FREE_TRIAL",
+                    "message = ${response.message}"
+                )
+
+                Log.d(
+                    "FREE_TRIAL",
+                    "data = ${response.data}"
+                )
+
                 if (response.success) {
+
+                    Log.d(
+                        "FREE_TRIAL",
+                        "Free trial activated successfully"
+                    )
 
                     _subscription.value = response
 
                     _successMessage.value =
                         response.message
 
+                    Log.d(
+                        "FREE_TRIAL",
+                        "Calling onSuccess()"
+                    )
+
                     onSuccess()
 
                 } else {
+
+                    Log.e(
+                        "FREE_TRIAL",
+                        "API returned success=false"
+                    )
 
                     _error.value =
                         response.message.ifBlank {
@@ -377,10 +412,24 @@ class AdminViewModel(
 
             } catch (e: HttpException) {
 
-                _error.value =
+                val message =
                     parseHttpError(e)
 
+                Log.e(
+                    "FREE_TRIAL",
+                    "HTTP ${e.code()}: $message",
+                    e
+                )
+
+                _error.value = message
+
             } catch (e: Exception) {
+
+                Log.e(
+                    "FREE_TRIAL",
+                    "Exception while starting free trial",
+                    e
+                )
 
                 _error.value =
                     e.message
@@ -392,7 +441,6 @@ class AdminViewModel(
             }
         }
     }
-
 
     // =========================================================
     // CHOOSE PAID PLAN

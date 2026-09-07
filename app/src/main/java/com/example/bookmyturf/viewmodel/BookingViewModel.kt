@@ -58,6 +58,28 @@ class BookingViewModel(
 
 
     // =========================================================
+    // CANCELLED BOOKING
+    // =========================================================
+
+    private val _cancelledBooking =
+        MutableStateFlow<Booking?>(null)
+
+    val cancelledBooking: StateFlow<Booking?> =
+        _cancelledBooking.asStateFlow()
+
+
+    // =========================================================
+    // REFUND ELIGIBILITY
+    // =========================================================
+
+    private val _refundEligible =
+        MutableStateFlow<Boolean?>(null)
+
+    val refundEligible: StateFlow<Boolean?> =
+        _refundEligible.asStateFlow()
+
+
+    // =========================================================
     // CREATE BOOKING
     // =========================================================
 
@@ -128,11 +150,93 @@ class BookingViewModel(
 
 
     // =========================================================
+    // CANCEL BOOKING
+    // =========================================================
+
+    fun cancelBooking(
+        token: String,
+        bookingId: Int,
+        reason: String? = null
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoading.value = true
+            _error.value = null
+            _refundEligible.value = null
+
+            repository.cancelBooking(
+                token = token,
+                bookingId = bookingId,
+                reason = reason
+            )
+                .onSuccess { booking ->
+
+                    // -----------------------------------------
+                    // SAVE CANCELLED BOOKING
+                    // -----------------------------------------
+
+                    _cancelledBooking.value =
+                        booking
+
+                    // -----------------------------------------
+                    // SAVE REFUND STATUS
+                    // -----------------------------------------
+
+                    _refundEligible.value =
+                        booking.refund_status == "ELIGIBLE"
+
+                    // -----------------------------------------
+                    // UPDATE BOOKING LIST
+                    // -----------------------------------------
+
+                    _bookings.value =
+                        _bookings.value.map { existingBooking ->
+
+                            if (
+                                existingBooking.id ==
+                                booking.id
+                            ) {
+                                booking
+                            } else {
+                                existingBooking
+                            }
+                        }
+                }
+                .onFailure { exception ->
+
+                    _error.value =
+                        exception.message
+                            ?: "Unable to cancel booking."
+                }
+
+            _isLoading.value = false
+        }
+    }
+
+
+    // =========================================================
     // CLEAR CREATED BOOKING
     // =========================================================
 
     fun clearCreatedBooking() {
-        _createdBooking.value = null
+
+        _createdBooking.value =
+            null
+    }
+
+
+    // =========================================================
+    // CLEAR CANCELLED BOOKING
+    // =========================================================
+
+    fun clearCancelledBooking() {
+
+        _cancelledBooking.value =
+            null
+
+        _refundEligible.value =
+            null
     }
 
 
@@ -141,7 +245,9 @@ class BookingViewModel(
     // =========================================================
 
     fun clearError() {
-        _error.value = null
+
+        _error.value =
+            null
     }
 
 
@@ -150,7 +256,9 @@ class BookingViewModel(
     // =========================================================
 
     fun clearBookings() {
-        _bookings.value = emptyList()
+
+        _bookings.value =
+            emptyList()
     }
 }
 

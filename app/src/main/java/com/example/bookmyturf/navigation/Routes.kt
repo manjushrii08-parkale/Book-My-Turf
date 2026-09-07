@@ -22,6 +22,15 @@ object Routes {
         return "turf_details/$turfId"
     }
 
+    // =========================================================
+// USER SLOT SELECTION
+// =========================================================
+
+    const val SLOT_SELECTION = "slot_selection/{turfId}"
+
+    fun slotSelection(turfId: Int): String {
+        return "slot_selection/$turfId"
+    }
     const val ADMIN_HOME = "admin_home"
 
     const val ADMIN_ENTRY = "admin_entry"

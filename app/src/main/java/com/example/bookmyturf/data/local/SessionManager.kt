@@ -19,13 +19,27 @@ class SessionManager(
     fun saveSession(
         token: String,
         userId: Int,
-        role: String
+        role: String,
+        email: String
     ) {
 
         preferences.edit()
-            .putString("token", token)
-            .putInt("user_id", userId)
-            .putString("role", role)
+            .putString(
+                "token",
+                token
+            )
+            .putInt(
+                "user_id",
+                userId
+            )
+            .putString(
+                "role",
+                role
+            )
+            .putString(
+                "email",
+                email
+            )
             .apply()
     }
 
@@ -61,6 +75,18 @@ class SessionManager(
 
         return preferences.getString(
             "role",
+            null
+        )
+    }
+
+    // =========================================================
+    // GET EMAIL
+    // =========================================================
+
+    fun getEmail(): String? {
+
+        return preferences.getString(
+            "email",
             null
         )
     }
