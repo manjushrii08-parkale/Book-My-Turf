@@ -8,7 +8,8 @@ import com.example.bookmyturf.data.model.slot.SlotResponse
 import com.example.bookmyturf.data.model.slot.SlotsResponse
 import com.example.bookmyturf.data.model.slot.UpdateSlotRequest
 import com.example.bookmyturf.data.model.slot.UpdateSlotStatusRequest
-
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import com.example.bookmyturf.data.model.turf.CreateTurfRequest
 import com.example.bookmyturf.data.model.turf.ImageUploadResponse
 import com.example.bookmyturf.data.model.turf.TurfListResponse
@@ -114,13 +115,24 @@ class AdminRepository(
     // IMAGE UPLOAD
     // =========================================================
 
+    // =========================================================
+// IMAGE UPLOAD
+// =========================================================
+
     suspend fun uploadTurfImages(
         token: String,
+        turfId: Int,
         images: List<MultipartBody.Part>
     ): ImageUploadResponse {
 
+        val turfIdBody =
+            turfId
+                .toString()
+                .toRequestBody("text/plain".toMediaType())
+
         return api.uploadTurfImages(
             authorization = "Bearer $token",
+            turfId = turfIdBody,
             images = images
         )
     }

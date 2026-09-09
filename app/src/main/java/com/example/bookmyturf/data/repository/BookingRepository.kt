@@ -5,7 +5,7 @@ import com.example.bookmyturf.data.model.booking.BookingResponse
 import com.example.bookmyturf.data.model.booking.CancelBookingRequest
 import com.example.bookmyturf.data.model.booking.CreateBookingRequest
 import com.example.bookmyturf.data.remote.RetrofitClient
-
+import android.util.Log
 class BookingRepository {
 
     // =========================================================
@@ -28,16 +28,28 @@ class BookingRepository {
 
         return try {
 
+            Log.d("BOOKING_API", "================================")
+            Log.d("BOOKING_API", "CREATE BOOKING STARTED")
+            Log.d("BOOKING_API", "Slot ID = $slotId")
+            Log.d("BOOKING_API", "Booking Date = $bookingDate")
+            Log.d("BOOKING_API", "Token exists = ${token.isNotBlank()}")
+
             val request = CreateBookingRequest(
                 slot_id = slotId,
                 booking_date = bookingDate
             )
+
+            Log.d("BOOKING_API", "Sending request to Laravel...")
 
             val response: BookingResponse =
                 bookingApi.createBooking(
                     authorization = "Bearer $token",
                     request = request
                 )
+
+            Log.d("BOOKING_API", "Response received")
+            Log.d("BOOKING_API", "Success = ${response.success}")
+            Log.d("BOOKING_API", "Message = ${response.message}")
 
             if (response.success) {
 
@@ -46,18 +58,42 @@ class BookingRepository {
 
                 if (booking != null) {
 
+                    Log.d(
+                        "BOOKING_API",
+                        "Booking created successfully. ID = ${booking.id}"
+                    )
+
+                    Log.d("BOOKING_API", "================================")
+
                     Result.success(booking)
 
                 } else {
 
+                    Log.e(
+                        "BOOKING_API",
+                        "Booking data is null"
+                    )
+
+                    Log.d("BOOKING_API", "================================")
+
                     Result.failure(
-                        Exception(
-                            "Booking data not found."
-                        )
+                        Exception("Booking data not found.")
                     )
                 }
 
             } else {
+
+                Log.e(
+                    "BOOKING_API",
+                    "Laravel returned success=false"
+                )
+
+                Log.e(
+                    "BOOKING_API",
+                    "Message = ${response.message}"
+                )
+
+                Log.d("BOOKING_API", "================================")
 
                 Result.failure(
                     Exception(
@@ -70,10 +106,41 @@ class BookingRepository {
 
         } catch (e: Exception) {
 
+            Log.e(
+                "BOOKING_API",
+                "================================"
+            )
+
+            Log.e(
+                "BOOKING_API",
+                "CREATE BOOKING FAILED"
+            )
+
+            Log.e(
+                "BOOKING_API",
+                "Exception Type = ${e::class.java.name}"
+            )
+
+            Log.e(
+                "BOOKING_API",
+                "Exception Message = ${e.message}"
+            )
+
+            Log.e(
+                "BOOKING_API",
+                "Cause = ${e.cause}"
+            )
+
+            e.printStackTrace()
+
+            Log.e(
+                "BOOKING_API",
+                "================================"
+            )
+
             Result.failure(e)
         }
     }
-
 
     // =========================================================
     // GET MY BOOKINGS

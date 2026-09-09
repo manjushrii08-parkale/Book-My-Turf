@@ -31,6 +31,28 @@ object Routes {
     fun slotSelection(turfId: Int): String {
         return "slot_selection/$turfId"
     }
+
+    const val BOOKING_SUMMARY =
+        "booking_summary/{turfId}/{slotId}/{bookingDate}"
+
+    fun bookingSummary(
+        turfId: Int,
+        slotId: Int,
+        bookingDate: String
+    ): String =
+        "booking_summary/$turfId/$slotId/$bookingDate"
+
+    const val PAYMENT = "payment/{bookingId}"
+
+    fun payment(bookingId: Int) =
+        "payment/$bookingId"
+
+
+    const val BOOKING_SUCCESS = "booking_success/{bookingId}"
+
+    fun bookingSuccess(bookingId: Int): String {
+        return "booking_success/$bookingId"
+    }
     const val ADMIN_HOME = "admin_home"
 
     const val ADMIN_ENTRY = "admin_entry"

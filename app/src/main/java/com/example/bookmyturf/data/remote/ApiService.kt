@@ -12,7 +12,7 @@ import com.example.bookmyturf.data.model.OtpResponse
 import com.example.bookmyturf.data.model.SendOtpRequest
 import com.example.bookmyturf.data.model.SuperAdminDashboardResponse
 import com.example.bookmyturf.data.model.VerifyOtpRequest
-
+import okhttp3.RequestBody
 // =========================================================
 // TURF MODELS
 // =========================================================
@@ -230,13 +230,14 @@ interface ApiService {
 
 
     // =========================================================
-    // UPLOAD TURF IMAGES
-    // =========================================================
+// UPLOAD TURF IMAGES
+// =========================================================
 
     @Multipart
     @POST("api/v1/admin/turfs/upload-images")
     suspend fun uploadTurfImages(
         @Header("Authorization") authorization: String,
+        @Part("turf_id") turfId: RequestBody,
         @Part images: List<MultipartBody.Part>
     ): ImageUploadResponse
 

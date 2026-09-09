@@ -599,15 +599,14 @@ class AdminViewModel(
         }
     }
 
-
-    // =========================================================
-    // CREATE TURF
-    // =========================================================
+// =========================================================
+// CREATE TURF
+// =========================================================
 
     fun createTurf(
         token: String,
         request: CreateTurfRequest,
-        onSuccess: () -> Unit
+        onSuccess: (TurfResponse) -> Unit
     ) {
 
         viewModelScope.launch {
@@ -631,7 +630,7 @@ class AdminViewModel(
                     _successMessage.value =
                         response.message
 
-                    onSuccess()
+                    onSuccess(response)
 
                 } else {
 
@@ -664,8 +663,13 @@ class AdminViewModel(
     // UPLOAD TURF IMAGES
     // =========================================================
 
+    // =========================================================
+// UPLOAD TURF IMAGES
+// =========================================================
+
     fun uploadTurfImages(
         token: String,
+        turfId: Int,
         images: List<MultipartBody.Part>,
         onSuccess: (List<String>) -> Unit
     ) {
@@ -680,6 +684,7 @@ class AdminViewModel(
                 val response =
                     repository.uploadTurfImages(
                         token = token,
+                        turfId = turfId,
                         images = images
                     )
 
@@ -714,7 +719,6 @@ class AdminViewModel(
             }
         }
     }
-
 
     // =========================================================
     // UPDATE TURF

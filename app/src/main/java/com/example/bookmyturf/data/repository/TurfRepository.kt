@@ -1,5 +1,6 @@
 package com.example.bookmyturf.data.repository
 
+import com.example.bookmyturf.data.model.slot.Slot
 import com.example.bookmyturf.data.model.turf.Turf
 import com.example.bookmyturf.data.remote.RetrofitClient
 
@@ -119,18 +120,23 @@ class TurfRepository {
         }
     }
 
-// =========================================================
-// GET SLOTS FOR TURF
-// =========================================================
+
+    // =========================================================
+    // GET DATE-WISE SLOTS FOR TURF
+    // =========================================================
 
     suspend fun getSlots(
-        turfId: Int
-    ): Result<List<com.example.bookmyturf.data.model.slot.Slot>> {
+        turfId: Int,
+        bookingDate: String
+    ): Result<List<Slot>> {
 
         return try {
 
             val response =
-                turfApi.getSlots(turfId)
+                turfApi.getSlots(
+                    turfId = turfId,
+                    bookingDate = bookingDate
+                )
 
             if (response.isSuccessful) {
 
@@ -168,6 +174,4 @@ class TurfRepository {
             Result.failure(e)
         }
     }
-
-
 }

@@ -59,7 +59,7 @@ class TurfDetailsViewModel(
 
 
     // =========================================================
-    // ERROR
+    // TURF ERROR
     // =========================================================
 
     private val _error =
@@ -94,12 +94,15 @@ class TurfDetailsViewModel(
             _error.value = null
 
             val result =
-                repository.getTurfById(turfId)
+                repository.getTurfById(
+                    turfId
+                )
 
             result
                 .onSuccess { turf ->
 
-                    _turf.value = turf
+                    _turf.value =
+                        turf
                 }
                 .onFailure { exception ->
 
@@ -114,11 +117,12 @@ class TurfDetailsViewModel(
 
 
     // =========================================================
-    // LOAD SLOTS
+    // LOAD DATE-WISE SLOTS
     // =========================================================
 
     fun loadSlots(
-        turfId: Int
+        turfId: Int,
+        bookingDate: String
     ) {
 
         viewModelScope.launch {
@@ -128,22 +132,26 @@ class TurfDetailsViewModel(
 
             val result =
                 repository.getSlots(
-                    turfId = turfId
+                    turfId = turfId,
+                    bookingDate = bookingDate
                 )
 
             result
                 .onSuccess { slotList ->
 
                     _slots.value =
-                        slotList
-                            .filter { slot ->
-                                slot.status.equals(
-                                    "ACTIVE",
-                                    ignoreCase = true
-                                )
-                            }
+                        slotList.filter { slot ->
+
+                            slot.status.equals(
+                                "ACTIVE",
+                                ignoreCase = true
+                            )
+                        }
                 }
                 .onFailure { exception ->
+
+                    _slots.value =
+                        emptyList()
 
                     _slotError.value =
                         exception.message
@@ -156,7 +164,7 @@ class TurfDetailsViewModel(
 
 
     // =========================================================
-    // CLEAR ERROR
+    // CLEAR TURF ERROR
     // =========================================================
 
     fun clearError() {

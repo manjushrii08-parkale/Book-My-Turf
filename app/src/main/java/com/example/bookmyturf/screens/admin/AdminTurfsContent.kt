@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,7 +79,8 @@ fun AdminTurfsContent(
     onManageSlots: (Turf) -> Unit,
     onDeleteTurf: (Turf) -> Unit,
     onRetry: () -> Unit
-){
+) {
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -115,23 +117,21 @@ fun AdminTurfsContent(
                 )
 
                 Text(
-                    text =
-                        if (turfs.isEmpty()) {
-                            "Manage your turf grounds"
-                        } else {
-                            "${turfs.size} turf${
-                                if (turfs.size == 1) {
-                                    ""
-                                } else {
-                                    "s"
-                                }
-                            } available"
-                        },
+                    text = if (turfs.isEmpty()) {
+                        "Manage your turf grounds"
+                    } else {
+                        "${turfs.size} turf${
+                            if (turfs.size == 1) {
+                                ""
+                            } else {
+                                "s"
+                            }
+                        } available"
+                    },
                     color = TurfGray,
                     fontSize = 13.sp
                 )
             }
-
 
             Button(
                 onClick = onAddTurf,
@@ -153,11 +153,9 @@ fun AdminTurfsContent(
             }
         }
 
-
         Spacer(
             modifier = Modifier.height(18.dp)
         )
-
 
         // =====================================================
         // LOADING
@@ -190,7 +188,6 @@ fun AdminTurfsContent(
 
             return@Column
         }
-
 
         // =====================================================
         // ERROR
@@ -241,7 +238,6 @@ fun AdminTurfsContent(
             return@Column
         }
 
-
         // =====================================================
         // EMPTY STATE
         // =====================================================
@@ -275,11 +271,9 @@ fun AdminTurfsContent(
                     }
                 }
 
-
                 Spacer(
                     modifier = Modifier.height(18.dp)
                 )
-
 
                 Text(
                     text = "No Turfs Added",
@@ -288,24 +282,19 @@ fun AdminTurfsContent(
                     color = TurfDark
                 )
 
-
                 Spacer(
                     modifier = Modifier.height(6.dp)
                 )
 
-
                 Text(
-                    text =
-                        "Add your first turf to start managing bookings.",
+                    text = "Add your first turf to start managing bookings.",
                     color = TurfGray,
                     fontSize = 14.sp
                 )
 
-
                 Spacer(
                     modifier = Modifier.height(18.dp)
                 )
-
 
                 Button(
                     onClick = onAddTurf,
@@ -330,7 +319,6 @@ fun AdminTurfsContent(
             return@Column
         }
 
-
         // =====================================================
         // TURF LIST
         // =====================================================
@@ -347,35 +335,27 @@ fun AdminTurfsContent(
                 items = turfs,
                 key = { it.id }
             ) { turf ->
+
                 TurfAdminCard(
                     turf = turf,
 
                     onEdit = {
-
-                        onEditTurf(
-                            turf
-                        )
+                        onEditTurf(turf)
                     },
 
                     onManageSlots = {
-
-                        onManageSlots(
-                            turf
-                        )
+                        onManageSlots(turf)
                     },
 
                     onDelete = {
-
-                        onDeleteTurf(
-                            turf
-                        )
+                        onDeleteTurf(turf)
                     }
                 )
             }
         }
     }
-
 }
+
 
 // =============================================================
 // TURF ADMIN CARD
@@ -388,6 +368,7 @@ private fun TurfAdminCard(
     onManageSlots: () -> Unit,
     onDelete: () -> Unit
 ) {
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
@@ -410,7 +391,6 @@ private fun TurfAdminCard(
             TurfImageGallery(
                 imageUrls = turf.imageUrls
             )
-
 
             // =================================================
             // INFORMATION
@@ -440,29 +420,24 @@ private fun TurfAdminCard(
                             color = TurfDark
                         )
 
-
                         Spacer(
                             modifier = Modifier.height(5.dp)
                         )
-
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
 
                             Icon(
-                                imageVector =
-                                    Icons.Default.LocationOn,
+                                imageVector = Icons.Default.LocationOn,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                                 tint = TurfGreen
                             )
 
-
                             Spacer(
                                 modifier = Modifier.width(4.dp)
                             )
-
 
                             Text(
                                 text = turf.city,
@@ -472,7 +447,6 @@ private fun TurfAdminCard(
                             )
                         }
                     }
-
 
                     IconButton(
                         onClick = onEdit
@@ -484,7 +458,6 @@ private fun TurfAdminCard(
                             tint = TurfGreen
                         )
                     }
-
 
                     IconButton(
                         onClick = onDelete
@@ -498,11 +471,9 @@ private fun TurfAdminCard(
                     }
                 }
 
-
                 Spacer(
                     modifier = Modifier.height(14.dp)
                 )
-
 
                 // =================================================
                 // LOCATION
@@ -520,18 +491,15 @@ private fun TurfAdminCard(
                     ) {
 
                         Icon(
-                            imageVector =
-                                Icons.Default.LocationOn,
+                            imageVector = Icons.Default.LocationOn,
                             contentDescription = null,
                             modifier = Modifier.size(19.dp),
                             tint = TurfGreen
                         )
 
-
                         Spacer(
                             modifier = Modifier.width(8.dp)
                         )
-
 
                         Column {
 
@@ -541,11 +509,9 @@ private fun TurfAdminCard(
                                 fontSize = 11.sp
                             )
 
-
                             Spacer(
                                 modifier = Modifier.height(2.dp)
                             )
-
 
                             Text(
                                 text = turf.location,
@@ -557,57 +523,24 @@ private fun TurfAdminCard(
                     }
                 }
 
-
                 Spacer(
                     modifier = Modifier.height(10.dp)
                 )
 
-
                 // =================================================
-                // PRICE + TIME
+                // PRICE
                 // =================================================
 
-                Row(
+                TurfInfoBox(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement =
-                        Arrangement.spacedBy(10.dp)
-                ) {
-
-                    TurfInfoBox(
-                        modifier = Modifier.weight(1f),
-                        title = "Price / Slot",
-                        value =
-                            "₹${
-                                formatPrice(
-                                    turf.price
-                                )
-                            }",
-                        icon = Icons.Default.Star
-                    )
-
-
-                    TurfInfoBox(
-                        modifier = Modifier.weight(1f),
-                        title = "Opening Hours",
-
-                        // Laravel format:
-                        // h:i A
-                        // Example:
-                        // 09:00 AM - 10:00 PM
-
-                        value =
-                            "${formatTurfTime(turf.openingTime)} - " +
-                                    formatTurfTime(turf.closingTime),
-
-                        icon = Icons.Default.AccessTime
-                    )
-                }
-
+                    title = "Price / Slot",
+                    value = "₹${formatPrice(turf.price)}",
+                    icon = Icons.Default.Star
+                )
 
                 Spacer(
                     modifier = Modifier.height(14.dp)
                 )
-
 
                 // =================================================
                 // STATUS
@@ -624,24 +557,25 @@ private fun TurfAdminCard(
                         fontSize = 13.sp
                     )
 
-
                     Spacer(
                         modifier = Modifier.weight(1f)
                     )
-
 
                     TurfStatusBadge(
                         status = turf.status
                     )
                 }
+
                 Spacer(
                     modifier = Modifier.height(14.dp)
                 )
 
+                // =================================================
+                // MANAGE SLOTS
+                // =================================================
+
                 Button(
-                    onClick = {
-                        onManageSlots()
-                    },
+                    onClick = onManageSlots,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -661,19 +595,15 @@ private fun TurfAdminCard(
                     )
                 }
 
-
                 // =================================================
                 // DESCRIPTION
                 // =================================================
 
-                if (
-                    !turf.description.isNullOrBlank()
-                ) {
+                if (!turf.description.isNullOrBlank()) {
 
                     Spacer(
                         modifier = Modifier.height(12.dp)
                     )
-
 
                     Text(
                         text = turf.description,
@@ -685,8 +615,8 @@ private fun TurfAdminCard(
             }
         }
     }
-
 }
+
 
 // =============================================================
 // IMAGE GALLERY
@@ -696,21 +626,18 @@ private fun TurfAdminCard(
 private fun TurfImageGallery(
     imageUrls: List<String>
 ) {
+
     val pagerState =
         rememberPagerState(
             initialPage = 0,
             pageCount = {
-
-                if (
-                    imageUrls.isEmpty()
-                ) {
+                if (imageUrls.isEmpty()) {
                     1
                 } else {
                     imageUrls.size
                 }
             }
         )
-
 
     Box(
         modifier = Modifier
@@ -736,37 +663,28 @@ private fun TurfImageGallery(
                     .background(
                         TurfGreenLight
                     ),
-                contentAlignment =
-                    Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
 
                 Column(
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
                     Icon(
-                        imageVector =
-                            Icons.Default.Image,
+                        imageVector = Icons.Default.Image,
                         contentDescription = null,
-                        modifier =
-                            Modifier.size(48.dp),
-                        tint =
-                            TurfGreen
+                        modifier = Modifier.size(48.dp),
+                        tint = TurfGreen
                     )
-
 
                     Spacer(
-                        modifier =
-                            Modifier.height(8.dp)
+                        modifier = Modifier.height(8.dp)
                     )
-
 
                     Text(
                         text = "No Images",
                         color = TurfGreen,
-                        fontWeight =
-                            FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -779,116 +697,73 @@ private fun TurfImageGallery(
 
             HorizontalPager(
                 state = pagerState,
-                modifier =
-                    Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) { page ->
 
                 val rawUrl =
                     imageUrls[page]
 
                 val imageUrl =
-                    buildImageUrl(
-                        rawUrl
-                    )
-
+                    buildImageUrl(rawUrl)
 
                 AsyncImage(
                     model = imageUrl,
-                    contentDescription =
-                        "Turf image ${page + 1}",
-                    modifier =
-                        Modifier.fillMaxSize(),
-                    contentScale =
-                        ContentScale.Crop
+                    contentDescription = "Turf image ${page + 1}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
                 )
             }
 
-
             // =================================================
-            // IMAGE COUNT
+            // IMAGE COUNT + DOTS
             // =================================================
 
             if (imageUrls.size > 1) {
 
                 Surface(
                     modifier = Modifier
-                        .align(
-                            Alignment.TopEnd
-                        )
+                        .align(Alignment.TopEnd)
                         .padding(12.dp),
-                    shape =
-                        RoundedCornerShape(50),
-                    color =
-                        Color.Black.copy(
-                            alpha = 0.65f
-                        )
+                    shape = RoundedCornerShape(50),
+                    color = Color.Black.copy(alpha = 0.65f)
                 ) {
 
                     Text(
-                        text =
-                            "${pagerState.currentPage + 1}/${imageUrls.size}",
-                        color =
-                            Color.White,
-                        fontSize =
-                            12.sp,
-                        fontWeight =
-                            FontWeight.Bold,
-                        modifier =
-                            Modifier.padding(
-                                horizontal =
-                                    10.dp,
-                                vertical =
-                                    6.dp
-                            )
+                        text = "${pagerState.currentPage + 1}/${imageUrls.size}",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(
+                            horizontal = 10.dp,
+                            vertical = 6.dp
+                        )
                     )
                 }
 
-
-                // =================================================
-                // DOT INDICATORS
-                // =================================================
-
                 Row(
                     modifier = Modifier
-                        .align(
-                            Alignment.BottomCenter
-                        )
-                        .padding(
-                            bottom = 12.dp
-                        ),
-                    horizontalArrangement =
-                        Arrangement.spacedBy(5.dp)
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
 
-                    imageUrls.forEachIndexed {
-                            index,
-                            _ ->
+                    imageUrls.forEachIndexed { index, _ ->
 
                         Box(
                             modifier = Modifier
                                 .size(
-                                    if (
-                                        pagerState.currentPage ==
-                                        index
-                                    ) {
+                                    if (pagerState.currentPage == index) {
                                         8.dp
                                     } else {
                                         6.dp
                                     }
                                 )
-                                .clip(
-                                    CircleShape
-                                )
+                                .clip(CircleShape)
                                 .background(
-                                    if (
-                                        pagerState.currentPage ==
-                                        index
-                                    ) {
+                                    if (pagerState.currentPage == index) {
                                         Color.White
                                     } else {
-                                        Color.White.copy(
-                                            alpha = 0.5f
-                                        )
+                                        Color.White.copy(alpha = 0.5f)
                                     }
                                 )
                         )
@@ -897,8 +772,8 @@ private fun TurfImageGallery(
             }
         }
     }
-
 }
+
 
 // =============================================================
 // TURF INFO BOX
@@ -914,34 +789,25 @@ private fun TurfInfoBox(
 
     Surface(
         modifier = modifier,
-        shape =
-            RoundedCornerShape(12.dp),
-        color =
-            Color(0xFFF8FAFC)
+        shape = RoundedCornerShape(12.dp),
+        color = Color(0xFFF8FAFC)
     ) {
 
         Row(
-            modifier =
-                Modifier.padding(12.dp),
-            verticalAlignment =
-                Alignment.CenterVertically
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier =
-                    Modifier.size(19.dp),
-                tint =
-                    TurfGreen
+                modifier = Modifier.size(19.dp),
+                tint = TurfGreen
             )
-
 
             Spacer(
-                modifier =
-                    Modifier.width(8.dp)
+                modifier = Modifier.width(8.dp)
             )
-
 
             Column {
 
@@ -951,26 +817,22 @@ private fun TurfInfoBox(
                     fontSize = 11.sp
                 )
 
-
                 Spacer(
-                    modifier =
-                        Modifier.height(2.dp)
+                    modifier = Modifier.height(2.dp)
                 )
-
 
                 Text(
                     text = value,
                     color = TurfDark,
                     fontSize = 13.sp,
-                    fontWeight =
-                        FontWeight.SemiBold,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1
                 )
             }
         }
     }
-
 }
+
 
 // =============================================================
 // STATUS BADGE
@@ -987,36 +849,27 @@ private fun TurfStatusBadge(
             ignoreCase = true
         )
 
-
     Surface(
-        shape =
-            RoundedCornerShape(50),
-
-        color =
-            if (isActive) {
-                TurfGreenLight
-            } else {
-                Color(0xFFFEE2E2)
-            }
+        shape = RoundedCornerShape(50),
+        color = if (isActive) {
+            TurfGreenLight
+        } else {
+            Color(0xFFFEE2E2)
+        }
     ) {
 
         Row(
-            modifier =
-                Modifier.padding(
-                    horizontal = 11.dp,
-                    vertical = 6.dp
-                ),
-
-            verticalAlignment =
-                Alignment.CenterVertically
+            modifier = Modifier.padding(
+                horizontal = 11.dp,
+                vertical = 6.dp
+            ),
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
             Box(
                 modifier = Modifier
                     .size(7.dp)
-                    .clip(
-                        CircleShape
-                    )
+                    .clip(CircleShape)
                     .background(
                         if (isActive) {
                             TurfGreen
@@ -1026,59 +879,24 @@ private fun TurfStatusBadge(
                     )
             )
 
-
             Spacer(
-                modifier =
-                    Modifier.width(6.dp)
+                modifier = Modifier.width(6.dp)
             )
 
-
             Text(
-                text =
-                    status.uppercase(),
-
-                color =
-                    if (isActive) {
-                        TurfGreen
-                    } else {
-                        TurfRed
-                    },
-
-                fontSize =
-                    11.sp,
-
-                fontWeight =
-                    FontWeight.Bold
+                text = status.uppercase(),
+                color = if (isActive) {
+                    TurfGreen
+                } else {
+                    TurfRed
+                },
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
-
-
 }
 
-// =============================================================
-// FORMAT LARAVEL TIME
-// =============================================================
-//
-// Expected format:
-//
-// h:i A
-//
-// Examples:
-//
-// 09:00 AM
-// 10:30 PM
-//
-// =============================================================
-
-private fun formatTurfTime(
-    time: String
-): String {
-    return time
-        .trim()
-        .uppercase()
-
-}
 
 // =============================================================
 // IMAGE URL BUILDER
@@ -1088,30 +906,23 @@ private fun buildImageUrl(
     imageUrl: String
 ): String {
 
-
     val cleanUrl =
         imageUrl.trim()
-
 
     if (
         cleanUrl.startsWith("http://") ||
         cleanUrl.startsWith("https://")
     ) {
-
         return cleanUrl
     }
 
+    // =========================================================
+    // ANDROID EMULATOR -> LARAVEL
+    // =========================================================
 
-// =========================================================
-// ANDROID EMULATOR -> LARAVEL
-// =========================================================
-
-    return "http://10.0.2.2:8000/${
-        cleanUrl.trimStart('/')
-    }"
-
-
+    return "http://10.0.2.2:8000/${cleanUrl.trimStart('/')}"
 }
+
 
 // =============================================================
 // PRICE FORMAT
@@ -1121,9 +932,7 @@ private fun formatPrice(
     price: Double
 ): String {
 
-    return if (
-        price % 1.0 == 0.0
-    ) {
+    return if (price % 1.0 == 0.0) {
 
         price
             .toInt()
@@ -1131,10 +940,6 @@ private fun formatPrice(
 
     } else {
 
-        "%.2f".format(
-            price
-        )
+        "%.2f".format(price)
     }
-
-
 }

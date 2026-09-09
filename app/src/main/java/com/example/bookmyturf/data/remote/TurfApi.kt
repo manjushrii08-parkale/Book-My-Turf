@@ -1,12 +1,13 @@
 package com.example.bookmyturf.data.remote
 
+import com.example.bookmyturf.data.model.slot.SlotsResponse
 import com.example.bookmyturf.data.model.turf.TurfListResponse
 import com.example.bookmyturf.data.model.turf.TurfResponse
-import com.example.bookmyturf.data.model.slot.SlotsResponse
 
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface TurfApi {
 
@@ -27,13 +28,14 @@ interface TurfApi {
         @Path("id") turfId: Int
     ): Response<TurfResponse>
 
-// =========================================================
-// GET ALL SLOTS FOR USER TURF
-// =========================================================
+
+    // =========================================================
+    // GET DATE-WISE SLOTS FOR USER TURF
+    // =========================================================
 
     @GET("api/v1/user/turfs/{turfId}/slots")
     suspend fun getSlots(
-        @Path("turfId") turfId: Int
+        @Path("turfId") turfId: Int,
+        @Query("date") bookingDate: String
     ): Response<SlotsResponse>
-
 }

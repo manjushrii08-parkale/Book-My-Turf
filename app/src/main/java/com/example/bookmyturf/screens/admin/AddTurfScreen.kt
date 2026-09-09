@@ -109,7 +109,6 @@ private val TurfGray = Color(0xFF737373)
 private val TurfRed = Color(0xFFDC2626)
 private val TurfWhite = Color(0xFFFFFFFF)
 private val TurfForestGreen = Color(0xFF2E6B35)
-private val TurfLightGreen = Color(0xFF7DBB4A)
 private val TurfDarkCharcoal = Color(0xFF1C1C1C)
 
 
@@ -1205,33 +1204,27 @@ fun AddTurfScreen(
                             scope.launch {
 
                                 // =================================
-                                // IMAGE PROCESSING
+                                // 1. IMAGE PROCESSING
                                 // =================================
 
                                 val multipartParts =
-                                    withContext(
-                                        Dispatchers.IO
-                                    ) {
+                                    withContext(Dispatchers.IO) {
 
                                         selectedImages.mapNotNull { uri ->
 
                                             uriToMultipart(
-                                                context =
-                                                    context,
-                                                uri =
-                                                    uri
+                                                context = context,
+                                                uri = uri
                                             )
                                         }
                                     }
 
 
                                 // =================================
-                                // IMAGE PROCESSING FAILED
+                                // 2. IMAGE PROCESSING FAILED
                                 // =================================
 
-                                if (
-                                    multipartParts.isEmpty()
-                                ) {
+                                if (multipartParts.isEmpty()) {
 
                                     validationMessage =
                                         "Unable to process selected images."
@@ -1241,89 +1234,108 @@ fun AddTurfScreen(
 
 
                                 // =================================
-                                // UPLOAD IMAGES
+                                // 3. CREATE TURF FIRST
                                 // =================================
+                                // Images are intentionally empty here because
+                                // the turf ID does not exist yet.
 
-                                viewModel.uploadTurfImages(
+                                val request =
+                                    CreateTurfRequest(
 
-                                    token =
-                                        token,
+                                        name =
+                                            name.trim(),
 
-                                    images =
-                                        multipartParts,
+                                        description =
+                                            description
+                                                .trim()
+                                                .ifBlank { null },
 
-                                    onSuccess = { uploadedUrls ->
+                                        location =
+                                            location.trim(),
+
+                                        city =
+                                            city.trim(),
+
+                                        address =
+                                            address
+                                                .trim()
+                                                .ifBlank { null },
+
+                                        latitude = null,
+
+                                        longitude = null,
+
+                                        sportsTypes =
+                                            selectedSports.toList(),
+
+                                        amenities =
+                                            selectedAmenities.toList(),
+
+                                        imageUrls =
+                                            emptyList(),
+
+                                        price =
+                                            turfPrice,
+
+                                        status =
+                                            "ACTIVE"
+                                    )
+
+
+                                viewModel.createTurf(
+
+                                    token = token,
+
+                                    request = request,
+
+                                    onSuccess = { turfResponse ->
 
                                         // =================================
-                                        // CREATE TURF REQUEST
+                                        // 4. GET CREATED TURF ID
                                         // =================================
 
-                                        val request =
-                                            CreateTurfRequest(
+                                        val turfId =
+                                            turfResponse
+                                                .data
+                                                ?.turf
+                                                ?.id
 
-                                                name =
-                                                    name.trim(),
+                                        if (turfId == null) {
 
-                                                description =
-                                                    description
-                                                        .trim()
-                                                        .ifBlank {
-                                                            null
-                                                        },
+                                            scope.launch {
 
-                                                location =
-                                                    location.trim(),
+                                                snackbarHostState.showSnackbar(
+                                                    "Turf created, but Turf ID was not returned."
+                                                )
+                                            }
 
-                                                city =
-                                                    city.trim(),
+                                        } else {
 
-                                                address =
-                                                    address
-                                                        .trim()
-                                                        .ifBlank {
-                                                            null
-                                                        },
+                                            // =================================
+                                            // 5. UPLOAD IMAGES WITH TURF ID
+                                            // =================================
 
-                                                latitude =
-                                                    null,
+                                            viewModel.uploadTurfImages(
 
-                                                longitude =
-                                                    null,
+                                                token = token,
 
-                                                sportsTypes =
-                                                    selectedSports
-                                                        .toList(),
+                                                turfId = turfId,
 
-                                                amenities =
-                                                    selectedAmenities
-                                                        .toList(),
+                                                images = multipartParts,
 
-                                                imageUrls =
-                                                    uploadedUrls,
+                                                onSuccess = { _ ->
 
-                                                price =
-                                                    turfPrice,
+                                                    scope.launch {
 
-                                                status =
-                                                    "ACTIVE"
+                                                        snackbarHostState.showSnackbar(
+                                                            "Turf created successfully."
+                                                        )
+
+                                                        onSuccess()
+                                                    }
+                                                }
                                             )
-
-
-                                        // =================================
-                                        // CREATE TURF API
-                                        // =================================
-
-                                        viewModel.createTurf(
-
-                                            token =
-                                                token,
-
-                                            request =
-                                                request,
-
-                                            onSuccess =
-                                                onSuccess
-                                        )
+                                        }
                                     }
                                 )
                             }
@@ -1351,9 +1363,7 @@ fun AddTurfScreen(
                             TurfWhite,
 
                         disabledContainerColor =
-                            TurfGreen.copy(
-                                alpha = 0.5f
-                            )
+                            TurfGreen.copy(alpha = 0.5f)
                     )
             ) {
 
@@ -1378,13 +1388,12 @@ fun AddTurfScreen(
 
                     Text(
                         text =
-                            "Uploading & Creating..."
+                            "Creating & Uploading..."
                     )
 
                 } else {
 
                     Icon(
-
                         imageVector =
                             Icons.Default.Save,
 
@@ -1398,7 +1407,6 @@ fun AddTurfScreen(
                     )
 
                     Text(
-
                         text =
                             "Create Turf",
 
@@ -1853,4 +1861,3 @@ private fun getFileName(
 
     return fileName
 }
-

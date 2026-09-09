@@ -16,7 +16,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-
+import com.example.bookmyturf.screens.user.PaymentScreen
 import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminRepository
@@ -37,10 +37,12 @@ import com.example.bookmyturf.screens.superadmin.SuperAdminHomeScreen
 import com.example.bookmyturf.screens.user.TurfDetailsScreen
 import com.example.bookmyturf.screens.user.UserMainScreen
 import com.example.bookmyturf.screens.user.UserSlotSelectionScreen
-
+import com.example.bookmyturf.screens.user.BookingSummaryScreen
 import com.example.bookmyturf.viewmodel.AdminViewModel
-
-
+import com.example.bookmyturf.viewmodel.BookingViewModel
+import com.example.bookmyturf.screens.user.BookingSuccessScreen
+import androidx.compose.runtime.collectAsState
+import com.example.bookmyturf.screens.user.UserBookingsScreen
 @Composable
 fun AppNavigation(
     navController: NavHostController
@@ -669,36 +671,33 @@ fun AppNavigation(
 
                         navController.popBackStack()
                     },
-
                     onContinueClick = {
                             selectedTurfId,
                             slotId,
                             bookingDate ->
-
 
                         Log.d(
                             "BOOKING_NAVIGATION",
                             "Turf ID: $selectedTurfId"
                         )
 
-
                         Log.d(
                             "BOOKING_NAVIGATION",
                             "Slot ID: $slotId"
                         )
-
 
                         Log.d(
                             "BOOKING_NAVIGATION",
                             "Booking Date: $bookingDate"
                         )
 
-
-                        // =================================================
-                        // BOOKING SUMMARY
-                        // =================================================
-                        // Navigation will be connected next.
-
+                        navController.navigate(
+                            Routes.bookingSummary(
+                                turfId = selectedTurfId,
+                                slotId = slotId,
+                                bookingDate = bookingDate
+                            )
+                        )
                     }
                 )
 
@@ -706,6 +705,407 @@ fun AppNavigation(
 
                 Text(
                     text = "Invalid turf."
+                )
+            }
+        }
+        // =====================================================
+// USER BOOKING SUMMARY
+// =====================================================
+
+        composable(
+
+            route = Routes.BOOKING_SUMMARY,
+
+            arguments = listOf(
+
+                navArgument("turfId") {
+                    type = NavType.IntType
+                },
+
+                navArgument("slotId") {
+                    type = NavType.IntType
+                },
+
+                navArgument("bookingDate") {
+                    type = NavType.StringType
+                }
+            )
+
+        ) { backStackEntry ->
+
+            // =====================================================
+            // GET NAVIGATION ARGUMENTS
+            // =====================================================
+
+            val turfId =
+                backStackEntry.arguments
+                    ?.getInt("turfId")
+                    ?: -1
+
+            val slotId =
+                backStackEntry.arguments
+                    ?.getInt("slotId")
+                    ?: -1
+
+            val bookingDate =
+                backStackEntry.arguments
+                    ?.getString("bookingDate")
+                    ?: ""
+
+
+            // =====================================================
+            // BOOKING VIEWMODEL
+            // =====================================================
+
+            val bookingViewModel: BookingViewModel =
+                viewModel()
+
+            val createdBooking =
+                bookingViewModel.createdBooking.collectAsState().value
+
+            LaunchedEffect(createdBooking) {
+
+                createdBooking?.let { booking ->
+
+                    Log.d(
+                        "BOOKING_NAVIGATION",
+                        "Booking created successfully"
+                    )
+
+                    Log.d(
+                        "BOOKING_NAVIGATION",
+                        "Booking ID = ${booking.id}"
+                    )
+
+                    navController.navigate(
+                        Routes.payment(
+                            bookingId = booking.id
+                        )
+                    ) {
+
+                        popUpTo(
+                            Routes.BOOKING_SUMMARY
+                        ) {
+                            inclusive = true
+                        }
+
+                        launchSingleTop = true
+                    }
+
+                    bookingViewModel.clearCreatedBooking()
+                }
+            }
+
+
+            // =====================================================
+            // SESSION TOKEN
+            // =====================================================
+
+            val token =
+                sessionManager.getToken()
+
+
+            // =====================================================
+            // VALIDATION
+            // =====================================================
+
+            if (
+                turfId > 0 &&
+                slotId > 0 &&
+                bookingDate.isNotBlank()
+            ) {
+
+                BookingSummaryScreen(
+
+                    turfId = turfId,
+
+                    slotId = slotId,
+
+                    bookingDate = bookingDate,
+
+
+                    // =================================================
+                    // BACK
+                    // =================================================
+
+                    onBackClick = {
+
+                        navController.popBackStack()
+                    },
+
+
+                    // =================================================
+                    // CONFIRM BOOKING
+                    // =================================================
+
+                    onConfirmBookingClick = {
+                            selectedTurfId,
+                            selectedSlotId,
+                            selectedBookingDate ->
+
+
+                        Log.d(
+                            "BOOKING_SUMMARY",
+                            "================================"
+                        )
+
+                        Log.d(
+                            "BOOKING_SUMMARY",
+                            "CONFIRM BOOKING CLICKED"
+                        )
+
+                        Log.d(
+                            "BOOKING_SUMMARY",
+                            "Turf ID = $selectedTurfId"
+                        )
+
+                        Log.d(
+                            "BOOKING_SUMMARY",
+                            "Slot ID = $selectedSlotId"
+                        )
+
+                        Log.d(
+                            "BOOKING_SUMMARY",
+                            "Booking Date = $selectedBookingDate"
+                        )
+
+                        Log.d(
+                            "BOOKING_SUMMARY",
+                            "Token exists = ${!token.isNullOrBlank()}"
+                        )
+
+                        Log.d(
+                            "BOOKING_SUMMARY",
+                            "================================"
+                        )
+
+
+                        // =================================================
+                        // CHECK LOGIN SESSION
+                        // =================================================
+
+                        if (token.isNullOrBlank()) {
+
+                            Log.e(
+                                "BOOKING_SUMMARY",
+                                "No authentication token found"
+                            )
+
+                            return@BookingSummaryScreen
+                        }
+
+
+                        // =================================================
+                        // CREATE BOOKING
+                        // =================================================
+
+                        bookingViewModel.createBooking(
+
+                            token = token,
+
+                            slotId = selectedSlotId,
+
+                            bookingDate = selectedBookingDate
+                        )
+                    }
+                )
+
+            } else {
+
+                Text(
+                    text = "Invalid booking details."
+                )
+            }
+        }
+        composable(
+            route = Routes.USER_BOOKINGS
+        ) {
+
+            val bookingViewModel: BookingViewModel = viewModel()
+
+            UserBookingsScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+
+                bookingViewModel = bookingViewModel
+            )
+        }
+
+        // =====================================================
+// USER PAYMENT
+// =====================================================
+
+        composable(
+            route = Routes.PAYMENT,
+            arguments = listOf(
+                navArgument("bookingId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+
+            // =================================================
+            // GET BOOKING ID
+            // =================================================
+
+            val bookingId =
+                backStackEntry.arguments
+                    ?.getInt("bookingId")
+                    ?: -1
+
+
+            // =================================================
+            // VALID BOOKING ID
+            // =================================================
+
+            if (bookingId > 0) {
+
+                PaymentScreen(
+
+                    bookingId = bookingId,
+
+
+                    // =============================================
+                    // PAYMENT VERIFIED SUCCESSFULLY
+                    // =============================================
+
+                    onPaymentSuccess = {
+
+                        Log.d(
+                            "RAZORPAY",
+                            "Payment verified successfully in Laravel"
+                        )
+
+                        Log.d(
+                            "RAZORPAY",
+                            "Opening Booking Success screen"
+                        )
+
+
+                        navController.navigate(
+                            Routes.bookingSuccess(
+                                bookingId = bookingId
+                            )
+                        ) {
+
+                            popUpTo(
+                                Routes.PAYMENT
+                            ) {
+                                inclusive = true
+                            }
+
+                            launchSingleTop = true
+                        }
+                    },
+
+
+                    // =============================================
+                    // BACK
+                    // =============================================
+
+                    onBackClick = {
+
+                        Log.d(
+                            "RAZORPAY",
+                            "Back from Payment screen"
+                        )
+
+                        navController.popBackStack()
+                    }
+                )
+
+            } else {
+
+                Log.e(
+                    "RAZORPAY",
+                    "Invalid booking ID: $bookingId"
+                )
+
+                Text(
+                    text = "Invalid payment details."
+                )
+            }
+        }
+        // =====================================================
+// USER BOOKING SUCCESS
+// =====================================================
+
+        composable(
+
+            route = Routes.BOOKING_SUCCESS,
+
+            arguments = listOf(
+
+                navArgument("bookingId") {
+                    type = NavType.IntType
+                }
+            )
+
+        ) { backStackEntry ->
+
+            val bookingId =
+                backStackEntry.arguments
+                    ?.getInt("bookingId")
+                    ?: -1
+
+
+            if (bookingId > 0) {
+
+                BookingSuccessScreen(
+
+                    bookingId = bookingId,
+
+
+                    // =================================================
+                    // VIEW MY BOOKINGS
+                    // =================================================
+                    onViewBookingsClick = {
+
+                        Log.d(
+                            "BOOKING_NAVIGATION",
+                            "Opening My Bookings"
+                        )
+
+                        navController.navigate(
+                            Routes.USER_BOOKINGS
+                        ) {
+
+                            popUpTo(
+                                Routes.BOOKING_SUCCESS
+                            ) {
+                                inclusive = true
+                            }
+
+                            launchSingleTop = true
+                        }
+                    },
+
+                    // =================================================
+                    // BACK TO HOME
+                    // =================================================
+
+                    onHomeClick = {
+
+                        navController.navigate(
+                            Routes.USER_HOME
+                        ) {
+
+                            popUpTo(
+                                Routes.USER_HOME
+                            ) {
+                                inclusive = false
+                            }
+
+                            launchSingleTop = true
+                        }
+                    }
+                )
+
+            } else {
+
+                Text(
+                    text = "Invalid booking."
                 )
             }
         }

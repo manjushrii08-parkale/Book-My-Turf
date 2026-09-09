@@ -31,6 +31,7 @@ import com.example.bookmyturf.viewmodel.BookingViewModel
 import com.example.bookmyturf.viewmodel.FavoriteViewModel
 import androidx.compose.ui.platform.LocalContext
 import com.example.bookmyturf.data.local.SessionManager
+import androidx.activity.compose.BackHandler
 // =========================================================
 // BOTTOM NAVIGATION ITEM
 // =========================================================
@@ -111,6 +112,15 @@ fun UserMainScreen(
             icon = Icons.Default.Person
         )
     )
+    BackHandler {
+
+        if (selectedItem != 0) {
+            selectedItem = 0
+        } else {
+            // At Home → allow Android to close the app
+            (context as? android.app.Activity)?.finish()
+        }
+    }
 
     // =====================================================
     // SCAFFOLD
