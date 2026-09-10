@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.screens.user.components.TurfHomeCard
 import com.example.bookmyturf.viewmodel.FavoriteViewModel
-
+import com.example.bookmyturf.screens.user.components.UserSecondaryTopBar
 
 // ============================================================
 // COLORS
@@ -126,91 +126,16 @@ fun UserFavoritesScreen(
             .background(OffWhite)
     ) {
 
-        // =====================================================
-        // HEADER
-        // =====================================================
 
-        Row(
+// =====================================================
+// SECONDARY TOP BAR
+// =====================================================
 
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 8.dp,
-                    end = 20.dp,
-                    top = 18.dp,
-                    bottom = 14.dp
-                ),
-
-            verticalAlignment =
-                Alignment.CenterVertically
-        ) {
-
-            // =================================================
-            // BACK BUTTON
-            // =================================================
-
-            IconButton(
-
-                onClick = onBackClick
-            ) {
-
-                Icon(
-
-                    imageVector =
-                        Icons.Default.ArrowBack,
-
-                    contentDescription =
-                        "Back",
-
-                    tint =
-                        DarkGreen
-                )
-            }
-
-
-            // =================================================
-            // TITLE
-            // =================================================
-
-            Column(
-
-                modifier =
-                    Modifier.weight(1f)
-            ) {
-
-                Text(
-
-                    text =
-                        "My Favorites",
-
-                    fontSize =
-                        22.sp,
-
-                    fontWeight =
-                        FontWeight.Bold,
-
-                    color =
-                        Charcoal
-                )
-
-                Spacer(
-                    modifier =
-                        Modifier.height(3.dp)
-                )
-
-                Text(
-
-                    text =
-                        "Your saved turfs, ready whenever you are.",
-
-                    fontSize =
-                        12.sp,
-
-                    color =
-                        Gray
-                )
-            }
-        }
+        UserSecondaryTopBar(
+            title = "My Favorites",
+            subtitle = "Your saved turfs, ready whenever you are.",
+            onBackClick = onBackClick
+        )
 
 
         // =====================================================

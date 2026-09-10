@@ -1,12 +1,11 @@
 package com.example.bookmyturf.screens.admin
 
-import android.content.Context
 import android.net.Uri
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,20 +19,27 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.Storefront
 
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,6 +52,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -62,14 +70,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+import androidx.compose.foundation.text.KeyboardOptions
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -79,16 +87,14 @@ import com.example.bookmyturf.data.model.turf.Turf
 import com.example.bookmyturf.data.model.turf.UpdateTurfRequest
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminRepository
+import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
+import com.example.bookmyturf.ui.theme.AdminDarkGreen
+import com.example.bookmyturf.ui.theme.AdminForestGreen
+import com.example.bookmyturf.ui.theme.AdminGray
+import com.example.bookmyturf.ui.theme.AdminLightGreen
+import com.example.bookmyturf.ui.theme.AdminOffWhite
+import com.example.bookmyturf.ui.theme.AdminWhite
 import com.example.bookmyturf.viewmodel.AdminViewModel
-
-
-// =============================================================
-// COLORS
-// =============================================================
-
-private val TurfGreen = Color(0xFF14532D)
-private val TurfLightGreen = Color(0xFFE8F5E9)
-private val TurfGray = Color(0xFF64748B)
 
 
 // =============================================================
@@ -104,35 +110,36 @@ fun EditTurfScreen(
     onSuccess: () -> Unit
 ) {
 
-    // =========================================================
-    // CONTEXT
-    // =========================================================
-
-    val context = LocalContext.current
+    val snackbarHostState =
+        remember {
+            SnackbarHostState()
+        }
 
 
     // =========================================================
     // REPOSITORY
     // =========================================================
 
-    val repository = remember {
+    val repository =
+        remember {
 
-        AdminRepository(
-            RetrofitClient.api
-        )
-    }
+            AdminRepository(
+                RetrofitClient.api
+            )
+        }
 
 
     // =========================================================
     // VIEWMODEL FACTORY
     // =========================================================
 
-    val factory = remember {
+    val factory =
+        remember {
 
-        AdminViewModelFactory(
-            repository
-        )
-    }
+            AdminViewModelFactory(
+                repository
+            )
+        }
 
 
     // =========================================================
@@ -204,7 +211,7 @@ fun EditTurfScreen(
 
 
     // =========================================================
-    // VALIDATION ERROR
+    // VALIDATION
     // =========================================================
 
     var validationError by remember {
@@ -216,14 +223,15 @@ fun EditTurfScreen(
     // SPORTS
     // =========================================================
 
-    val availableSports = listOf(
-        "Football",
-        "Cricket",
-        "Badminton",
-        "Tennis",
-        "Basketball",
-        "Volleyball"
-    )
+    val availableSports =
+        listOf(
+            "Football",
+            "Cricket",
+            "Badminton",
+            "Tennis",
+            "Basketball",
+            "Volleyball"
+        )
 
     val selectedSports =
         remember {
@@ -235,16 +243,17 @@ fun EditTurfScreen(
     // AMENITIES
     // =========================================================
 
-    val availableAmenities = listOf(
-        "Parking",
-        "Changing Room",
-        "Washroom",
-        "Drinking Water",
-        "Flood Lights",
-        "Cafeteria",
-        "Wi-Fi",
-        "First Aid"
-    )
+    val availableAmenities =
+        listOf(
+            "Parking",
+            "Changing Room",
+            "Washroom",
+            "Drinking Water",
+            "Flood Lights",
+            "Cafeteria",
+            "Wi-Fi",
+            "First Aid"
+        )
 
     val selectedAmenities =
         remember {
@@ -263,7 +272,7 @@ fun EditTurfScreen(
 
 
     // =========================================================
-    // NEW IMAGE URIS
+    // NEW IMAGES
     // =========================================================
 
     val newImageUris =
@@ -320,9 +329,7 @@ fun EditTurfScreen(
     // FILL FORM
     // =========================================================
 
-    LaunchedEffect(
-        turfResponse
-    ) {
+    LaunchedEffect(turfResponse) {
 
         val turf: Turf =
             turfResponse
@@ -330,12 +337,7 @@ fun EditTurfScreen(
                 ?.turf
                 ?: return@LaunchedEffect
 
-
         if (!formLoaded) {
-
-            // -------------------------------------------------
-            // BASIC
-            // -------------------------------------------------
 
             name =
                 turf.name
@@ -352,11 +354,6 @@ fun EditTurfScreen(
             address =
                 turf.address ?: ""
 
-
-            // -------------------------------------------------
-            // LOCATION
-            // -------------------------------------------------
-
             latitude =
                 turf.latitude
                     ?.toString()
@@ -367,57 +364,53 @@ fun EditTurfScreen(
                     ?.toString()
                     ?: ""
 
-
-            // -------------------------------------------------
-            // PRICE
-            // -------------------------------------------------
-
             price =
                 turf.price.toString()
-
-
-            // -------------------------------------------------
-            // STATUS
-            // -------------------------------------------------
 
             status =
                 turf.status.uppercase()
 
-
-            // -------------------------------------------------
-            // SPORTS
-            // -------------------------------------------------
-
             selectedSports.clear()
-
             selectedSports.addAll(
                 turf.sportsTypes
             )
 
-
-            // -------------------------------------------------
-            // AMENITIES
-            // -------------------------------------------------
-
             selectedAmenities.clear()
-
             selectedAmenities.addAll(
                 turf.amenities
             )
 
-
-            // -------------------------------------------------
-            // IMAGES
-            // -------------------------------------------------
-
             existingImages.clear()
-
             existingImages.addAll(
                 turf.imageUrls
             )
 
-
             formLoaded = true
+        }
+    }
+
+
+    // =========================================================
+    // ERROR / SUCCESS SNACKBAR
+    // =========================================================
+
+    LaunchedEffect(error) {
+
+        if (!error.isNullOrBlank()) {
+
+            snackbarHostState.showSnackbar(
+                error ?: "Something went wrong."
+            )
+        }
+    }
+
+    LaunchedEffect(successMessage) {
+
+        if (!successMessage.isNullOrBlank()) {
+
+            snackbarHostState.showSnackbar(
+                successMessage ?: "Success"
+            )
         }
     }
 
@@ -428,26 +421,45 @@ fun EditTurfScreen(
 
     Scaffold(
 
+        containerColor =
+            AdminOffWhite,
+
+        snackbarHost = {
+
+            SnackbarHost(
+                hostState =
+                    snackbarHostState
+            )
+        },
+
         topBar = {
 
             TopAppBar(
 
                 title = {
 
-                    Column {
+                    Column(
+                        verticalArrangement =
+                            Arrangement.spacedBy(1.dp)
+                    ) {
 
                         Text(
                             text = "Edit Turf",
-                            fontWeight = FontWeight.Bold
+                            color =
+                                AdminDarkCharcoal,
+                            fontWeight =
+                                FontWeight.Bold,
+                            fontSize =
+                                19.sp
                         )
 
                         Text(
-                            text = "Update your turf details",
-                            fontSize = 12.sp,
+                            text =
+                                "Update your turf details",
                             color =
-                                MaterialTheme
-                                    .colorScheme
-                                    .onSurfaceVariant
+                                AdminGray,
+                            fontSize =
+                                11.sp
                         )
                     }
                 },
@@ -465,17 +477,23 @@ fun EditTurfScreen(
                                     .AutoMirrored
                                     .Filled
                                     .ArrowBack,
-
-                            contentDescription = "Back"
+                            contentDescription =
+                                "Back",
+                            tint =
+                                AdminDarkGreen
                         )
                     }
                 },
 
                 colors =
-                    TopAppBarDefaults
-                        .topAppBarColors(
-                            containerColor = Color.White
-                        )
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor =
+                            AdminWhite,
+                        titleContentColor =
+                            AdminDarkCharcoal,
+                        navigationIconContentColor =
+                            AdminDarkGreen
+                    )
             )
         }
 
@@ -491,45 +509,17 @@ fun EditTurfScreen(
                         rememberScrollState()
                     )
                     .padding(
-                        horizontal = 20.dp,
-                        vertical = 16.dp
+                        horizontal = 16.dp,
+                        vertical = 14.dp
                     ),
 
             verticalArrangement =
                 Arrangement.spacedBy(16.dp)
         ) {
 
+
             // =================================================
             // HEADER
-            // =================================================
-
-            Text(
-                text = "Turf Information",
-                style =
-                    MaterialTheme
-                        .typography
-                        .titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                text =
-                    "Update your turf information, facilities and images.",
-
-                style =
-                    MaterialTheme
-                        .typography
-                        .bodyMedium,
-
-                color =
-                    MaterialTheme
-                        .colorScheme
-                        .onSurfaceVariant
-            )
-
-
-            // =================================================
-            // IMAGES CARD
             // =================================================
 
             Card(
@@ -538,184 +528,251 @@ fun EditTurfScreen(
                     Modifier.fillMaxWidth(),
 
                 shape =
-                    RoundedCornerShape(16.dp),
+                    RoundedCornerShape(22.dp),
 
                 colors =
-                    CardDefaults
-                        .cardColors(
-                            containerColor = Color.White
-                        )
+                    CardDefaults.cardColors(
+                        containerColor =
+                            AdminDarkGreen
+                    ),
+
+                elevation =
+                    CardDefaults.cardElevation(
+                        defaultElevation = 2.dp
+                    )
             ) {
 
-                Column(
+                Row(
 
                     modifier =
-                        Modifier.padding(16.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
 
-                    verticalArrangement =
-                        Arrangement.spacedBy(12.dp)
+                    verticalAlignment =
+                        Alignment.CenterVertically
                 ) {
 
-                    Row(
+                    Box(
 
                         modifier =
-                            Modifier.fillMaxWidth(),
+                            Modifier
+                                .size(54.dp)
+                                .clip(
+                                    RoundedCornerShape(16.dp)
+                                )
+                                .background(
+                                    AdminLightGreen
+                                ),
 
-                        verticalAlignment =
-                            Alignment.CenterVertically
+                        contentAlignment =
+                            Alignment.Center
                     ) {
 
                         Icon(
                             imageVector =
-                                Icons.Default.Image,
-
+                                Icons.Default.Storefront,
                             contentDescription =
                                 null,
-
                             tint =
-                                TurfGreen
+                                AdminDarkGreen,
+                            modifier =
+                                Modifier.size(28.dp)
+                        )
+                    }
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(14.dp)
+                    )
+
+                    Column(
+                        modifier =
+                            Modifier.weight(1f)
+                    ) {
+
+                        Text(
+                            text =
+                                "Turf Information",
+                            color =
+                                AdminWhite,
+                            fontSize =
+                                19.sp,
+                            fontWeight =
+                                FontWeight.Bold
                         )
 
                         Spacer(
                             modifier =
-                                Modifier.width(8.dp)
+                                Modifier.height(4.dp)
                         )
 
-                        Column(
-                            modifier =
-                                Modifier.weight(1f)
-                        ) {
-
-                            Text(
-                                text = "Turf Images",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 17.sp
-                            )
-
-                            Text(
-                                text =
-                                    "${existingImages.size + newImageUris.size} image(s)",
-
-                                fontSize = 12.sp,
-
-                                color =
-                                    MaterialTheme
-                                        .colorScheme
-                                        .onSurfaceVariant
-                            )
-                        }
-
-                        OutlinedButton(
-
-                            onClick = {
-
-                                imagePicker.launch(
-                                    PickVisualMediaRequest(
-                                        ActivityResultContracts
-                                            .PickVisualMedia
-                                            .ImageOnly
-                                    )
-                                )
-                            },
-
-                            enabled = !isLoading
-                        ) {
-
-                            Icon(
-                                imageVector =
-                                    Icons.Default.Add,
-                                contentDescription =
-                                    null
-                            )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.width(4.dp)
-                            )
-
-                            Text(
-                                "Add"
-                            )
-                        }
+                        Text(
+                            text =
+                                "Update your turf, facilities and photos.",
+                            color =
+                                AdminWhite.copy(
+                                    alpha = 0.82f
+                                ),
+                            fontSize =
+                                12.sp
+                        )
                     }
+                }
+            }
 
 
-                    // =================================================
-                    // CURRENT IMAGES
-                    // =================================================
+            // =================================================
+            // TURF IMAGES
+            // =================================================
 
-                    if (
-                        existingImages.isNotEmpty()
+            EditSectionCard(
+                title = "Turf Photos",
+                subtitle =
+                    "Manage your current photos or add new ones."
+            ) {
+
+                Row(
+                    modifier =
+                        Modifier.fillMaxWidth(),
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+
+                    Column(
+                        modifier =
+                            Modifier.weight(1f)
                     ) {
 
                         Text(
-                            text = "Current Images",
+                            text =
+                                "${existingImages.size + newImageUris.size} image(s)",
+                            color =
+                                AdminDarkCharcoal,
+                            fontSize =
+                                15.sp,
                             fontWeight =
-                                FontWeight.SemiBold
+                                FontWeight.Bold
                         )
 
-                        LazyRow(
-                            horizontalArrangement =
-                                Arrangement.spacedBy(10.dp)
-                        ) {
+                        Text(
+                            text =
+                                "Current + new photos",
+                            color =
+                                AdminGray,
+                            fontSize =
+                                11.sp
+                        )
+                    }
 
-                            items(
-                                items = existingImages,
-                                key = { it }
-                            ) { imageUrl ->
+                    OutlinedButton(
+                        onClick = {
 
-                                TurfImageItem(
-                                    imageModel = buildImageUrl(
+                            imagePicker.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts
+                                        .PickVisualMedia
+                                        .ImageOnly
+                                )
+                            )
+                        },
+                        enabled = !isLoading,
+                        shape =
+                            RoundedCornerShape(12.dp)
+                    ) {
+
+                        Icon(
+                            imageVector =
+                                Icons.Default.Add,
+                            contentDescription =
+                                null
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(5.dp)
+                        )
+
+                        Text("Add")
+                    }
+                }
+
+
+                if (existingImages.isNotEmpty()) {
+
+                    Text(
+                        text =
+                            "Current Images",
+                        color =
+                            AdminDarkCharcoal,
+                        fontWeight =
+                            FontWeight.SemiBold,
+                        fontSize =
+                            13.sp
+                    )
+
+                    LazyRow(
+                        horizontalArrangement =
+                            Arrangement.spacedBy(10.dp)
+                    ) {
+
+                        items(
+                            items = existingImages,
+                            key = { it }
+                        ) { imageUrl ->
+
+                            TurfImageItem(
+                                imageModel =
+                                    buildImageUrl(
                                         imageUrl
                                     ),
-                                    onRemove = {
+                                onRemove = {
 
-                                        existingImages.remove(
-                                            imageUrl
-                                        )
-                                    }
-                                )
-                            }
+                                    existingImages.remove(
+                                        imageUrl
+                                    )
+                                }
+                            )
                         }
                     }
+                }
 
 
-                    // =================================================
-                    // NEW IMAGES
-                    // =================================================
+                if (newImageUris.isNotEmpty()) {
 
-                    if (
-                        newImageUris.isNotEmpty()
+                    Text(
+                        text =
+                            "New Images",
+                        color =
+                            AdminDarkCharcoal,
+                        fontWeight =
+                            FontWeight.SemiBold,
+                        fontSize =
+                            13.sp
+                    )
+
+                    LazyRow(
+                        horizontalArrangement =
+                            Arrangement.spacedBy(10.dp)
                     ) {
 
-                        Text(
-                            text = "New Images",
-                            fontWeight =
-                                FontWeight.SemiBold
-                        )
-
-                        LazyRow(
-                            horizontalArrangement =
-                                Arrangement.spacedBy(10.dp)
-                        ) {
-
-                            items(
-                                items = newImageUris,
-                                key = {
-                                    it.toString()
-                                }
-                            ) { uri ->
-
-                                TurfImageItem(
-                                    imageModel = uri,
-                                    onRemove = {
-
-                                        newImageUris.remove(
-                                            uri
-                                        )
-                                    }
-                                )
+                        items(
+                            items = newImageUris,
+                            key = {
+                                it.toString()
                             }
+                        ) { uri ->
+
+                            TurfImageItem(
+                                imageModel =
+                                    uri,
+                                onRemove = {
+
+                                    newImageUris.remove(
+                                        uri
+                                    )
+                                }
+                            )
                         }
                     }
                 }
@@ -726,206 +783,186 @@ fun EditTurfScreen(
             // BASIC INFORMATION
             // =================================================
 
-            SectionTitle(
-                title = "Basic Information"
-            )
+            EditSectionCard(
+                title = "Basic Information",
+                subtitle =
+                    "Update the main information of your turf."
+            ) {
 
-            OutlinedTextField(
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = {
 
-                value = name,
-
-                onValueChange = {
-
-                    name = it
-                    validationError = null
-                },
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                label = {
-                    Text("Turf Name")
-                },
-
-                placeholder = {
-                    Text("Enter turf name")
-                },
-
-                singleLine = true
-            )
+                        name = it
+                        validationError = null
+                    },
+                    modifier =
+                        Modifier.fillMaxWidth(),
+                    label = {
+                        Text("Turf Name")
+                    },
+                    placeholder = {
+                        Text("Enter turf name")
+                    },
+                    singleLine = true
+                )
 
 
-            OutlinedTextField(
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = {
 
-                value = description,
-
-                onValueChange = {
-
-                    description = it
-                    validationError = null
-                },
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                label = {
-                    Text("Description")
-                },
-
-                placeholder = {
-                    Text("Describe your turf")
-                },
-
-                minLines = 4,
-                maxLines = 6
-            )
+                        description = it
+                        validationError = null
+                    },
+                    modifier =
+                        Modifier.fillMaxWidth(),
+                    label = {
+                        Text("Description")
+                    },
+                    placeholder = {
+                        Text("Describe your turf")
+                    },
+                    minLines = 3,
+                    maxLines = 5
+                )
+            }
 
 
             // =================================================
             // LOCATION
             // =================================================
 
-            SectionTitle(
-                title = "Location"
-            )
-
-            OutlinedTextField(
-
-                value = location,
-
-                onValueChange = {
-
-                    location = it
-                    validationError = null
-                },
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                label = {
-                    Text("Location")
-                },
-
-                placeholder = {
-                    Text("Area / Locality")
-                },
-
-                singleLine = true
-            )
-
-
-            OutlinedTextField(
-
-                value = city,
-
-                onValueChange = {
-
-                    city = it
-                    validationError = null
-                },
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                label = {
-                    Text("City")
-                },
-
-                placeholder = {
-                    Text("Enter city")
-                },
-
-                singleLine = true
-            )
-
-
-            OutlinedTextField(
-
-                value = address,
-
-                onValueChange = {
-
-                    address = it
-                    validationError = null
-                },
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                label = {
-                    Text("Full Address")
-                },
-
-                placeholder = {
-                    Text("Enter complete address")
-                },
-
-                minLines = 3,
-                maxLines = 5
-            )
-
-
-            // =================================================
-            // LATITUDE / LONGITUDE
-            // =================================================
-
-            Row(
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                horizontalArrangement =
-                    Arrangement.spacedBy(12.dp)
+            EditSectionCard(
+                title = "Location",
+                subtitle =
+                    "Keep your turf location information accurate."
             ) {
 
                 OutlinedTextField(
-
-                    value = latitude,
-
+                    value = location,
                     onValueChange = {
-                        latitude = it
-                    },
 
+                        location = it
+                        validationError = null
+                    },
                     modifier =
-                        Modifier.weight(1f),
-
+                        Modifier.fillMaxWidth(),
                     label = {
-                        Text("Latitude")
+                        Text("Location")
                     },
+                    placeholder = {
+                        Text("Area / Locality")
+                    },
+                    leadingIcon = {
 
-                    keyboardOptions =
-                        KeyboardOptions(
-                            keyboardType =
-                                KeyboardType.Decimal
-                        ),
-
+                        Icon(
+                            imageVector =
+                                Icons.Default.LocationOn,
+                            contentDescription =
+                                null,
+                            tint =
+                                AdminDarkGreen
+                        )
+                    },
                     singleLine = true
                 )
 
 
                 OutlinedTextField(
-
-                    value = longitude,
-
+                    value = city,
                     onValueChange = {
-                        longitude = it
-                    },
 
+                        city = it
+                        validationError = null
+                    },
                     modifier =
-                        Modifier.weight(1f),
-
+                        Modifier.fillMaxWidth(),
                     label = {
-                        Text("Longitude")
+                        Text("City")
                     },
-
-                    keyboardOptions =
-                        KeyboardOptions(
-                            keyboardType =
-                                KeyboardType.Decimal
-                        ),
-
+                    placeholder = {
+                        Text("Enter city")
+                    },
                     singleLine = true
                 )
+
+
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = {
+
+                        address = it
+                        validationError = null
+                    },
+                    modifier =
+                        Modifier.fillMaxWidth(),
+                    label = {
+                        Text("Full Address")
+                    },
+                    placeholder = {
+                        Text("Enter complete address")
+                    },
+                    minLines = 2,
+                    maxLines = 4
+                )
+            }
+
+
+            // =================================================
+            // COORDINATES
+            // =================================================
+
+            EditSectionCard(
+                title = "Map Coordinates",
+                subtitle =
+                    "Optional latitude and longitude."
+            ) {
+
+                Row(
+                    modifier =
+                        Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.spacedBy(10.dp)
+                ) {
+
+                    OutlinedTextField(
+                        value = latitude,
+                        onValueChange = {
+                            latitude = it
+                        },
+                        modifier =
+                            Modifier.weight(1f),
+                        label = {
+                            Text("Latitude")
+                        },
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType =
+                                    KeyboardType.Decimal
+                            ),
+                        singleLine = true
+                    )
+
+
+                    OutlinedTextField(
+                        value = longitude,
+                        onValueChange = {
+                            longitude = it
+                        },
+                        modifier =
+                            Modifier.weight(1f),
+                        label = {
+                            Text("Longitude")
+                        },
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType =
+                                    KeyboardType.Decimal
+                            ),
+                        singleLine = true
+                    )
+                }
             }
 
 
@@ -933,66 +970,70 @@ fun EditTurfScreen(
             // SPORTS
             // =================================================
 
-            SectionTitle(
-                title = "Sports Available"
-            )
-
-            Text(
-                text =
-                    "Select the sports available at this turf.",
-
-                style =
-                    MaterialTheme
-                        .typography
-                        .bodySmall,
-
-                color =
-                    MaterialTheme
-                        .colorScheme
-                        .onSurfaceVariant
-            )
-
-
-            FlowRow(
-
-                horizontalArrangement =
-                    Arrangement.spacedBy(8.dp),
-
-                verticalArrangement =
-                    Arrangement.spacedBy(8.dp)
+            EditSectionCard(
+                title = "Sports Available",
+                subtitle =
+                    "Select all sports available at this turf."
             ) {
 
-                availableSports.forEach { sport ->
+                FlowRow(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(8.dp),
+                    verticalArrangement =
+                        Arrangement.spacedBy(8.dp)
+                ) {
 
-                    FilterChip(
+                    availableSports.forEach { sport ->
 
-                        selected =
-                            selectedSports
-                                .contains(sport),
+                        val selected =
+                            selectedSports.contains(
+                                sport
+                            )
 
-                        onClick = {
+                        FilterChip(
+                            selected =
+                                selected,
 
-                            if (
-                                selectedSports
-                                    .contains(sport)
-                            ) {
+                            onClick = {
 
-                                selectedSports.remove(
-                                    sport
-                                )
+                                if (selected) {
 
-                            } else {
+                                    selectedSports.remove(
+                                        sport
+                                    )
 
-                                selectedSports.add(
-                                    sport
-                                )
+                                } else {
+
+                                    selectedSports.add(
+                                        sport
+                                    )
+                                }
+
+                                validationError = null
+                            },
+
+                            label = {
+                                Text(sport)
+                            },
+
+                            leadingIcon = {
+
+                                if (selected) {
+
+                                    Icon(
+                                        imageVector =
+                                            Icons.Default.SportsSoccer,
+                                        contentDescription =
+                                            null,
+                                        modifier =
+                                            Modifier.size(17.dp),
+                                        tint =
+                                            AdminDarkGreen
+                                    )
+                                }
                             }
-                        },
-
-                        label = {
-                            Text(sport)
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
@@ -1001,50 +1042,68 @@ fun EditTurfScreen(
             // AMENITIES
             // =================================================
 
-            SectionTitle(
-                title = "Amenities"
-            )
-
-            FlowRow(
-
-                horizontalArrangement =
-                    Arrangement.spacedBy(8.dp),
-
-                verticalArrangement =
-                    Arrangement.spacedBy(8.dp)
+            EditSectionCard(
+                title = "Amenities",
+                subtitle =
+                    "Select the facilities available."
             ) {
 
-                availableAmenities.forEach { amenity ->
+                FlowRow(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(8.dp),
+                    verticalArrangement =
+                        Arrangement.spacedBy(8.dp)
+                ) {
 
-                    FilterChip(
+                    availableAmenities.forEach { amenity ->
 
-                        selected =
-                            selectedAmenities
-                                .contains(amenity),
+                        val selected =
+                            selectedAmenities.contains(
+                                amenity
+                            )
 
-                        onClick = {
+                        FilterChip(
+                            selected =
+                                selected,
 
-                            if (
-                                selectedAmenities
-                                    .contains(amenity)
-                            ) {
+                            onClick = {
 
-                                selectedAmenities.remove(
-                                    amenity
-                                )
+                                if (selected) {
 
-                            } else {
+                                    selectedAmenities.remove(
+                                        amenity
+                                    )
 
-                                selectedAmenities.add(
-                                    amenity
-                                )
+                                } else {
+
+                                    selectedAmenities.add(
+                                        amenity
+                                    )
+                                }
+                            },
+
+                            label = {
+                                Text(amenity)
+                            },
+
+                            leadingIcon = {
+
+                                if (selected) {
+
+                                    Icon(
+                                        imageVector =
+                                            Icons.Default.CheckCircle,
+                                        contentDescription =
+                                            null,
+                                        modifier =
+                                            Modifier.size(17.dp),
+                                        tint =
+                                            AdminForestGreen
+                                    )
+                                }
                             }
-                        },
-
-                        label = {
-                            Text(amenity)
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
@@ -1053,93 +1112,84 @@ fun EditTurfScreen(
             // PRICING
             // =================================================
 
-            SectionTitle(
-                title = "Pricing"
-            )
+            EditSectionCard(
+                title = "Pricing",
+                subtitle =
+                    "Set the standard price per slot."
+            ) {
 
-            OutlinedTextField(
+                OutlinedTextField(
+                    value = price,
+                    onValueChange = {
 
-                value = price,
+                        price = it
+                        validationError = null
+                    },
+                    modifier =
+                        Modifier.fillMaxWidth(),
+                    label = {
+                        Text("Price per Slot")
+                    },
+                    placeholder = {
+                        Text("e.g. 650")
+                    },
+                    leadingIcon = {
 
-                onValueChange = {
-
-                    price = it
-                    validationError = null
-                },
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                label = {
-                    Text("Price per Slot")
-                },
-
-                placeholder = {
-                    Text("Example: 500")
-                },
-
-                leadingIcon = {
-
-                    Text(
-                        text = "₹",
-                        fontWeight =
-                            FontWeight.Bold
-                    )
-                },
-
-                keyboardOptions =
-                    KeyboardOptions(
-                        keyboardType =
-                            KeyboardType.Decimal
-                    ),
-
-                singleLine = true
-            )
+                        Text(
+                            text = "₹",
+                            color =
+                                AdminDarkCharcoal,
+                            fontWeight =
+                                FontWeight.Bold
+                        )
+                    },
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType =
+                                KeyboardType.Decimal
+                        ),
+                    singleLine = true
+                )
+            }
 
 
             // =================================================
             // STATUS
             // =================================================
 
-            SectionTitle(
-                title = "Turf Status"
-            )
-
-            Row(
-                horizontalArrangement =
-                    Arrangement.spacedBy(8.dp)
+            EditSectionCard(
+                title = "Turf Status",
+                subtitle =
+                    "Control whether customers can view this turf."
             ) {
 
-                FilterChip(
+                Row(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(8.dp)
+                ) {
 
-                    selected =
-                        status == "ACTIVE",
+                    FilterChip(
+                        selected =
+                            status == "ACTIVE",
+                        onClick = {
+                            status = "ACTIVE"
+                        },
+                        label = {
+                            Text("Active")
+                        }
+                    )
 
-                    onClick = {
-
-                        status = "ACTIVE"
-                    },
-
-                    label = {
-                        Text("Active")
-                    }
-                )
-
-
-                FilterChip(
-
-                    selected =
-                        status == "INACTIVE",
-
-                    onClick = {
-
-                        status = "INACTIVE"
-                    },
-
-                    label = {
-                        Text("Inactive")
-                    }
-                )
+                    FilterChip(
+                        selected =
+                            status == "INACTIVE",
+                        onClick = {
+                            status = "INACTIVE"
+                        },
+                        label = {
+                            Text("Inactive")
+                        }
+                    )
+                }
             }
 
 
@@ -1147,123 +1197,63 @@ fun EditTurfScreen(
             // VALIDATION ERROR
             // =================================================
 
-            if (
-                !validationError.isNullOrBlank()
-            ) {
+            validationError?.let { message ->
 
                 Card(
-
                     modifier =
                         Modifier.fillMaxWidth(),
-
+                    shape =
+                        RoundedCornerShape(14.dp),
                     colors =
-                        CardDefaults
-                            .cardColors(
-                                containerColor =
-                                    MaterialTheme
-                                        .colorScheme
-                                        .errorContainer
-                            )
+                        CardDefaults.cardColors(
+                            containerColor =
+                                Color(
+                                    0xFFFFF1F2
+                                )
+                        )
                 ) {
 
-                    Text(
-
-                        text =
-                            validationError ?: "",
-
+                    Row(
                         modifier =
-                            Modifier.padding(14.dp),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                        verticalAlignment =
+                            Alignment.CenterVertically
+                    ) {
 
-                        color =
-                            MaterialTheme
-                                .colorScheme
-                                .onErrorContainer
-                    )
+                        Icon(
+                            imageVector =
+                                Icons.Default.Close,
+                            contentDescription =
+                                null,
+                            tint =
+                                Color(0xFFBE123C),
+                            modifier =
+                                Modifier.size(18.dp)
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(8.dp)
+                        )
+
+                        Text(
+                            text = message,
+                            color =
+                                Color(0xFFBE123C),
+                            fontSize =
+                                13.sp,
+                            fontWeight =
+                                FontWeight.Medium
+                        )
+                    }
                 }
             }
 
 
             // =================================================
-            // API ERROR
-            // =================================================
-
-            if (
-                !error.isNullOrBlank()
-            ) {
-
-                Card(
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    colors =
-                        CardDefaults
-                            .cardColors(
-                                containerColor =
-                                    MaterialTheme
-                                        .colorScheme
-                                        .errorContainer
-                            )
-                ) {
-
-                    Text(
-
-                        text =
-                            error ?: "",
-
-                        modifier =
-                            Modifier.padding(14.dp),
-
-                        color =
-                            MaterialTheme
-                                .colorScheme
-                                .onErrorContainer
-                    )
-                }
-            }
-
-
-            // =================================================
-            // SUCCESS
-            // =================================================
-
-            if (
-                !successMessage.isNullOrBlank()
-            ) {
-
-                Card(
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    colors =
-                        CardDefaults
-                            .cardColors(
-                                containerColor =
-                                    TurfLightGreen
-                            )
-                ) {
-
-                    Text(
-
-                        text =
-                            successMessage ?: "",
-
-                        modifier =
-                            Modifier.padding(14.dp),
-
-                        color =
-                            TurfGreen,
-
-                        fontWeight =
-                            FontWeight.SemiBold
-                    )
-                }
-            }
-
-
-            // =================================================
-            // UPDATE BUTTON
+            // SAVE
             // =================================================
 
             Button(
@@ -1271,10 +1261,6 @@ fun EditTurfScreen(
                 onClick = {
 
                     validationError = null
-
-                    // -------------------------------------------------
-                    // CLEAN VALUES
-                    // -------------------------------------------------
 
                     val cleanName =
                         name.trim()
@@ -1291,13 +1277,7 @@ fun EditTurfScreen(
                             .toDoubleOrNull()
 
 
-                    // -------------------------------------------------
-                    // NAME
-                    // -------------------------------------------------
-
-                    if (
-                        cleanName.isBlank()
-                    ) {
+                    if (cleanName.isBlank()) {
 
                         validationError =
                             "Please enter turf name."
@@ -1306,13 +1286,7 @@ fun EditTurfScreen(
                     }
 
 
-                    // -------------------------------------------------
-                    // LOCATION
-                    // -------------------------------------------------
-
-                    if (
-                        cleanLocation.isBlank()
-                    ) {
+                    if (cleanLocation.isBlank()) {
 
                         validationError =
                             "Please enter turf location."
@@ -1321,13 +1295,7 @@ fun EditTurfScreen(
                     }
 
 
-                    // -------------------------------------------------
-                    // CITY
-                    // -------------------------------------------------
-
-                    if (
-                        cleanCity.isBlank()
-                    ) {
+                    if (cleanCity.isBlank()) {
 
                         validationError =
                             "Please enter city."
@@ -1336,13 +1304,7 @@ fun EditTurfScreen(
                     }
 
 
-                    // -------------------------------------------------
-                    // SPORTS
-                    // -------------------------------------------------
-
-                    if (
-                        selectedSports.isEmpty()
-                    ) {
+                    if (selectedSports.isEmpty()) {
 
                         validationError =
                             "Please select at least one sport."
@@ -1350,10 +1312,6 @@ fun EditTurfScreen(
                         return@Button
                     }
 
-
-                    // -------------------------------------------------
-                    // PRICE
-                    // -------------------------------------------------
 
                     if (
                         turfPrice == null ||
@@ -1366,10 +1324,6 @@ fun EditTurfScreen(
                         return@Button
                     }
 
-
-                    // =================================================
-                    // CREATE UPDATE REQUEST
-                    // =================================================
 
                     val request =
                         UpdateTurfRequest(
@@ -1424,10 +1378,6 @@ fun EditTurfScreen(
                         )
 
 
-                    // =================================================
-                    // UPDATE API
-                    // =================================================
-
                     viewModel.updateTurf(
 
                         token = token,
@@ -1446,36 +1396,56 @@ fun EditTurfScreen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(54.dp),
+                        .height(56.dp),
 
                 enabled =
                     !isLoading &&
                             formLoaded,
 
                 shape =
-                    RoundedCornerShape(14.dp)
+                    RoundedCornerShape(15.dp),
+
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor =
+                            AdminDarkGreen,
+                        contentColor =
+                            AdminWhite,
+                        disabledContainerColor =
+                            AdminDarkGreen.copy(
+                                alpha = 0.45f
+                            )
+                    )
             ) {
 
                 if (isLoading) {
 
                     CircularProgressIndicator(
-
                         modifier =
                             Modifier.size(22.dp),
-
                         color =
-                            Color.White,
+                            AdminWhite,
+                        strokeWidth =
+                            2.5.dp
+                    )
 
-                        strokeWidth = 2.dp
+                    Spacer(
+                        modifier =
+                            Modifier.width(9.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Saving Changes...",
+                        fontWeight =
+                            FontWeight.Bold
                     )
 
                 } else {
 
                     Icon(
-
                         imageVector =
                             Icons.Default.Save,
-
                         contentDescription =
                             null
                     )
@@ -1486,7 +1456,8 @@ fun EditTurfScreen(
                     )
 
                     Text(
-                        text = "Save Changes",
+                        text =
+                            "Save Changes",
                         fontWeight =
                             FontWeight.Bold
                     )
@@ -1494,59 +1465,113 @@ fun EditTurfScreen(
             }
 
 
-            Spacer(
+            // =================================================
+            // FOOTER
+            // =================================================
+
+            Row(
                 modifier =
-                    Modifier.height(20.dp)
-            )
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            bottom = 20.dp
+                        ),
+                horizontalArrangement =
+                    Arrangement.Center,
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.CheckCircle,
+                    contentDescription =
+                        null,
+                    tint =
+                        AdminForestGreen,
+                    modifier =
+                        Modifier.size(16.dp)
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.width(6.dp)
+                )
+
+                Text(
+                    text =
+                        "Changes are saved to your turf listing.",
+                    color =
+                        AdminGray,
+                    fontSize =
+                        11.sp
+                )
+            }
         }
     }
 }
 
 
 // =============================================================
-// SECTION TITLE
+// SECTION CARD
 // =============================================================
 
 @Composable
-private fun SectionTitle(
-    title: String
+private fun EditSectionCard(
+    title: String,
+    subtitle: String,
+    content: @Composable () -> Unit
 ) {
 
-    Column(
+    Card(
         modifier =
-            Modifier.fillMaxWidth()
+            Modifier.fillMaxWidth(),
+        shape =
+            RoundedCornerShape(18.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    AdminWhite
+            ),
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = 1.dp
+            )
     ) {
 
-        Text(
-
-            text = title,
-
-            style =
-                MaterialTheme
-                    .typography
-                    .titleMedium,
-
-            fontWeight =
-                FontWeight.Bold,
-
-            color =
-                TurfGreen
-        )
-
-        Spacer(
+        Column(
             modifier =
-                Modifier.height(6.dp)
-        )
+                Modifier.padding(17.dp),
+            verticalArrangement =
+                Arrangement.spacedBy(10.dp)
+        ) {
 
-        HorizontalDivider(
-            thickness = 1.dp
-        )
+            Text(
+                text = title,
+                color =
+                    AdminDarkCharcoal,
+                fontSize =
+                    17.sp,
+                fontWeight =
+                    FontWeight.Bold
+            )
+
+            Text(
+                text = subtitle,
+                color =
+                    AdminGray,
+                fontSize =
+                    12.sp
+            )
+
+            content()
+        }
     }
 }
 
 
 // =============================================================
-// TURF IMAGE ITEM
+// IMAGE ITEM
 // =============================================================
 
 @Composable
@@ -1556,7 +1581,6 @@ private fun TurfImageItem(
 ) {
 
     Box(
-
         modifier =
             Modifier
                 .size(
@@ -1567,41 +1591,29 @@ private fun TurfImageItem(
                     RoundedCornerShape(14.dp)
                 )
                 .background(
-                    Color.LightGray
+                    AdminOffWhite
                 )
     ) {
 
         AsyncImage(
-
             model = imageModel,
-
-            contentDescription =
-                "Turf Image",
-
+            contentDescription = "Turf image",
             modifier =
                 Modifier.fillMaxSize(),
-
             contentScale =
                 ContentScale.Crop
         )
 
 
-        // =========================================================
-        // REMOVE BUTTON
-        // =========================================================
-
         IconButton(
-
-            onClick =
-                onRemove,
-
+            onClick = onRemove,
             modifier =
                 Modifier
                     .align(
                         Alignment.TopEnd
                     )
                     .padding(4.dp)
-                    .size(32.dp)
+                    .size(30.dp)
                     .background(
                         Color.Black.copy(
                             alpha = 0.65f
@@ -1611,18 +1623,14 @@ private fun TurfImageItem(
         ) {
 
             Icon(
-
                 imageVector =
                     Icons.Default.Close,
-
                 contentDescription =
-                    "Remove Image",
-
+                    "Remove image",
                 tint =
-                    Color.White,
-
+                    AdminWhite,
                 modifier =
-                    Modifier.size(18.dp)
+                    Modifier.size(17.dp)
             )
         }
     }
@@ -1630,7 +1638,7 @@ private fun TurfImageItem(
 
 
 // =============================================================
-// BUILD IMAGE URL
+// IMAGE URL
 // =============================================================
 
 private fun buildImageUrl(

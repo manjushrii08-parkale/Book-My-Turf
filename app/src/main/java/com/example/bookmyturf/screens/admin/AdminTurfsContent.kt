@@ -1,5 +1,6 @@
 package com.example.bookmyturf.screens.admin
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,18 +30,23 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,17 +58,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.bookmyturf.data.model.turf.Turf
+import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
+import com.example.bookmyturf.ui.theme.AdminDarkGreen
+import com.example.bookmyturf.ui.theme.AdminForestGreen
+import com.example.bookmyturf.ui.theme.AdminGray
+import com.example.bookmyturf.ui.theme.AdminLightGreen
+import com.example.bookmyturf.ui.theme.AdminOffWhite
+import com.example.bookmyturf.ui.theme.AdminWhite
 
 // =============================================================
-// COLORS
+// LOCAL COLORS
 // =============================================================
 
-private val TurfGreen = Color(0xFF14532D)
-private val TurfGreenLight = Color(0xFFE8F5E9)
-private val TurfGray = Color(0xFF64748B)
-private val TurfBackground = Color(0xFFF8FAFC)
-private val TurfRed = Color(0xFFDC2626)
-private val TurfDark = Color(0xFF0F172A)
+private val AdminRed = Color(0xFFB91C1C)
+private val AdminRedLight = Color(0xFFFFF1F2)
+private val AdminRedBorder = Color(0xFFE5B8B8)
+
 
 // =============================================================
 // ADMIN TURFS CONTENT
@@ -84,7 +95,7 @@ fun AdminTurfsContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(TurfBackground)
+            .background(AdminOffWhite)
             .padding(horizontal = 16.dp)
     ) {
 
@@ -109,7 +120,7 @@ fun AdminTurfsContent(
                     text = "My Turfs",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = TurfDark
+                    color = AdminDarkCharcoal
                 )
 
                 Spacer(
@@ -128,14 +139,18 @@ fun AdminTurfsContent(
                             }
                         } available"
                     },
-                    color = TurfGray,
+                    color = AdminGray,
                     fontSize = 13.sp
                 )
             }
 
             Button(
                 onClick = onAddTurf,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AdminDarkGreen,
+                    contentColor = AdminWhite
+                )
             ) {
 
                 Icon(
@@ -148,7 +163,8 @@ fun AdminTurfsContent(
                 )
 
                 Text(
-                    text = "Add Turf"
+                    text = "Add Turf",
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -172,7 +188,7 @@ fun AdminTurfsContent(
             ) {
 
                 CircularProgressIndicator(
-                    color = TurfGreen
+                    color = AdminForestGreen
                 )
 
                 Spacer(
@@ -181,7 +197,7 @@ fun AdminTurfsContent(
 
                 Text(
                     text = "Loading your turfs...",
-                    color = TurfGray,
+                    color = AdminGray,
                     fontSize = 14.sp
                 )
             }
@@ -203,11 +219,34 @@ fun AdminTurfsContent(
                 verticalArrangement = Arrangement.Center
             ) {
 
+                Surface(
+                    modifier = Modifier.size(76.dp),
+                    shape = CircleShape,
+                    color = Color(0xFFFEE2E2)
+                ) {
+
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Default.Image,
+                            contentDescription = null,
+                            modifier = Modifier.size(34.dp),
+                            tint = AdminRed
+                        )
+                    }
+                }
+
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
+
                 Text(
                     text = "Unable to load turfs",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = TurfDark
+                    color = AdminDarkCharcoal
                 )
 
                 Spacer(
@@ -216,7 +255,7 @@ fun AdminTurfsContent(
 
                 Text(
                     text = error,
-                    color = TurfGray,
+                    color = AdminGray,
                     fontSize = 13.sp
                 )
 
@@ -226,11 +265,16 @@ fun AdminTurfsContent(
 
                 Button(
                     onClick = onRetry,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AdminDarkGreen,
+                        contentColor = AdminWhite
+                    )
                 ) {
 
                     Text(
-                        text = "Retry"
+                        text = "Retry",
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -255,7 +299,7 @@ fun AdminTurfsContent(
                 Surface(
                     modifier = Modifier.size(82.dp),
                     shape = CircleShape,
-                    color = TurfGreenLight
+                    color = AdminLightGreen.copy(alpha = 0.20f)
                 ) {
 
                     Box(
@@ -266,7 +310,7 @@ fun AdminTurfsContent(
                             imageVector = Icons.Default.SportsSoccer,
                             contentDescription = null,
                             modifier = Modifier.size(42.dp),
-                            tint = TurfGreen
+                            tint = AdminForestGreen
                         )
                     }
                 }
@@ -279,7 +323,7 @@ fun AdminTurfsContent(
                     text = "No Turfs Added",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = TurfDark
+                    color = AdminDarkCharcoal
                 )
 
                 Spacer(
@@ -288,7 +332,7 @@ fun AdminTurfsContent(
 
                 Text(
                     text = "Add your first turf to start managing bookings.",
-                    color = TurfGray,
+                    color = AdminGray,
                     fontSize = 14.sp
                 )
 
@@ -298,7 +342,11 @@ fun AdminTurfsContent(
 
                 Button(
                     onClick = onAddTurf,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AdminDarkGreen,
+                        contentColor = AdminWhite
+                    )
                 ) {
 
                     Icon(
@@ -311,7 +359,8 @@ fun AdminTurfsContent(
                     )
 
                     Text(
-                        text = "Add New Turf"
+                        text = "Add New Turf",
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -369,14 +418,18 @@ private fun TurfAdminCard(
     onDelete: () -> Unit
 ) {
 
+    var showDeleteDialog by remember {
+        mutableStateOf(false)
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = AdminWhite
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 3.dp
+            defaultElevation = 2.dp
         )
     ) {
 
@@ -401,12 +454,12 @@ private fun TurfAdminCard(
             ) {
 
                 // =================================================
-                // NAME + ACTIONS
+                // NAME + STATUS
                 // =================================================
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                 ) {
 
                     Column(
@@ -417,7 +470,7 @@ private fun TurfAdminCard(
                             text = turf.name,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = TurfDark
+                            color = AdminDarkCharcoal
                         )
 
                         Spacer(
@@ -432,7 +485,7 @@ private fun TurfAdminCard(
                                 imageVector = Icons.Default.LocationOn,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
-                                tint = TurfGreen
+                                tint = AdminForestGreen
                             )
 
                             Spacer(
@@ -441,34 +494,20 @@ private fun TurfAdminCard(
 
                             Text(
                                 text = turf.city,
-                                color = TurfGray,
+                                color = AdminGray,
                                 fontSize = 13.sp,
                                 maxLines = 1
                             )
                         }
                     }
 
-                    IconButton(
-                        onClick = onEdit
-                    ) {
+                    Spacer(
+                        modifier = Modifier.width(10.dp)
+                    )
 
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit Turf",
-                            tint = TurfGreen
-                        )
-                    }
-
-                    IconButton(
-                        onClick = onDelete
-                    ) {
-
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete Turf",
-                            tint = TurfRed
-                        )
-                    }
+                    TurfStatusBadge(
+                        status = turf.status
+                    )
                 }
 
                 Spacer(
@@ -482,7 +521,7 @@ private fun TurfAdminCard(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFF8FAFC)
+                    color = AdminOffWhite
                 ) {
 
                     Row(
@@ -490,22 +529,36 @@ private fun TurfAdminCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            modifier = Modifier.size(19.dp),
-                            tint = TurfGreen
-                        )
+                        Surface(
+                            modifier = Modifier.size(36.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            color = AdminLightGreen.copy(alpha = 0.20f)
+                        ) {
+
+                            Box(
+                                contentAlignment = Alignment.Center
+                            ) {
+
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(19.dp),
+                                    tint = AdminForestGreen
+                                )
+                            }
+                        }
 
                         Spacer(
-                            modifier = Modifier.width(8.dp)
+                            modifier = Modifier.width(10.dp)
                         )
 
-                        Column {
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
 
                             Text(
                                 text = "Location",
-                                color = TurfGray,
+                                color = AdminGray,
                                 fontSize = 11.sp
                             )
 
@@ -515,9 +568,10 @@ private fun TurfAdminCard(
 
                             Text(
                                 text = turf.location,
-                                color = TurfDark,
+                                color = AdminDarkCharcoal,
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 2
                             )
                         }
                     }
@@ -538,31 +592,22 @@ private fun TurfAdminCard(
                     icon = Icons.Default.Star
                 )
 
-                Spacer(
-                    modifier = Modifier.height(14.dp)
-                )
-
                 // =================================================
-                // STATUS
+                // DESCRIPTION
                 // =================================================
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        text = "Turf Status",
-                        color = TurfGray,
-                        fontSize = 13.sp
-                    )
+                if (!turf.description.isNullOrBlank()) {
 
                     Spacer(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.height(14.dp)
                     )
 
-                    TurfStatusBadge(
-                        status = turf.status
+                    Text(
+                        text = turf.description,
+                        color = AdminGray,
+                        fontSize = 13.sp,
+                        lineHeight = 19.sp,
+                        maxLines = 2
                     )
                 }
 
@@ -576,13 +621,20 @@ private fun TurfAdminCard(
 
                 Button(
                     onClick = onManageSlots,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(11.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AdminDarkGreen,
+                        contentColor = AdminWhite
+                    )
                 ) {
 
                     Icon(
                         imageVector = Icons.Default.AccessTime,
-                        contentDescription = "Manage Slots"
+                        contentDescription = "Manage Slots",
+                        modifier = Modifier.size(19.dp)
                     )
 
                     Spacer(
@@ -595,25 +647,189 @@ private fun TurfAdminCard(
                     )
                 }
 
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
                 // =================================================
-                // DESCRIPTION
+                // EDIT + DELETE
                 // =================================================
 
-                if (!turf.description.isNullOrBlank()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
 
-                    Spacer(
-                        modifier = Modifier.height(12.dp)
-                    )
+                    // =================================================
+                    // EDIT
+                    // =================================================
 
-                    Text(
-                        text = turf.description,
-                        color = TurfGray,
-                        fontSize = 13.sp,
-                        maxLines = 2
-                    )
+                    OutlinedButton(
+                        onClick = onEdit,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(11.dp),
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = AdminForestGreen
+                        ),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = AdminWhite,
+                            contentColor = AdminForestGreen
+                        ),
+                        contentPadding = PaddingValues(
+                            horizontal = 12.dp
+                        )
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit Turf",
+                            modifier = Modifier.size(18.dp)
+                        )
+
+                        Spacer(
+                            modifier = Modifier.width(6.dp)
+                        )
+
+                        Text(
+                            text = "Edit Turf",
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    // =================================================
+                    // DELETE
+                    // =================================================
+
+                    OutlinedButton(
+                        onClick = {
+                            showDeleteDialog = true
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(11.dp),
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = AdminRed
+                        ),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = AdminWhite,
+                            contentColor = AdminRed
+                        ),
+                        contentPadding = PaddingValues(
+                            horizontal = 12.dp
+                        )
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete Turf",
+                            modifier = Modifier.size(18.dp)
+                        )
+
+                        Spacer(
+                            modifier = Modifier.width(6.dp)
+                        )
+
+                        Text(
+                            text = "Delete Turf",
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
         }
+    }
+
+    // =========================================================
+    // DELETE CONFIRMATION DIALOG
+    // =========================================================
+
+    if (showDeleteDialog) {
+
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+            },
+
+            icon = {
+                Surface(
+                    modifier = Modifier.size(52.dp),
+                    shape = CircleShape,
+                    color = AdminRedLight
+                ) {
+
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            modifier = Modifier.size(25.dp),
+                            tint = AdminRed
+                        )
+                    }
+                }
+            },
+
+            title = {
+                Text(
+                    text = "Delete Turf?",
+                    fontWeight = FontWeight.Bold,
+                    color = AdminDarkCharcoal
+                )
+            },
+
+            text = {
+                Text(
+                    text = "Are you sure you want to delete \"${turf.name}\"? This action cannot be undone.",
+                    color = AdminGray,
+                    lineHeight = 20.sp
+                )
+            },
+
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete()
+                    },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AdminRed,
+                        contentColor = AdminWhite
+                    )
+                ) {
+
+                    Text(
+                        text = "Delete",
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                    }
+                ) {
+
+                    Text(
+                        text = "Cancel",
+                        color = AdminGray,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+
+            shape = RoundedCornerShape(20.dp),
+            containerColor = AdminWhite
+        )
     }
 }
 
@@ -627,17 +843,16 @@ private fun TurfImageGallery(
     imageUrls: List<String>
 ) {
 
-    val pagerState =
-        rememberPagerState(
-            initialPage = 0,
-            pageCount = {
-                if (imageUrls.isEmpty()) {
-                    1
-                } else {
-                    imageUrls.size
-                }
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = {
+            if (imageUrls.isEmpty()) {
+                1
+            } else {
+                imageUrls.size
             }
-        )
+        }
+    )
 
     Box(
         modifier = Modifier
@@ -661,7 +876,7 @@ private fun TurfImageGallery(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        TurfGreenLight
+                        AdminLightGreen.copy(alpha = 0.18f)
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -674,7 +889,7 @@ private fun TurfImageGallery(
                         imageVector = Icons.Default.Image,
                         contentDescription = null,
                         modifier = Modifier.size(48.dp),
-                        tint = TurfGreen
+                        tint = AdminForestGreen
                     )
 
                     Spacer(
@@ -683,7 +898,7 @@ private fun TurfImageGallery(
 
                     Text(
                         text = "No Images",
-                        color = TurfGreen,
+                        color = AdminForestGreen,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -700,11 +915,9 @@ private fun TurfImageGallery(
                 modifier = Modifier.fillMaxSize()
             ) { page ->
 
-                val rawUrl =
-                    imageUrls[page]
+                val rawUrl = imageUrls[page]
 
-                val imageUrl =
-                    buildImageUrl(rawUrl)
+                val imageUrl = buildImageUrl(rawUrl)
 
                 AsyncImage(
                     model = imageUrl,
@@ -730,7 +943,7 @@ private fun TurfImageGallery(
 
                     Text(
                         text = "${pagerState.currentPage + 1}/${imageUrls.size}",
-                        color = Color.White,
+                        color = AdminWhite,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(
@@ -761,9 +974,9 @@ private fun TurfImageGallery(
                                 .clip(CircleShape)
                                 .background(
                                     if (pagerState.currentPage == index) {
-                                        Color.White
+                                        AdminWhite
                                     } else {
-                                        Color.White.copy(alpha = 0.5f)
+                                        AdminWhite.copy(alpha = 0.5f)
                                     }
                                 )
                         )
@@ -790,7 +1003,7 @@ private fun TurfInfoBox(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        color = Color(0xFFF8FAFC)
+        color = AdminOffWhite
     ) {
 
         Row(
@@ -798,22 +1011,34 @@ private fun TurfInfoBox(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(19.dp),
-                tint = TurfGreen
-            )
+            Surface(
+                modifier = Modifier.size(36.dp),
+                shape = RoundedCornerShape(10.dp),
+                color = AdminLightGreen.copy(alpha = 0.20f)
+            ) {
+
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = AdminForestGreen
+                    )
+                }
+            }
 
             Spacer(
-                modifier = Modifier.width(8.dp)
+                modifier = Modifier.width(10.dp)
             )
 
             Column {
 
                 Text(
                     text = title,
-                    color = TurfGray,
+                    color = AdminGray,
                     fontSize = 11.sp
                 )
 
@@ -823,9 +1048,9 @@ private fun TurfInfoBox(
 
                 Text(
                     text = value,
-                    color = TurfDark,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    color = AdminDarkCharcoal,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
             }
@@ -843,16 +1068,15 @@ private fun TurfStatusBadge(
     status: String
 ) {
 
-    val isActive =
-        status.equals(
-            "ACTIVE",
-            ignoreCase = true
-        )
+    val isActive = status.equals(
+        "ACTIVE",
+        ignoreCase = true
+    )
 
     Surface(
         shape = RoundedCornerShape(50),
         color = if (isActive) {
-            TurfGreenLight
+            AdminLightGreen.copy(alpha = 0.20f)
         } else {
             Color(0xFFFEE2E2)
         }
@@ -872,9 +1096,9 @@ private fun TurfStatusBadge(
                     .clip(CircleShape)
                     .background(
                         if (isActive) {
-                            TurfGreen
+                            AdminForestGreen
                         } else {
-                            TurfRed
+                            AdminRed
                         }
                     )
             )
@@ -886,9 +1110,9 @@ private fun TurfStatusBadge(
             Text(
                 text = status.uppercase(),
                 color = if (isActive) {
-                    TurfGreen
+                    AdminForestGreen
                 } else {
-                    TurfRed
+                    AdminRed
                 },
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold
@@ -906,8 +1130,7 @@ private fun buildImageUrl(
     imageUrl: String
 ): String {
 
-    val cleanUrl =
-        imageUrl.trim()
+    val cleanUrl = imageUrl.trim()
 
     if (
         cleanUrl.startsWith("http://") ||
@@ -943,3 +1166,4 @@ private fun formatPrice(
         "%.2f".format(price)
     }
 }
+

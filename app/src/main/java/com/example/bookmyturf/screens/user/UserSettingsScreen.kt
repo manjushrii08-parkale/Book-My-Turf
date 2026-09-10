@@ -1,3 +1,4 @@
+
 package com.example.bookmyturf.screens.user
 
 import androidx.compose.foundation.background
@@ -12,8 +13,10 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,12 +24,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.Card
@@ -44,8 +46,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookmyturf.screens.user.components.UserSecondaryTopBar
-import androidx.compose.foundation.layout.statusBars
-//--------------------------------------------------------
+
+// ============================================================
 // COLORS
 // ============================================================
 
@@ -58,38 +60,30 @@ private val White = Color(0xFFFFFFFF)
 
 private val Charcoal = Color(0xFF1C1C1C)
 private val Gray = Color(0xFF737373)
-
 private val DividerColor = Color(0xFFE5E5E0)
-private val LogoutRed = Color(0xFFD32F2F)
 
 // ============================================================
-// USER PROFILE SCREEN
+// USER SETTINGS SCREEN
 // ============================================================
 
 @Composable
-fun UserProfileScreen(
-    userName: String = "BookMyTurf User",
-    email: String = "No email available",
-    phone: String = "No phone available",
+fun UserSettingsScreen(
     onBackClick: () -> Unit,
-    onEditProfileClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onLogoutClick: () -> Unit
+    onPrivacyPolicyClick: () -> Unit,
+    onTermsClick: () -> Unit,
+    onHelpSupportClick: () -> Unit,
+    onContactUsClick: () -> Unit
 ) {
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(OffWhite)
     ) {
 
-        // =====================================================
-        // TOP BAR
-        // =====================================================
-
         UserSecondaryTopBar(
-            title = "My Profile",
-            subtitle = "Manage your account and preferences.",
+            title = "Settings",
+            subtitle = "Manage your preferences and support.",
             onBackClick = onBackClick
         )
 
@@ -101,7 +95,7 @@ fun UserProfileScreen(
 
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .weight(1f),
 
             contentPadding = PaddingValues(
@@ -111,11 +105,12 @@ fun UserProfileScreen(
                 bottom = 30.dp
             ),
 
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement =
+                Arrangement.spacedBy(14.dp)
         ) {
 
             // =================================================
-            // PROFILE HEADER CARD
+            // SETTINGS SUMMARY CARD
             // =================================================
 
             item {
@@ -151,7 +146,7 @@ fun UserProfileScreen(
                     ) {
 
                         // =====================================
-                        // AVATAR
+                        // SETTINGS ICON
                         // =====================================
 
                         Box(
@@ -184,13 +179,13 @@ fun UserProfileScreen(
 
                                 Icon(
                                     imageVector =
-                                        Icons.Default.Person,
+                                        Icons.Default.Settings,
 
                                     contentDescription =
-                                        "Profile",
+                                        "Settings",
 
                                     modifier =
-                                        Modifier.size(32.dp),
+                                        Modifier.size(31.dp),
 
                                     tint =
                                         White
@@ -204,7 +199,7 @@ fun UserProfileScreen(
                         )
 
                         // =====================================
-                        // USER DETAILS
+                        // SETTINGS DETAILS
                         // =====================================
 
                         Column(
@@ -214,7 +209,7 @@ fun UserProfileScreen(
 
                             Text(
                                 text =
-                                    userName,
+                                    "App Settings",
 
                                 fontSize =
                                     19.sp,
@@ -233,256 +228,134 @@ fun UserProfileScreen(
 
                             Text(
                                 text =
-                                    email,
+                                    "Manage privacy, legal information and support.",
 
                                 fontSize =
                                     12.sp,
 
                                 color =
-                                    Gray
+                                    Gray,
+
+                                lineHeight =
+                                    17.sp
                             )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(10.dp)
-                            )
-
-                            // =================================
-                            // EDIT PROFILE
-                            // =================================
-
-                            Row(
-                                modifier =
-                                    Modifier.clickable(
-                                        onClick =
-                                            onEditProfileClick
-                                    ),
-
-                                verticalAlignment =
-                                    Alignment.CenterVertically
-                            ) {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.Edit,
-
-                                    contentDescription =
-                                        "Edit Profile",
-
-                                    modifier =
-                                        Modifier.size(17.dp),
-
-                                    tint =
-                                        ForestGreen
-                                )
-
-                                Spacer(
-                                    modifier =
-                                        Modifier.width(6.dp)
-                                )
-
-                                Text(
-                                    text =
-                                        "Edit Profile",
-
-                                    fontSize =
-                                        12.sp,
-
-                                    fontWeight =
-                                        FontWeight.Bold,
-
-                                    color =
-                                        ForestGreen
-                                )
-                            }
                         }
                     }
                 }
             }
 
             // =================================================
-            // PERSONAL INFORMATION TITLE
+            // LEGAL SECTION
             // =================================================
 
             item {
 
-                ProfileSectionTitle(
+                SettingsSectionTitle(
                     title =
-                        "Personal Information",
+                        "Legal",
 
                     subtitle =
-                        "Your account details"
+                        "Review our policies and terms"
                 )
             }
 
             // =================================================
-            // PERSONAL INFORMATION CARD
+            // PRIVACY POLICY
             // =================================================
 
             item {
 
-                Card(
-                    modifier =
-                        Modifier.fillMaxWidth(),
+                SettingsActionCard(
+                    icon =
+                        Icons.Default.PrivacyTip,
 
-                    shape =
-                        RoundedCornerShape(18.dp),
-
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                White
-                        ),
-
-                    elevation =
-                        CardDefaults.cardElevation(
-                            defaultElevation =
-                                1.dp
-                        )
-                ) {
-
-                    Column {
-
-                        ProfileInfoRow(
-                            icon =
-                                Icons.Default.Person,
-
-                            title =
-                                "Name",
-
-                            value =
-                                userName
-                        )
-
-                        ProfileDivider()
-
-                        ProfileInfoRow(
-                            icon =
-                                Icons.Default.Email,
-
-                            title =
-                                "Email",
-
-                            value =
-                                email
-                        )
-
-                        ProfileDivider()
-
-                        ProfileInfoRow(
-                            icon =
-                                Icons.Default.Phone,
-
-                            title =
-                                "Phone",
-
-                            value =
-                                phone
-                        )
-                    }
-                }
-            }
-
-            // =================================================
-            // ACCOUNT TITLE
-            // =================================================
-
-            item {
-
-                ProfileSectionTitle(
                     title =
-                        "Account",
+                        "Privacy Policy",
 
                     subtitle =
-                        "Manage your app preferences"
+                        "Learn how BookMyTurf handles your information",
+
+                    onClick =
+                        onPrivacyPolicyClick
                 )
             }
 
             // =================================================
-            // SETTINGS
+            // TERMS & CONDITIONS
             // =================================================
 
             item {
 
-                Card(
-                    modifier =
-                        Modifier.fillMaxWidth(),
+                SettingsActionCard(
+                    icon =
+                        Icons.Default.Description,
 
-                    shape =
-                        RoundedCornerShape(18.dp),
+                    title =
+                        "Terms & Conditions",
 
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                White
-                        ),
+                    subtitle =
+                        "Read the terms for using BookMyTurf",
 
-                    elevation =
-                        CardDefaults.cardElevation(
-                            defaultElevation =
-                                1.dp
-                        )
-                ) {
-
-                    ProfileActionRow(
-                        icon =
-                            Icons.Default.Settings,
-
-                        title =
-                            "Settings",
-
-                        subtitle =
-                            "Manage app preferences",
-
-                        onClick =
-                            onSettingsClick
-                    )
-                }
+                    onClick =
+                        onTermsClick
+                )
             }
 
             // =================================================
-            // LOGOUT
+            // SUPPORT SECTION
             // =================================================
 
             item {
 
-                Card(
-                    modifier =
-                        Modifier.fillMaxWidth(),
+                SettingsSectionTitle(
+                    title =
+                        "Support",
 
-                    shape =
-                        RoundedCornerShape(18.dp),
+                    subtitle =
+                        "We're here to help"
+                )
+            }
 
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                White
-                        ),
+            // =================================================
+            // HELP & SUPPORT
+            // =================================================
 
-                    elevation =
-                        CardDefaults.cardElevation(
-                            defaultElevation =
-                                1.dp
-                        )
-                ) {
+            item {
 
-                    ProfileActionRow(
-                        icon =
-                            Icons.AutoMirrored.Filled.Logout,
+                SettingsActionCard(
+                    icon =
+                        Icons.Default.HelpOutline,
 
-                        title =
-                            "Logout",
+                    title =
+                        "Help & Support",
 
-                        subtitle =
-                            "Sign out of your account",
+                    subtitle =
+                        "Get help with bookings and your account",
 
-                        iconTint =
-                            LogoutRed,
+                    onClick =
+                        onHelpSupportClick
+                )
+            }
 
-                        onClick =
-                            onLogoutClick
-                    )
-                }
+            // =================================================
+            // CONTACT US
+            // =================================================
+
+            item {
+
+                SettingsActionCard(
+                    icon =
+                        Icons.Default.Email,
+
+                    title =
+                        "Contact Us",
+
+                    subtitle =
+                        "Get in touch with the BookMyTurf team",
+
+                    onClick =
+                        onContactUsClick
+                )
             }
 
             // =================================================
@@ -505,7 +378,7 @@ fun UserProfileScreen(
                 ) {
 
                     // =========================================
-                    // FOOTER ICON
+                    // SOCCER ICON
                     // =========================================
 
                     Box(
@@ -594,7 +467,7 @@ fun UserProfileScreen(
 // ============================================================
 
 @Composable
-private fun ProfileSectionTitle(
+private fun SettingsSectionTitle(
     title: String,
     subtitle: String
 ) {
@@ -640,44 +513,141 @@ private fun ProfileSectionTitle(
 }
 
 // ============================================================
-// INFORMATION ROW
+// SETTINGS ACTION CARD
 // ============================================================
 
 @Composable
-private fun ProfileInfoRow(
+private fun SettingsActionCard(
     icon: ImageVector,
     title: String,
-    value: String
+    subtitle: String,
+    onClick: () -> Unit
 ) {
 
-    Row(
+    Card(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .clickable(
+                    onClick =
+                        onClick
+                ),
 
-        verticalAlignment =
-            Alignment.CenterVertically
+        shape =
+            RoundedCornerShape(18.dp),
+
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    White
+            ),
+
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation =
+                    1.dp
+            )
     ) {
 
-        Box(
+        Row(
             modifier =
                 Modifier
-                    .size(42.dp)
-                    .background(
-                        LightGreen.copy(
-                            alpha = 0.12f
-                        ),
-                        RoundedCornerShape(11.dp)
-                    ),
+                    .fillMaxWidth()
+                    .padding(16.dp),
 
-            contentAlignment =
-                Alignment.Center
+            verticalAlignment =
+                Alignment.CenterVertically
         ) {
+
+            // =================================================
+            // ICON CONTAINER
+            // =================================================
+
+            Box(
+                modifier =
+                    Modifier
+                        .size(44.dp)
+                        .background(
+                            LightGreen.copy(
+                                alpha = 0.10f
+                            ),
+                            RoundedCornerShape(12.dp)
+                        ),
+
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Icon(
+                    imageVector =
+                        icon,
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.size(22.dp),
+
+                    tint =
+                        ForestGreen
+                )
+            }
+
+            Spacer(
+                modifier =
+                    Modifier.width(12.dp)
+            )
+
+            // =================================================
+            // TEXT
+            // =================================================
+
+            Column(
+                modifier =
+                    Modifier.weight(1f)
+            ) {
+
+                Text(
+                    text =
+                        title,
+
+                    fontSize =
+                        14.sp,
+
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    color =
+                        Charcoal
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.height(3.dp)
+                )
+
+                Text(
+                    text =
+                        subtitle,
+
+                    fontSize =
+                        11.sp,
+
+                    color =
+                        Gray,
+
+                    lineHeight =
+                        16.sp
+                )
+            }
+
+            // =================================================
+            // CHEVRON
+            // =================================================
 
             Icon(
                 imageVector =
-                    icon,
+                    Icons.Default.ChevronRight,
 
                 contentDescription =
                     null,
@@ -686,189 +656,8 @@ private fun ProfileInfoRow(
                     Modifier.size(20.dp),
 
                 tint =
-                    ForestGreen
-            )
-        }
-
-        Spacer(
-            modifier =
-                Modifier.width(12.dp)
-        )
-
-        Column(
-            modifier =
-                Modifier.weight(1f)
-        ) {
-
-            Text(
-                text =
-                    title,
-
-                fontSize =
-                    11.sp,
-
-                color =
                     Gray
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(3.dp)
-            )
-
-            Text(
-                text =
-                    value,
-
-                fontSize =
-                    14.sp,
-
-                fontWeight =
-                    FontWeight.Medium,
-
-                color =
-                    Charcoal
             )
         }
     }
 }
-
-// ============================================================
-// ACTION ROW
-// ============================================================
-
-@Composable
-private fun ProfileActionRow(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-    iconTint: Color = ForestGreen
-) {
-
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(
-                    onClick =
-                        onClick
-                )
-                .padding(16.dp),
-
-        verticalAlignment =
-            Alignment.CenterVertically
-    ) {
-
-        Box(
-            modifier =
-                Modifier
-                    .size(44.dp)
-                    .background(
-                        iconTint.copy(
-                            alpha = 0.10f
-                        ),
-                        RoundedCornerShape(12.dp)
-                    ),
-
-            contentAlignment =
-                Alignment.Center
-        ) {
-
-            Icon(
-                imageVector =
-                    icon,
-
-                contentDescription =
-                    null,
-
-                modifier =
-                    Modifier.size(22.dp),
-
-                tint =
-                    iconTint
-            )
-        }
-
-        Spacer(
-            modifier =
-                Modifier.width(12.dp)
-        )
-
-        Column(
-            modifier =
-                Modifier.weight(1f)
-        ) {
-
-            Text(
-                text =
-                    title,
-
-                fontSize =
-                    14.sp,
-
-                fontWeight =
-                    FontWeight.Bold,
-
-                color =
-                    if (iconTint == LogoutRed) {
-                        LogoutRed
-                    } else {
-                        Charcoal
-                    }
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(3.dp)
-            )
-
-            Text(
-                text =
-                    subtitle,
-
-                fontSize =
-                    11.sp,
-
-                color =
-                    Gray
-            )
-        }
-
-        Icon(
-            imageVector =
-                Icons.Default.ChevronRight,
-
-            contentDescription =
-                null,
-
-            modifier =
-                Modifier.size(20.dp),
-
-            tint =
-                Gray
-        )
-    }
-}
-
-// ============================================================
-// DIVIDER
-// ============================================================
-
-@Composable
-private fun ProfileDivider() {
-
-    Box(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .padding(
-                    start = 70.dp
-                )
-                .background(
-                    DividerColor
-                )
-    )
-}
-

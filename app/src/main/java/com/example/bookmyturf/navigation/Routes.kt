@@ -16,6 +16,10 @@ object Routes {
 
     const val USER_PROFILE = "user_profile"
 
+    const val USER_SETTINGS = "user_settings"
+
+    const val USER_EDIT_PROFILE = "user_edit_profile"
+
     const val TURF_DETAILS = "turf_details/{turfId}"
 
     fun turfDetails(turfId: Int): String {

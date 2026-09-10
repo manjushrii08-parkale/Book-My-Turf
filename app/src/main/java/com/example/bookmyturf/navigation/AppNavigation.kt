@@ -36,6 +36,7 @@ import com.example.bookmyturf.screens.superadmin.SuperAdminHomeScreen
 
 import com.example.bookmyturf.screens.user.TurfDetailsScreen
 import com.example.bookmyturf.screens.user.UserMainScreen
+import com.example.bookmyturf.screens.user.EditProfileScreen
 import com.example.bookmyturf.screens.user.UserSlotSelectionScreen
 import com.example.bookmyturf.screens.user.BookingSummaryScreen
 import com.example.bookmyturf.viewmodel.AdminViewModel
@@ -516,16 +517,16 @@ fun AppNavigation(
                     // -------------------------------------------------
                     // EDIT PROFILE
                     // -------------------------------------------------
-
                     onEditProfileClick = {
 
                         Log.d(
                             "USER_PROFILE",
-                            "Edit Profile clicked"
+                            "Opening Edit Profile"
                         )
 
-                        // Edit Profile navigation
-                        // will be connected next.
+                        navController.navigate(
+                            Routes.USER_EDIT_PROFILE
+                        )
                     },
 
 
@@ -568,6 +569,62 @@ fun AppNavigation(
                     logout()
                 }
             }
+        }
+
+        // =====================================================
+// USER EDIT PROFILE
+// =====================================================
+
+        composable(
+            route = Routes.USER_EDIT_PROFILE
+        ) {
+
+            val email =
+                sessionManager.getEmail()
+                    ?: "No email available"
+
+            EditProfileScreen(
+
+                currentName =
+                    "BookMyTurf User",
+
+                currentEmail =
+                    email,
+
+                currentPhone =
+                    "",
+
+                currentDateOfBirth =
+                    "",
+
+                onBackClick = {
+
+                    navController.popBackStack()
+                },
+
+                onSaveClick = {
+                        name,
+                        phone,
+                        dateOfBirth ->
+
+                    Log.d(
+                        "EDIT_PROFILE",
+                        "Name = $name"
+                    )
+
+                    Log.d(
+                        "EDIT_PROFILE",
+                        "Phone = $phone"
+                    )
+
+                    Log.d(
+                        "EDIT_PROFILE",
+                        "Date of Birth = $dateOfBirth"
+                    )
+
+                    // API update will be connected next.
+                }
+            )
         }
 
 
@@ -1055,31 +1112,6 @@ fun AppNavigation(
                 BookingSuccessScreen(
 
                     bookingId = bookingId,
-
-
-                    // =================================================
-                    // VIEW MY BOOKINGS
-                    // =================================================
-                    onViewBookingsClick = {
-
-                        Log.d(
-                            "BOOKING_NAVIGATION",
-                            "Opening My Bookings"
-                        )
-
-                        navController.navigate(
-                            Routes.USER_BOOKINGS
-                        ) {
-
-                            popUpTo(
-                                Routes.BOOKING_SUCCESS
-                            ) {
-                                inclusive = true
-                            }
-
-                            launchSingleTop = true
-                        }
-                    },
 
                     // =================================================
                     // BACK TO HOME

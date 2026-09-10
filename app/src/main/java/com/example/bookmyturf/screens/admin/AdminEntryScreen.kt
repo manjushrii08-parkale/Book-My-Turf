@@ -1,9 +1,11 @@
 package com.example.bookmyturf.screens.admin
 
-
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,10 +15,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
+import com.example.bookmyturf.ui.theme.AdminForestGreen
+import com.example.bookmyturf.ui.theme.AdminOffWhite
 import com.example.bookmyturf.viewmodel.AdminViewModel
-
-private val TurfGreen = Color(0xFF14532D)
 
 @Composable
 fun AdminEntryScreen(
@@ -50,18 +54,30 @@ fun AdminEntryScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AdminOffWhite),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
 
         CircularProgressIndicator(
-            color = TurfGreen
+            color = AdminForestGreen
+        )
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
         )
 
         Text(
-            text = "Checking subscription...",
-            style = MaterialTheme.typography.bodyMedium
+            text = if (isLoading) {
+                "Checking subscription..."
+            } else {
+                "Loading admin account..."
+            },
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            color = AdminDarkCharcoal
         )
     }
 }

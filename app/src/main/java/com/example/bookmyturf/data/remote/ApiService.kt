@@ -49,6 +49,7 @@ import com.example.bookmyturf.data.model.booking.BookingListResponse
 import com.example.bookmyturf.data.model.booking.BookingResponse
 import com.example.bookmyturf.data.model.booking.CreateBookingRequest
 import com.example.bookmyturf.data.model.booking.CancelBookingRequest
+import com.example.bookmyturf.data.model.booking.AdminBookingResponse
 // =========================================================
 // RETROFIT
 // =========================================================
@@ -323,5 +324,15 @@ interface ApiService {
         @Path("slotId") slotId: Int,
         @Body request: UpdateSlotStatusRequest
     ): SlotResponse
+
+
+    // =========================================================
+// ADMIN BOOKINGS
+// =========================================================
+
+    @GET("api/v1/admin/bookings")
+    suspend fun getAdminBookings(
+        @Header("Authorization") authorization: String
+    ): AdminBookingResponse
 }
 

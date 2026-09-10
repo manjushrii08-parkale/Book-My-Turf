@@ -84,6 +84,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bookmyturf.data.model.turf.CreateTurfRequest
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminRepository
+import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
+import com.example.bookmyturf.ui.theme.AdminDarkGreen
+import com.example.bookmyturf.ui.theme.AdminForestGreen
+import com.example.bookmyturf.ui.theme.AdminGray
+import com.example.bookmyturf.ui.theme.AdminLightGreen
+import com.example.bookmyturf.ui.theme.AdminOffWhite
+import com.example.bookmyturf.ui.theme.AdminWhite
 import com.example.bookmyturf.viewmodel.AdminViewModel
 
 import kotlinx.coroutines.Dispatchers
@@ -95,21 +102,6 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 import java.io.ByteArrayOutputStream
-
-
-// =============================================================
-// ADMIN THEME
-// =============================================================
-
-private val TurfGreen = Color(0xFF173D20)
-private val TurfGreenDark = Color(0xFF173D20)
-private val TurfGreenLight = Color(0xFFF8F8F5)
-private val TurfBackground = Color(0xFFF8F8F5)
-private val TurfGray = Color(0xFF737373)
-private val TurfRed = Color(0xFFDC2626)
-private val TurfWhite = Color(0xFFFFFFFF)
-private val TurfForestGreen = Color(0xFF2E6B35)
-private val TurfDarkCharcoal = Color(0xFF1C1C1C)
 
 
 // =============================================================
@@ -229,33 +221,27 @@ fun AddTurfScreen(
     // FORM STATE
     // =========================================================
 
-    var name by
-    remember {
+    var name by remember {
         mutableStateOf("")
     }
 
-    var description by
-    remember {
+    var description by remember {
         mutableStateOf("")
     }
 
-    var location by
-    remember {
+    var location by remember {
         mutableStateOf("")
     }
 
-    var city by
-    remember {
+    var city by remember {
         mutableStateOf("")
     }
 
-    var address by
-    remember {
+    var address by remember {
         mutableStateOf("")
     }
 
-    var price by
-    remember {
+    var price by remember {
         mutableStateOf("")
     }
 
@@ -264,14 +250,13 @@ fun AddTurfScreen(
     // VALIDATION
     // =========================================================
 
-    var validationMessage by
-    remember {
+    var validationMessage by remember {
         mutableStateOf<String?>(null)
     }
 
 
     // =========================================================
-    // SPORTS
+    // SELECTED SPORTS
     // =========================================================
 
     val selectedSports =
@@ -281,7 +266,7 @@ fun AddTurfScreen(
 
 
     // =========================================================
-    // AMENITIES
+    // SELECTED AMENITIES
     // =========================================================
 
     val selectedAmenities =
@@ -291,7 +276,7 @@ fun AddTurfScreen(
 
 
     // =========================================================
-    // IMAGES
+    // SELECTED IMAGES
     // =========================================================
 
     val selectedImages =
@@ -364,13 +349,12 @@ fun AddTurfScreen(
 
     Scaffold(
 
-        containerColor = TurfBackground,
+        containerColor = AdminOffWhite,
 
         snackbarHost = {
 
             SnackbarHost(
-                hostState =
-                    snackbarHostState
+                hostState = snackbarHostState
             )
         },
 
@@ -384,18 +368,22 @@ fun AddTurfScreen(
 
                 title = {
 
-                    Column {
+                    Column(
+                        verticalArrangement =
+                            Arrangement.spacedBy(1.dp)
+                    ) {
 
                         Text(
                             text = "Add Turf",
-                            color = TurfDarkCharcoal,
-                            fontWeight = FontWeight.Bold
+                            color = AdminDarkCharcoal,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 19.sp
                         )
 
                         Text(
                             text = "Create your turf listing",
-                            fontSize = 12.sp,
-                            color = TurfGray
+                            color = AdminGray,
+                            fontSize = 11.sp
                         )
                     }
                 },
@@ -411,15 +399,16 @@ fun AddTurfScreen(
                             imageVector =
                                 Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = TurfGreen
+                            tint = AdminDarkGreen
                         )
                     }
                 },
 
                 colors =
                     TopAppBarDefaults.topAppBarColors(
-                        containerColor = TurfWhite,
-                        titleContentColor = TurfDarkCharcoal
+                        containerColor = AdminWhite,
+                        titleContentColor = AdminDarkCharcoal,
+                        navigationIconContentColor = AdminDarkGreen
                     )
             )
         }
@@ -437,11 +426,11 @@ fun AddTurfScreen(
                     )
                     .padding(
                         horizontal = 16.dp,
-                        vertical = 12.dp
+                        vertical = 14.dp
                     ),
 
             verticalArrangement =
-                Arrangement.spacedBy(18.dp)
+                Arrangement.spacedBy(16.dp)
         ) {
 
 
@@ -455,90 +444,89 @@ fun AddTurfScreen(
                     Modifier.fillMaxWidth(),
 
                 shape =
-                    RoundedCornerShape(20.dp),
+                    RoundedCornerShape(22.dp),
 
                 colors =
                     CardDefaults.cardColors(
                         containerColor =
-                            TurfGreen
+                            AdminDarkGreen
+                    ),
+
+                elevation =
+                    CardDefaults.cardElevation(
+                        defaultElevation = 2.dp
                     )
             ) {
 
                 Row(
 
                     modifier =
-                        Modifier.padding(18.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
 
                     verticalAlignment =
                         Alignment.CenterVertically
                 ) {
 
-                    Icon(
-
-                        imageVector =
-                            Icons.Default.Storefront,
-
-                        contentDescription =
-                            null,
-
-                        tint =
-                            TurfWhite,
+                    Box(
 
                         modifier =
                             Modifier
-                                .size(52.dp)
-                                .background(
-                                    color =
-                                        TurfWhite.copy(
-                                            alpha = 0.15f
-                                        ),
-                                    shape =
-                                        RoundedCornerShape(16.dp)
+                                .size(54.dp)
+                                .clip(
+                                    RoundedCornerShape(16.dp)
                                 )
-                                .padding(13.dp)
-                    )
+                                .background(
+                                    AdminLightGreen
+                                ),
 
+                        contentAlignment =
+                            Alignment.Center
+                    ) {
+
+                        Icon(
+                            imageVector =
+                                Icons.Default.Storefront,
+                            contentDescription =
+                                null,
+                            tint =
+                                AdminDarkGreen,
+                            modifier =
+                                Modifier.size(28.dp)
+                        )
+                    }
 
                     Spacer(
                         modifier =
                             Modifier.width(14.dp)
                     )
 
-
-                    Column {
+                    Column(
+                        modifier =
+                            Modifier.weight(1f)
+                    ) {
 
                         Text(
-
-                            text =
-                                "Create Your Turf",
-
-                            color =
-                                TurfWhite,
-
-                            fontSize =
-                                19.sp,
-
-                            fontWeight =
-                                FontWeight.Bold
+                            text = "Create Your Turf",
+                            color = AdminWhite,
+                            fontSize = 19.sp,
+                            fontWeight = FontWeight.Bold
                         )
 
                         Spacer(
                             modifier =
-                                Modifier.height(4.dp)
+                                Modifier.height(5.dp)
                         )
 
                         Text(
-
                             text =
                                 "Add complete turf details to attract more bookings.",
-
                             color =
-                                TurfWhite.copy(
-                                    alpha = 0.85f
+                                AdminWhite.copy(
+                                    alpha = 0.82f
                                 ),
-
-                            fontSize =
-                                12.sp
+                            fontSize = 12.sp
                         )
                     }
                 }
@@ -587,6 +575,7 @@ fun AddTurfScreen(
                     value = description,
 
                     onValueChange = {
+
                         description = it
                     },
 
@@ -599,7 +588,7 @@ fun AddTurfScreen(
 
                     placeholder = {
                         Text(
-                            "Tell users about your turf..."
+                            "Tell customers about your turf..."
                         )
                     },
 
@@ -648,8 +637,10 @@ fun AddTurfScreen(
                         Icon(
                             imageVector =
                                 Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = TurfGreen
+                            contentDescription =
+                                null,
+                            tint =
+                                AdminDarkGreen
                         )
                     },
 
@@ -732,13 +723,12 @@ fun AddTurfScreen(
                     Sports.forEach { sport ->
 
                         val selected =
-                            selectedSports.contains(
-                                sport
-                            )
+                            selectedSports.contains(sport)
 
                         FilterChip(
 
-                            selected = selected,
+                            selected =
+                                selected,
 
                             onClick = {
 
@@ -767,18 +757,14 @@ fun AddTurfScreen(
                                 if (selected) {
 
                                     Icon(
-
                                         imageVector =
                                             Icons.Default.SportsSoccer,
-
                                         contentDescription =
                                             null,
-
                                         modifier =
                                             Modifier.size(17.dp),
-
                                         tint =
-                                            TurfGreen
+                                            AdminDarkGreen
                                     )
                                 }
                             }
@@ -795,7 +781,7 @@ fun AddTurfScreen(
                             "${selectedSports.size} sports selected",
 
                         color =
-                            TurfForestGreen,
+                            AdminForestGreen,
 
                         fontSize =
                             12.sp,
@@ -835,7 +821,8 @@ fun AddTurfScreen(
 
                         FilterChip(
 
-                            selected = selected,
+                            selected =
+                                selected,
 
                             onClick = {
 
@@ -855,6 +842,23 @@ fun AddTurfScreen(
 
                             label = {
                                 Text(amenity)
+                            },
+
+                            leadingIcon = {
+
+                                if (selected) {
+
+                                    Icon(
+                                        imageVector =
+                                            Icons.Default.CheckCircle,
+                                        contentDescription =
+                                            null,
+                                        modifier =
+                                            Modifier.size(17.dp),
+                                        tint =
+                                            AdminForestGreen
+                                    )
+                                }
                             }
                         )
                     }
@@ -863,13 +867,13 @@ fun AddTurfScreen(
 
 
             // =================================================
-            // IMAGES
+            // TURF PHOTOS
             // =================================================
 
             FormSectionCard(
                 title = "Turf Photos",
                 subtitle =
-                    "Add up to 8 high-quality turf photos."
+                    "Add up to 8 clear photos of your turf."
             ) {
 
                 Card(
@@ -883,38 +887,54 @@ fun AddTurfScreen(
                     colors =
                         CardDefaults.cardColors(
                             containerColor =
-                                TurfGreenLight
+                                AdminOffWhite
                         )
                 ) {
 
                     Column(
 
                         modifier =
-                            Modifier.padding(16.dp),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(18.dp),
 
                         horizontalAlignment =
                             Alignment.CenterHorizontally
                     ) {
 
-                        Icon(
-
-                            imageVector =
-                                Icons.Default.AddPhotoAlternate,
-
-                            contentDescription =
-                                null,
-
-                            tint =
-                                TurfGreen,
-
+                        Box(
                             modifier =
-                                Modifier.size(42.dp)
-                        )
+                                Modifier
+                                    .size(58.dp)
+                                    .clip(
+                                        RoundedCornerShape(16.dp)
+                                    )
+                                    .background(
+                                        AdminLightGreen.copy(
+                                            alpha = 0.22f
+                                        )
+                                    ),
+
+                            contentAlignment =
+                                Alignment.Center
+                        ) {
+
+                            Icon(
+                                imageVector =
+                                    Icons.Default.AddPhotoAlternate,
+                                contentDescription =
+                                    null,
+                                tint =
+                                    AdminDarkGreen,
+                                modifier =
+                                    Modifier.size(30.dp)
+                            )
+                        }
 
 
                         Spacer(
                             modifier =
-                                Modifier.height(8.dp)
+                                Modifier.height(10.dp)
                         )
 
 
@@ -933,7 +953,7 @@ fun AddTurfScreen(
                                 FontWeight.Bold,
 
                             color =
-                                TurfGreen
+                                AdminDarkCharcoal
                         )
 
 
@@ -946,10 +966,10 @@ fun AddTurfScreen(
                         Text(
 
                             text =
-                                "Choose clear photos of your turf, ground and facilities.",
+                                "Show your turf, ground, facilities and surroundings.",
 
                             color =
-                                TurfGray,
+                                AdminGray,
 
                             fontSize =
                                 12.sp
@@ -978,7 +998,10 @@ fun AddTurfScreen(
                             enabled =
                                 !isLoading &&
                                         selectedImages.size <
-                                        MAX_IMAGES
+                                        MAX_IMAGES,
+
+                            shape =
+                                RoundedCornerShape(12.dp)
                         ) {
 
                             Icon(
@@ -995,7 +1018,13 @@ fun AddTurfScreen(
 
                             Text(
                                 text =
-                                    "Choose Photos"
+                                    if (
+                                        selectedImages.isEmpty()
+                                    ) {
+                                        "Choose Photos"
+                                    } else {
+                                        "Add More Photos"
+                                    }
                             )
                         }
                     }
@@ -1020,7 +1049,7 @@ fun AddTurfScreen(
                             14.sp,
 
                         color =
-                            TurfDarkCharcoal
+                            AdminDarkCharcoal
                     )
 
 
@@ -1059,7 +1088,7 @@ fun AddTurfScreen(
             FormSectionCard(
                 title = "Pricing",
                 subtitle =
-                    "Set your standard slot price."
+                    "Set your standard price per slot."
             ) {
 
                 OutlinedTextField(
@@ -1080,7 +1109,7 @@ fun AddTurfScreen(
                     },
 
                     placeholder = {
-                        Text("e.g. 1200")
+                        Text("e.g. 650")
                     },
 
                     leadingIcon = {
@@ -1090,7 +1119,7 @@ fun AddTurfScreen(
                             fontWeight =
                                 FontWeight.Bold,
                             color =
-                                TurfDarkCharcoal
+                                AdminDarkCharcoal
                         )
                     },
 
@@ -1106,7 +1135,7 @@ fun AddTurfScreen(
 
 
             // =================================================
-            // VALIDATION MESSAGE
+            // VALIDATION
             // =================================================
 
             validationMessage?.let { message ->
@@ -1119,30 +1148,53 @@ fun AddTurfScreen(
                     colors =
                         CardDefaults.cardColors(
                             containerColor =
-                                Color(0xFFFEF2F2)
+                                Color(0xFFFFF1F2)
                         ),
 
                     shape =
-                        RoundedCornerShape(12.dp)
+                        RoundedCornerShape(14.dp)
                 ) {
 
-                    Text(
-
-                        text =
-                            message,
-
-                        color =
-                            TurfRed,
-
+                    Row(
                         modifier =
-                            Modifier.padding(14.dp),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                        verticalAlignment =
+                            Alignment.CenterVertically
+                    ) {
 
-                        fontSize =
-                            13.sp,
+                        Icon(
+                            imageVector =
+                                Icons.Default.Close,
+                            contentDescription =
+                                null,
+                            tint =
+                                Color(0xFFBE123C),
+                            modifier =
+                                Modifier.size(18.dp)
+                        )
 
-                        fontWeight =
-                            FontWeight.Medium
-                    )
+                        Spacer(
+                            modifier =
+                                Modifier.width(8.dp)
+                        )
+
+                        Text(
+
+                            text =
+                                message,
+
+                            color =
+                                Color(0xFFBE123C),
+
+                            fontSize =
+                                13.sp,
+
+                            fontWeight =
+                                FontWeight.Medium
+                        )
+                    }
                 }
             }
 
@@ -1236,8 +1288,6 @@ fun AddTurfScreen(
                                 // =================================
                                 // 3. CREATE TURF FIRST
                                 // =================================
-                                // Images are intentionally empty here because
-                                // the turf ID does not exist yet.
 
                                 val request =
                                     CreateTurfRequest(
@@ -1248,7 +1298,9 @@ fun AddTurfScreen(
                                         description =
                                             description
                                                 .trim()
-                                                .ifBlank { null },
+                                                .ifBlank {
+                                                    null
+                                                },
 
                                         location =
                                             location.trim(),
@@ -1259,7 +1311,9 @@ fun AddTurfScreen(
                                         address =
                                             address
                                                 .trim()
-                                                .ifBlank { null },
+                                                .ifBlank {
+                                                    null
+                                                },
 
                                         latitude = null,
 
@@ -1291,7 +1345,7 @@ fun AddTurfScreen(
                                     onSuccess = { turfResponse ->
 
                                         // =================================
-                                        // 4. GET CREATED TURF ID
+                                        // 4. CREATED TURF ID
                                         // =================================
 
                                         val turfId =
@@ -1304,15 +1358,16 @@ fun AddTurfScreen(
 
                                             scope.launch {
 
-                                                snackbarHostState.showSnackbar(
-                                                    "Turf created, but Turf ID was not returned."
-                                                )
+                                                snackbarHostState
+                                                    .showSnackbar(
+                                                        "Turf created, but Turf ID was not returned."
+                                                    )
                                             }
 
                                         } else {
 
                                             // =================================
-                                            // 5. UPLOAD IMAGES WITH TURF ID
+                                            // 5. UPLOAD IMAGES
                                             // =================================
 
                                             viewModel.uploadTurfImages(
@@ -1323,13 +1378,14 @@ fun AddTurfScreen(
 
                                                 images = multipartParts,
 
-                                                onSuccess = { _ ->
+                                                onSuccess = {
 
                                                     scope.launch {
 
-                                                        snackbarHostState.showSnackbar(
-                                                            "Turf created successfully."
-                                                        )
+                                                        snackbarHostState
+                                                            .showSnackbar(
+                                                                "Turf created successfully."
+                                                            )
 
                                                         onSuccess()
                                                     }
@@ -1357,13 +1413,15 @@ fun AddTurfScreen(
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
-                            TurfGreen,
+                            AdminDarkGreen,
 
                         contentColor =
-                            TurfWhite,
+                            AdminWhite,
 
                         disabledContainerColor =
-                            TurfGreen.copy(alpha = 0.5f)
+                            AdminDarkGreen.copy(
+                                alpha = 0.45f
+                            )
                     )
             ) {
 
@@ -1375,7 +1433,7 @@ fun AddTurfScreen(
                             Modifier.size(22.dp),
 
                         color =
-                            TurfWhite,
+                            AdminWhite,
 
                         strokeWidth =
                             2.5.dp
@@ -1388,7 +1446,9 @@ fun AddTurfScreen(
 
                     Text(
                         text =
-                            "Creating & Uploading..."
+                            "Creating & Uploading...",
+                        fontWeight =
+                            FontWeight.Bold
                     )
 
                 } else {
@@ -1396,7 +1456,6 @@ fun AddTurfScreen(
                     Icon(
                         imageVector =
                             Icons.Default.Save,
-
                         contentDescription =
                             null
                     )
@@ -1409,7 +1468,6 @@ fun AddTurfScreen(
                     Text(
                         text =
                             "Create Turf",
-
                         fontWeight =
                             FontWeight.Bold
                     )
@@ -1427,6 +1485,7 @@ fun AddTurfScreen(
                     Modifier
                         .fillMaxWidth()
                         .padding(
+                            top = 2.dp,
                             bottom = 20.dp
                         ),
 
@@ -1446,7 +1505,7 @@ fun AddTurfScreen(
                         null,
 
                     tint =
-                        TurfForestGreen,
+                        AdminForestGreen,
 
                     modifier =
                         Modifier.size(16.dp)
@@ -1463,7 +1522,7 @@ fun AddTurfScreen(
                         "Your turf will be available after successful creation.",
 
                     color =
-                        TurfGray,
+                        AdminGray,
 
                     fontSize =
                         11.sp
@@ -1496,7 +1555,7 @@ private fun FormSectionCard(
         colors =
             CardDefaults.cardColors(
                 containerColor =
-                    TurfWhite
+                    AdminWhite
             ),
 
         elevation =
@@ -1508,10 +1567,10 @@ private fun FormSectionCard(
         Column(
 
             modifier =
-                Modifier.padding(16.dp),
+                Modifier.padding(17.dp),
 
             verticalArrangement =
-                Arrangement.spacedBy(12.dp)
+                Arrangement.spacedBy(11.dp)
         ) {
 
             Text(
@@ -1520,7 +1579,7 @@ private fun FormSectionCard(
                     title,
 
                 color =
-                    TurfGreenDark,
+                    AdminDarkCharcoal,
 
                 fontSize =
                     17.sp,
@@ -1535,7 +1594,7 @@ private fun FormSectionCard(
                     subtitle,
 
                 color =
-                    TurfGray,
+                    AdminGray,
 
                 fontSize =
                     12.sp
@@ -1615,9 +1674,7 @@ private fun TurfImagePreview(
                                     alpha = 0.65f
                                 ),
                             shape =
-                                RoundedCornerShape(
-                                    50
-                                )
+                                RoundedCornerShape(50)
                         )
             ) {
 
@@ -1630,7 +1687,7 @@ private fun TurfImagePreview(
                         "Remove photo",
 
                     tint =
-                        TurfWhite,
+                        AdminWhite,
 
                     modifier =
                         Modifier.size(17.dp)
@@ -1721,6 +1778,7 @@ private suspend fun uriToMultipart(
                 outputStream.toByteArray()
 
             if (imageBytes.isEmpty()) {
+
                 return@withContext null
             }
 

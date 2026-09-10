@@ -2,7 +2,7 @@ package com.example.bookmyturf.data.model.booking
 
 import com.example.bookmyturf.data.model.slot.Slot
 import com.example.bookmyturf.data.model.turf.Turf
-
+import com.example.bookmyturf.data.model.User
 // =========================================================
 // CREATE BOOKING RESPONSE
 // =========================================================
@@ -68,8 +68,10 @@ data class Booking(
     val updated_at: String?,
 
     // -----------------------------------------------------
-    // RELATIONSHIPS
-    // -----------------------------------------------------
+// RELATIONSHIPS
+// -----------------------------------------------------
+
+    val user: User?,
 
     val turf: Turf?,
 

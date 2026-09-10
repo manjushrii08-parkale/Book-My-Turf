@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -54,7 +53,6 @@ private val Gray = Color(0xFF737373)
 @Composable
 fun BookingSuccessScreen(
     bookingId: Int,
-    onViewBookingsClick: () -> Unit,
     onHomeClick: () -> Unit
 ) {
 
@@ -279,48 +277,6 @@ fun BookingSuccessScreen(
             Spacer(
                 modifier =
                     Modifier.height(30.dp)
-            )
-
-
-            // =================================================
-            // VIEW BOOKINGS
-            // =================================================
-
-            Button(
-                onClick =
-                    onViewBookingsClick,
-
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-
-                shape =
-                    RoundedCornerShape(13.dp),
-
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor =
-                            DarkGreen
-                    )
-            ) {
-
-                Text(
-                    text =
-                        "View My Bookings",
-
-                    fontSize =
-                        15.sp,
-
-                    fontWeight =
-                        FontWeight.Bold
-                )
-            }
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(12.dp)
             )
 
 
