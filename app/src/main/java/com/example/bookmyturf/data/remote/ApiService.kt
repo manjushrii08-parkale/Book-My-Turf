@@ -12,7 +12,9 @@ import com.example.bookmyturf.data.model.OtpResponse
 import com.example.bookmyturf.data.model.SendOtpRequest
 import com.example.bookmyturf.data.model.SuperAdminDashboardResponse
 import com.example.bookmyturf.data.model.VerifyOtpRequest
+
 import okhttp3.RequestBody
+
 // =========================================================
 // TURF MODELS
 // =========================================================
@@ -45,11 +47,12 @@ import com.example.bookmyturf.data.model.favorite.FavoriteResponse
 // BOOKING MODELS
 // =========================================================
 
+import com.example.bookmyturf.data.model.booking.AdminBookingResponse
 import com.example.bookmyturf.data.model.booking.BookingListResponse
 import com.example.bookmyturf.data.model.booking.BookingResponse
-import com.example.bookmyturf.data.model.booking.CreateBookingRequest
 import com.example.bookmyturf.data.model.booking.CancelBookingRequest
-import com.example.bookmyturf.data.model.booking.AdminBookingResponse
+import com.example.bookmyturf.data.model.booking.CreateBookingRequest
+
 // =========================================================
 // RETROFIT
 // =========================================================
@@ -113,9 +116,25 @@ interface ApiService {
     ): AdminSubscriptionResponse
 
 
-    @POST("api/v1/subscription/paid-plan")
-    suspend fun choosePaidPlan(
-        @Header("Authorization") authorization: String
+    // =========================================================
+    // RAZORPAY - CREATE ADMIN SUBSCRIPTION ORDER
+    // =========================================================
+
+    @POST("api/v1/subscription/create-order")
+    suspend fun createSubscriptionOrder(
+        @Header("Authorization") authorization: String,
+        @Body request: CreateSubscriptionOrderRequest
+    ): RazorpaySubscriptionOrderResponse
+
+
+    // =========================================================
+    // RAZORPAY - VERIFY ADMIN SUBSCRIPTION PAYMENT
+    // =========================================================
+
+    @POST("api/v1/subscription/verify-payment")
+    suspend fun verifySubscriptionPayment(
+        @Header("Authorization") authorization: String,
+        @Body request: VerifySubscriptionPaymentRequest
     ): AdminSubscriptionResponse
 
 
@@ -143,15 +162,11 @@ interface ApiService {
     // USER FAVORITES
     // =========================================================
 
-    // GET ALL FAVORITE TURFS
-
     @GET("api/v1/user/favorites")
     suspend fun getFavorites(
         @Header("Authorization") authorization: String
     ): FavoriteListResponse
 
-
-    // ADD TURF TO FAVORITES
 
     @POST("api/v1/user/favorites/{turfId}")
     suspend fun addFavorite(
@@ -160,29 +175,7 @@ interface ApiService {
     ): FavoriteResponse
 
 
-    // REMOVE TURF FROM FAVORITES
-
     @DELETE("api/v1/user/favorites/{turfId}")
-    suspend fun removeFavorite(
-        @Header("Authorization") authorization: String,
-        @Path("turfId") turfId: Int
-    ): FavoriteResponse
-
-
-    // CHECK FAVORITE STATUS
-
-    @GET("api/v1/user/favorites/{turfId}/check")
-    suspend fun checkFavorite(
-        @Header("Authorization") authorization: String,
-        @Path("turfId") turfId: Int
-    ): FavoriteCheckResponse
-
-// =========================================================
-// USER BOOKINGS
-// =========================================================
-
-// CREATE BOOKING
-
     @POST("api/v1/user/bookings")
     suspend fun createBooking(
         @Header("Authorization") authorization: String,
@@ -190,7 +183,22 @@ interface ApiService {
     ): BookingResponse
 
 
-// GET MY BOOKINGS
+    suspend fun removeFavorite(
+        @Header("Authorization") authorization: String,
+        @Path("turfId") turfId: Int
+    ): FavoriteResponse
+
+
+    @GET("api/v1/user/favorites/{turfId}/check")
+    suspend fun checkFavorite(
+        @Header("Authorization") authorization: String,
+        @Path("turfId") turfId: Int
+    ): FavoriteCheckResponse
+
+
+    // =========================================================
+    // USER BOOKINGS
+    // =========================================================
 
     @GET("api/v1/user/bookings")
     suspend fun getMyBookings(
@@ -198,30 +206,23 @@ interface ApiService {
     ): BookingListResponse
 
 
-    // CANCEL BOOKING
     @POST("api/v1/user/bookings/{bookingId}/cancel")
     suspend fun cancelBooking(
-        @Header("Authorization")
-        authorization: String, @Path("bookingId")
-        bookingId: Int, @Body request: CancelBookingRequest
+        @Header("Authorization") authorization: String,
+        @Path("bookingId") bookingId: Int,
+        @Body request: CancelBookingRequest
     ): BookingResponse
-
-
 
 
     // =========================================================
     // ADMIN TURF MANAGEMENT
     // =========================================================
 
-    // GET ALL TURFS
-
     @GET("api/v1/admin/turfs")
     suspend fun getAdminTurfs(
         @Header("Authorization") authorization: String
     ): TurfListResponse
 
-
-    // CREATE TURF
 
     @POST("api/v1/admin/turfs")
     suspend fun createTurf(
@@ -231,8 +232,8 @@ interface ApiService {
 
 
     // =========================================================
-// UPLOAD TURF IMAGES
-// =========================================================
+    // UPLOAD TURF IMAGES
+    // =========================================================
 
     @Multipart
     @POST("api/v1/admin/turfs/upload-images")
@@ -243,16 +244,12 @@ interface ApiService {
     ): ImageUploadResponse
 
 
-    // GET SINGLE TURF
-
     @GET("api/v1/admin/turfs/{id}")
     suspend fun getAdminTurf(
         @Header("Authorization") authorization: String,
         @Path("id") id: Int
     ): TurfResponse
 
-
-    // UPDATE TURF
 
     @PUT("api/v1/admin/turfs/{id}")
     suspend fun updateTurf(
@@ -261,8 +258,6 @@ interface ApiService {
         @Body request: UpdateTurfRequest
     ): TurfResponse
 
-
-    // DELETE TURF
 
     @DELETE("api/v1/admin/turfs/{id}")
     suspend fun deleteTurf(
@@ -275,16 +270,12 @@ interface ApiService {
     // ADMIN SLOT MANAGEMENT
     // =========================================================
 
-    // GET ALL SLOTS FOR A TURF
-
     @GET("api/v1/admin/turfs/{turfId}/slots")
     suspend fun getSlots(
         @Header("Authorization") authorization: String,
         @Path("turfId") turfId: Int
     ): SlotsResponse
 
-
-    // CREATE SLOT
 
     @POST("api/v1/admin/turfs/{turfId}/slots")
     suspend fun createSlot(
@@ -293,8 +284,6 @@ interface ApiService {
         @Body request: CreateSlotRequest
     ): SlotResponse
 
-
-    // UPDATE SLOT
 
     @PUT("api/v1/admin/turfs/{turfId}/slots/{slotId}")
     suspend fun updateSlot(
@@ -305,8 +294,6 @@ interface ApiService {
     ): SlotResponse
 
 
-    // DELETE SLOT
-
     @DELETE("api/v1/admin/turfs/{turfId}/slots/{slotId}")
     suspend fun deleteSlot(
         @Header("Authorization") authorization: String,
@@ -314,8 +301,6 @@ interface ApiService {
         @Path("slotId") slotId: Int
     )
 
-
-    // UPDATE SLOT STATUS
 
     @PATCH("api/v1/admin/turfs/{turfId}/slots/{slotId}/status")
     suspend fun updateSlotStatus(
@@ -327,8 +312,8 @@ interface ApiService {
 
 
     // =========================================================
-// ADMIN BOOKINGS
-// =========================================================
+    // ADMIN BOOKINGS
+    // =========================================================
 
     @GET("api/v1/admin/bookings")
     suspend fun getAdminBookings(
@@ -336,3 +321,45 @@ interface ApiService {
     ): AdminBookingResponse
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| RAZORPAY SUBSCRIPTION REQUEST MODELS
+|--------------------------------------------------------------------------
+*/
+
+data class CreateSubscriptionOrderRequest(
+    val plan: String
+)
+
+
+data class VerifySubscriptionPaymentRequest(
+    val razorpay_order_id: String,
+    val razorpay_payment_id: String,
+    val razorpay_signature: String
+)
+
+
+/*
+|--------------------------------------------------------------------------
+| RAZORPAY SUBSCRIPTION ORDER RESPONSE
+|--------------------------------------------------------------------------
+*/
+
+data class RazorpaySubscriptionOrderResponse(
+    val success: Boolean,
+    val message: String,
+    val data: RazorpaySubscriptionOrderData?
+)
+
+
+data class RazorpaySubscriptionOrderData(
+    val subscription_id: Int,
+    val order_id: String,
+    val amount: Double,
+    val amount_paise: Int,
+    val currency: String,
+    val plan: String,
+    val days: Int,
+    val razorpay_key: String
+)

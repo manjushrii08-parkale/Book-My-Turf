@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
@@ -16,7 +18,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.bookmyturf.screens.user.PaymentScreen
+
 import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminRepository
@@ -34,16 +36,19 @@ import com.example.bookmyturf.screens.role.RoleSelectionScreen
 
 import com.example.bookmyturf.screens.superadmin.SuperAdminHomeScreen
 
-import com.example.bookmyturf.screens.user.TurfDetailsScreen
-import com.example.bookmyturf.screens.user.UserMainScreen
-import com.example.bookmyturf.screens.user.EditProfileScreen
-import com.example.bookmyturf.screens.user.UserSlotSelectionScreen
+import com.example.bookmyturf.screens.user.BookingSuccessScreen
 import com.example.bookmyturf.screens.user.BookingSummaryScreen
+import com.example.bookmyturf.screens.user.EditProfileScreen
+import com.example.bookmyturf.screens.user.PaymentScreen
+import com.example.bookmyturf.screens.user.TurfDetailsScreen
+import com.example.bookmyturf.screens.user.UserBookingsScreen
+import com.example.bookmyturf.screens.user.UserMainScreen
+import com.example.bookmyturf.screens.user.UserSlotSelectionScreen
+
 import com.example.bookmyturf.viewmodel.AdminViewModel
 import com.example.bookmyturf.viewmodel.BookingViewModel
-import com.example.bookmyturf.screens.user.BookingSuccessScreen
-import androidx.compose.runtime.collectAsState
-import com.example.bookmyturf.screens.user.UserBookingsScreen
+
+
 @Composable
 fun AppNavigation(
     navController: NavHostController
@@ -53,16 +58,18 @@ fun AppNavigation(
     // CONTEXT
     // =========================================================
 
-    val context = LocalContext.current
+    val context =
+        LocalContext.current
 
 
     // =========================================================
     // SESSION MANAGER
     // =========================================================
 
-    val sessionManager = remember {
-        SessionManager(context)
-    }
+    val sessionManager =
+        remember {
+            SessionManager(context)
+        }
 
 
     // =========================================================
@@ -76,73 +83,74 @@ fun AppNavigation(
         sessionManager.getRole()
 
 
-    val startDestination = remember {
+    val startDestination =
+        remember {
 
-        when {
+            when {
 
-            // =================================================
-            // USER
-            // =================================================
+                // =================================================
+                // USER
+                // =================================================
 
-            !savedToken.isNullOrBlank() &&
-                    savedRole == "USER" -> {
+                !savedToken.isNullOrBlank() &&
+                        savedRole == "USER" -> {
 
-                Log.d(
-                    "AUTO_LOGIN",
-                    "USER session found"
-                )
+                    Log.d(
+                        "AUTO_LOGIN",
+                        "USER session found"
+                    )
 
-                Routes.USER_HOME
-            }
-
-
-            // =================================================
-            // ADMIN
-            // =================================================
-
-            !savedToken.isNullOrBlank() &&
-                    savedRole == "ADMIN" -> {
-
-                Log.d(
-                    "AUTO_LOGIN",
-                    "ADMIN session found"
-                )
-
-                Routes.ADMIN_ENTRY
-            }
+                    Routes.USER_HOME
+                }
 
 
-            // =================================================
-            // SUPER ADMIN
-            // =================================================
+                // =================================================
+                // ADMIN
+                // =================================================
 
-            !savedToken.isNullOrBlank() &&
-                    savedRole == "SUPER_ADMIN" -> {
+                !savedToken.isNullOrBlank() &&
+                        savedRole == "ADMIN" -> {
 
-                Log.d(
-                    "AUTO_LOGIN",
-                    "SUPER_ADMIN session found"
-                )
+                    Log.d(
+                        "AUTO_LOGIN",
+                        "ADMIN session found"
+                    )
 
-                Routes.SUPER_ADMIN_HOME
-            }
+                    Routes.ADMIN_ENTRY
+                }
 
 
-            // =================================================
-            // NO SESSION
-            // =================================================
+                // =================================================
+                // SUPER ADMIN
+                // =================================================
 
-            else -> {
+                !savedToken.isNullOrBlank() &&
+                        savedRole == "SUPER_ADMIN" -> {
 
-                Log.d(
-                    "AUTO_LOGIN",
-                    "No valid session found"
-                )
+                    Log.d(
+                        "AUTO_LOGIN",
+                        "SUPER_ADMIN session found"
+                    )
 
-                Routes.ROLE
+                    Routes.SUPER_ADMIN_HOME
+                }
+
+
+                // =================================================
+                // NO SESSION
+                // =================================================
+
+                else -> {
+
+                    Log.d(
+                        "AUTO_LOGIN",
+                        "No valid session found"
+                    )
+
+                    Routes.ROLE
+                }
             }
         }
-    }
 
 
     // =========================================================
@@ -156,23 +164,12 @@ fun AppNavigation(
             "Logout started"
         )
 
-
-        // -----------------------------------------------------
-        // CLEAR SESSION
-        // -----------------------------------------------------
-
         sessionManager.clearSession()
-
 
         Log.d(
             "LOGOUT",
             "Session cleared"
         )
-
-
-        // -----------------------------------------------------
-        // NAVIGATE TO ROLE
-        // -----------------------------------------------------
 
         navController.navigate(
             Routes.ROLE
@@ -185,7 +182,6 @@ fun AppNavigation(
             launchSingleTop = true
         }
 
-
         Log.d(
             "LOGOUT",
             "Logout navigation completed"
@@ -196,25 +192,7 @@ fun AppNavigation(
     // =========================================================
     // NAVIGATION HOST
     // =========================================================
-    fun openAdminDashboard() {
 
-        Log.d(
-            "ADMIN_NAV",
-            "Opening Admin Dashboard"
-        )
-
-        navController.navigate(
-            Routes.ADMIN_HOME
-        ) {
-            popUpTo(
-                Routes.ADMIN_SUBSCRIPTION
-            ) {
-                inclusive = true
-            }
-
-            launchSingleTop = true
-        }
-    }
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -238,7 +216,6 @@ fun AppNavigation(
                     )
                 },
 
-
                 onAdminClick = {
 
                     navController.navigate(
@@ -246,19 +223,10 @@ fun AppNavigation(
                     )
                 },
 
-
                 onSuperAdminClick = {
 
                     navController.navigate(
                         "login/SUPER_ADMIN"
-                    )
-                },
-
-
-                onLoginClick = {
-
-                    navController.navigate(
-                        "login/USER"
                     )
                 }
             )
@@ -285,13 +253,8 @@ fun AppNavigation(
 
                 onOtpSent = { email ->
 
-                    // -------------------------------------------------
-                    // ENCODE EMAIL BEFORE NAVIGATION
-                    // -------------------------------------------------
-
                     val encodedEmail =
                         Uri.encode(email)
-
 
                     navController.navigate(
                         "otp/$encodedEmail/$role"
@@ -309,26 +272,18 @@ fun AppNavigation(
             Routes.OTP
         ) { backStackEntry ->
 
-            // -----------------------------------------------------
-            // DECODE EMAIL
-            // -----------------------------------------------------
-
-            val email = Uri.decode(
-                backStackEntry.arguments
-                    ?.getString("email")
-                    ?: ""
-            )
-
+            val email =
+                Uri.decode(
+                    backStackEntry.arguments
+                        ?.getString("email")
+                        ?: ""
+                )
 
             val role =
                 backStackEntry.arguments
                     ?.getString("role")
                     ?: "USER"
 
-
-            // -----------------------------------------------------
-            // DEBUG LOG
-            // -----------------------------------------------------
 
             Log.d(
                 "OTP_EMAIL",
@@ -347,10 +302,9 @@ fun AppNavigation(
                         token,
                         userId ->
 
-
-                    // =============================================
+                    // =========================================
                     // SAVE SESSION
-                    // =============================================
+                    // =========================================
 
                     sessionManager.saveSession(
 
@@ -364,24 +318,19 @@ fun AppNavigation(
                     )
 
 
-                    // =============================================
-                    // DEBUG LOG
-                    // =============================================
-
                     Log.d(
                         "AUTO_LOGIN",
                         "Session saved: role=$loggedInRole email=$email"
                     )
 
 
-                    // =============================================
+                    // =========================================
                     // ROLE BASED NAVIGATION
-                    // =============================================
+                    // =========================================
 
                     when (
                         loggedInRole.uppercase()
                     ) {
-
 
                         // =====================================
                         // USER
@@ -414,7 +363,6 @@ fun AppNavigation(
                                 "ADMIN_ENTRY",
                                 "Opening subscription check"
                             )
-
 
                             navController.navigate(
                                 Routes.ADMIN_ENTRY
@@ -453,7 +401,7 @@ fun AppNavigation(
 
 
                         // =====================================
-                        // UNKNOWN ROLE
+                        // UNKNOWN
                         // =====================================
 
                         else -> {
@@ -491,12 +439,7 @@ fun AppNavigation(
                 role == "USER"
             ) {
 
-
                 UserMainScreen(
-
-                    // -------------------------------------------------
-                    // TURF CARD CLICK
-                    // -------------------------------------------------
 
                     onTurfClick = { turfId ->
 
@@ -505,7 +448,6 @@ fun AppNavigation(
                             "Opening turf details: $turfId"
                         )
 
-
                         navController.navigate(
                             Routes.turfDetails(
                                 turfId
@@ -513,10 +455,6 @@ fun AppNavigation(
                         )
                     },
 
-
-                    // -------------------------------------------------
-                    // EDIT PROFILE
-                    // -------------------------------------------------
                     onEditProfileClick = {
 
                         Log.d(
@@ -529,33 +467,19 @@ fun AppNavigation(
                         )
                     },
 
-
-                    // -------------------------------------------------
-                    // SETTINGS
-                    // -------------------------------------------------
-
                     onSettingsClick = {
 
                         Log.d(
                             "USER_PROFILE",
                             "Settings clicked"
                         )
-
-                        // Settings navigation
-                        // will be connected later.
                     },
-
-
-                    // -------------------------------------------------
-                    // LOGOUT
-                    // -------------------------------------------------
 
                     onLogoutClick = {
 
                         logout()
                     }
                 )
-
 
             } else {
 
@@ -571,9 +495,10 @@ fun AppNavigation(
             }
         }
 
+
         // =====================================================
-// USER EDIT PROFILE
-// =====================================================
+        // USER EDIT PROFILE
+        // =====================================================
 
         composable(
             route = Routes.USER_EDIT_PROFILE
@@ -582,6 +507,7 @@ fun AppNavigation(
             val email =
                 sessionManager.getEmail()
                     ?: "No email available"
+
 
             EditProfileScreen(
 
@@ -621,8 +547,6 @@ fun AppNavigation(
                         "EDIT_PROFILE",
                         "Date of Birth = $dateOfBirth"
                     )
-
-                    // API update will be connected next.
                 }
             )
         }
@@ -648,7 +572,6 @@ fun AppNavigation(
             )
 
         ) { backStackEntry ->
-
 
             val turfId =
                 backStackEntry.arguments
@@ -728,6 +651,7 @@ fun AppNavigation(
 
                         navController.popBackStack()
                     },
+
                     onContinueClick = {
                             selectedTurfId,
                             slotId,
@@ -765,9 +689,11 @@ fun AppNavigation(
                 )
             }
         }
+
+
         // =====================================================
-// USER BOOKING SUMMARY
-// =====================================================
+        // USER BOOKING SUMMARY
+        // =====================================================
 
         composable(
 
@@ -790,10 +716,6 @@ fun AppNavigation(
 
         ) { backStackEntry ->
 
-            // =====================================================
-            // GET NAVIGATION ARGUMENTS
-            // =====================================================
-
             val turfId =
                 backStackEntry.arguments
                     ?.getInt("turfId")
@@ -810,15 +732,16 @@ fun AppNavigation(
                     ?: ""
 
 
-            // =====================================================
-            // BOOKING VIEWMODEL
-            // =====================================================
-
             val bookingViewModel: BookingViewModel =
                 viewModel()
 
+
             val createdBooking =
-                bookingViewModel.createdBooking.collectAsState().value
+                bookingViewModel
+                    .createdBooking
+                    .collectAsState()
+                    .value
+
 
             LaunchedEffect(createdBooking) {
 
@@ -854,17 +777,9 @@ fun AppNavigation(
             }
 
 
-            // =====================================================
-            // SESSION TOKEN
-            // =====================================================
-
             val token =
                 sessionManager.getToken()
 
-
-            // =====================================================
-            // VALIDATION
-            // =====================================================
 
             if (
                 turfId > 0 &&
@@ -880,66 +795,15 @@ fun AppNavigation(
 
                     bookingDate = bookingDate,
 
-
-                    // =================================================
-                    // BACK
-                    // =================================================
-
                     onBackClick = {
 
                         navController.popBackStack()
                     },
 
-
-                    // =================================================
-                    // CONFIRM BOOKING
-                    // =================================================
-
                     onConfirmBookingClick = {
                             selectedTurfId,
                             selectedSlotId,
                             selectedBookingDate ->
-
-
-                        Log.d(
-                            "BOOKING_SUMMARY",
-                            "================================"
-                        )
-
-                        Log.d(
-                            "BOOKING_SUMMARY",
-                            "CONFIRM BOOKING CLICKED"
-                        )
-
-                        Log.d(
-                            "BOOKING_SUMMARY",
-                            "Turf ID = $selectedTurfId"
-                        )
-
-                        Log.d(
-                            "BOOKING_SUMMARY",
-                            "Slot ID = $selectedSlotId"
-                        )
-
-                        Log.d(
-                            "BOOKING_SUMMARY",
-                            "Booking Date = $selectedBookingDate"
-                        )
-
-                        Log.d(
-                            "BOOKING_SUMMARY",
-                            "Token exists = ${!token.isNullOrBlank()}"
-                        )
-
-                        Log.d(
-                            "BOOKING_SUMMARY",
-                            "================================"
-                        )
-
-
-                        // =================================================
-                        // CHECK LOGIN SESSION
-                        // =================================================
 
                         if (token.isNullOrBlank()) {
 
@@ -951,10 +815,6 @@ fun AppNavigation(
                             return@BookingSummaryScreen
                         }
 
-
-                        // =================================================
-                        // CREATE BOOKING
-                        // =================================================
 
                         bookingViewModel.createBooking(
 
@@ -970,41 +830,56 @@ fun AppNavigation(
             } else {
 
                 Text(
-                    text = "Invalid booking details."
+                    text =
+                        "Invalid booking details."
                 )
             }
         }
+
+
+        // =====================================================
+        // USER BOOKINGS
+        // =====================================================
+
         composable(
             route = Routes.USER_BOOKINGS
         ) {
 
-            val bookingViewModel: BookingViewModel = viewModel()
+            val bookingViewModel: BookingViewModel =
+                viewModel()
+
 
             UserBookingsScreen(
+
                 onBackClick = {
+
                     navController.popBackStack()
                 },
 
-                bookingViewModel = bookingViewModel
+                bookingViewModel =
+                    bookingViewModel
             )
         }
 
+
         // =====================================================
-// USER PAYMENT
-// =====================================================
+        // USER PAYMENT
+        // =====================================================
 
         composable(
+
             route = Routes.PAYMENT,
+
             arguments = listOf(
+
                 navArgument("bookingId") {
-                    type = NavType.IntType
+
+                    type =
+                        NavType.IntType
                 }
             )
-        ) { backStackEntry ->
 
-            // =================================================
-            // GET BOOKING ID
-            // =================================================
+        ) { backStackEntry ->
 
             val bookingId =
                 backStackEntry.arguments
@@ -1012,20 +887,11 @@ fun AppNavigation(
                     ?: -1
 
 
-            // =================================================
-            // VALID BOOKING ID
-            // =================================================
-
             if (bookingId > 0) {
 
                 PaymentScreen(
 
                     bookingId = bookingId,
-
-
-                    // =============================================
-                    // PAYMENT VERIFIED SUCCESSFULLY
-                    // =============================================
 
                     onPaymentSuccess = {
 
@@ -1033,12 +899,6 @@ fun AppNavigation(
                             "RAZORPAY",
                             "Payment verified successfully in Laravel"
                         )
-
-                        Log.d(
-                            "RAZORPAY",
-                            "Opening Booking Success screen"
-                        )
-
 
                         navController.navigate(
                             Routes.bookingSuccess(
@@ -1056,17 +916,7 @@ fun AppNavigation(
                         }
                     },
 
-
-                    // =============================================
-                    // BACK
-                    // =============================================
-
                     onBackClick = {
-
-                        Log.d(
-                            "RAZORPAY",
-                            "Back from Payment screen"
-                        )
 
                         navController.popBackStack()
                     }
@@ -1074,19 +924,17 @@ fun AppNavigation(
 
             } else {
 
-                Log.e(
-                    "RAZORPAY",
-                    "Invalid booking ID: $bookingId"
-                )
-
                 Text(
-                    text = "Invalid payment details."
+                    text =
+                        "Invalid payment details."
                 )
             }
         }
+
+
         // =====================================================
-// USER BOOKING SUCCESS
-// =====================================================
+        // USER BOOKING SUCCESS
+        // =====================================================
 
         composable(
 
@@ -1095,7 +943,9 @@ fun AppNavigation(
             arguments = listOf(
 
                 navArgument("bookingId") {
-                    type = NavType.IntType
+
+                    type =
+                        NavType.IntType
                 }
             )
 
@@ -1112,10 +962,6 @@ fun AppNavigation(
                 BookingSuccessScreen(
 
                     bookingId = bookingId,
-
-                    // =================================================
-                    // BACK TO HOME
-                    // =================================================
 
                     onHomeClick = {
 
@@ -1137,7 +983,8 @@ fun AppNavigation(
             } else {
 
                 Text(
-                    text = "Invalid booking."
+                    text =
+                        "Invalid booking."
                 )
             }
         }
@@ -1162,7 +1009,6 @@ fun AppNavigation(
                 !token.isNullOrBlank() &&
                 role == "ADMIN"
             ) {
-
 
                 val repository =
                     remember {
@@ -1190,14 +1036,16 @@ fun AppNavigation(
 
                 AdminEntryScreen(
 
-                    token = token,
+                    token =
+                        token,
 
-                    viewModel = adminViewModel,
+                    viewModel =
+                        adminViewModel,
 
 
-                    // =============================================
+                    // =========================================
                     // ACTIVE
-                    // =============================================
+                    // =========================================
 
                     onSubscriptionActive = {
 
@@ -1205,7 +1053,6 @@ fun AppNavigation(
                             "ADMIN_ENTRY",
                             "Subscription ACTIVE"
                         )
-
 
                         navController.navigate(
                             Routes.ADMIN_HOME
@@ -1222,9 +1069,9 @@ fun AppNavigation(
                     },
 
 
-                    // =============================================
+                    // =========================================
                     // SUBSCRIPTION REQUIRED
-                    // =============================================
+                    // =========================================
 
                     onSubscriptionRequired = {
 
@@ -1232,7 +1079,6 @@ fun AppNavigation(
                             "ADMIN_ENTRY",
                             "Subscription required"
                         )
-
 
                         navController.navigate(
                             Routes.ADMIN_SUBSCRIPTION
@@ -1249,9 +1095,9 @@ fun AppNavigation(
                     },
 
 
-                    // =============================================
+                    // =========================================
                     // ERROR
-                    // =============================================
+                    // =========================================
 
                     onError = { message ->
 
@@ -1259,7 +1105,6 @@ fun AppNavigation(
                             "ADMIN_ENTRY",
                             message
                         )
-
 
                         navController.navigate(
                             Routes.ADMIN_SUBSCRIPTION
@@ -1275,7 +1120,6 @@ fun AppNavigation(
                         }
                     }
                 )
-
 
             } else {
 
@@ -1312,7 +1156,6 @@ fun AppNavigation(
                 role == "ADMIN"
             ) {
 
-
                 val repository =
                     remember {
 
@@ -1337,56 +1180,88 @@ fun AppNavigation(
                     )
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                            AdminSubscriptionScreen(
+                AdminSubscriptionScreen(
 
-                                                                                                                                                                                                                                                                                                                                                                                                                token = token,
+                    token =
+                        token,
 
-                                                                                                                                                                                                                                                                                                                                                                                                                viewModel = adminViewModel,
-
-
-                                                                                                                                                                                                                                                                                                                                                                                                                // =============================================
-                                                                                                                                                                                                                                                                                                                                                                                                                // ACTIVE
-                                                                                                                                                                                                                                                                                                                                                                                                                // =============================================
-
-                                                                                                                                                                                                                                                                                                                                                                                                                onSubscriptionActive = {
-
-                                                                                                                                                                                                                                                                                                                                                                                                                    navController.navigate(
-                                                                                                                                                                                                                                                                                                                                                                                                                        Routes.ADMIN_HOME
-                                                                                                                                                                                                                                                                                                                                                                                                                    ) {
-
-                                                                                                                                                                                                                                                                                                                                                                                                                        popUpTo(
-                                                                                                                                                                                                                                                                                                                                                                                                                            Routes.ADMIN_SUBSCRIPTION
-                                                                                                                                                                                                                                                                                                                                                                                                                        ) {
-                                                                                                                                                                                                                                                                                                                                                                                                                            inclusive = true
-                                                                                                                                                                                                                                                                                                                                                                                                                        }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                        launchSingleTop = true
-                                                                                                                                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                                                                                                                                },
+                    viewModel =
+                        adminViewModel,
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                // =============================================
-                                                                                                                                                                                                                                                                                                                                                                                                                // PAID PLAN
-                                                                                                                                                                                                                                                                                                                                                                                                                // =============================================
+                    // =========================================
+                    // ACTIVE
+                    // =========================================
 
-                                                                                                                                                                                                                                                                                                                                                                                                                onPaidPlanClick = {
+                    onSubscriptionActive = {
 
-                                                                                                                                                                                                                                                                                                                                                                                                                    navController.navigate(
-                                                                                                                                                                                                                                                                                                                                                                                                                        Routes.ADMIN_PAID_PLANS
-                                                                                                                                                                                                                                                                                                                                                                                                                    ) {
+                        Log.d(
+                            "ADMIN_SUBSCRIPTION",
+                            "Subscription ACTIVE"
+                        )
 
-                                                                                                                                                                                                                                                                                                                                                                                                                        launchSingleTop = true
-                                                                                                                                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                                            )
+                        navController.navigate(
+                            Routes.ADMIN_HOME
+                        ) {
+
+                            popUpTo(
+                                Routes.ADMIN_SUBSCRIPTION
+                            ) {
+                                inclusive = true
+                            }
+
+                            launchSingleTop = true
+                        }
+                    },
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                        } else {
+                    // =========================================
+                    // PAID PLANS
+                    // =========================================
+
+                    onPaidPlanClick = {
+
+                        Log.d(
+                            "ADMIN_SUBSCRIPTION",
+                            "Opening PRO Plans"
+                        )
+
+                        navController.navigate(
+                            Routes.ADMIN_PAID_PLANS
+                        ) {
+
+                            launchSingleTop = true
+                        }
+                    },
+
+
+                    // =========================================
+                    // BACK
+                    // =========================================
+
+                    onBackClick = {
+
+                        navController.navigate(
+                            Routes.ADMIN_HOME
+                        ) {
+
+                            popUpTo(
+                                Routes.ADMIN_SUBSCRIPTION
+                            ) {
+                                inclusive = true
+                            }
+
+                            launchSingleTop = true
+                        }
+                    }
+                )
+
+            } else {
 
                 LaunchedEffect(Unit) {
 
                     Log.e(
-                        "SUBSCRIPTION",
+                        "ADMIN_SUBSCRIPTION",
                         "Invalid ADMIN session"
                     )
 
@@ -1416,18 +1291,75 @@ fun AppNavigation(
                 role == "ADMIN"
             ) {
 
+                val repository =
+                    remember {
+
+                        AdminRepository(
+                            RetrofitClient.api
+                        )
+                    }
+
+
+                val factory =
+                    remember {
+
+                        AdminViewModelFactory(
+                            repository
+                        )
+                    }
+
+
+                val adminViewModel: AdminViewModel =
+                    viewModel(
+                        factory = factory
+                    )
+
 
                 AdminPaidPlansScreen(
 
-                    token = token,
+                    token =
+                        token,
 
-                    onPlanSelected = {
+                    viewModel =
+                        adminViewModel,
+
+
+                    // =========================================
+                    // PAYMENT SUCCESS
+                    // =========================================
+
+                    onPlanActivated = {
 
                         Log.d(
                             "PAID_PLAN",
-                            "Plan selected"
+                            "PRO subscription activated"
                         )
 
+                        navController.navigate(
+                            Routes.ADMIN_HOME
+                        ) {
+
+                            popUpTo(
+                                Routes.ADMIN_PAID_PLANS
+                            ) {
+                                inclusive = true
+                            }
+
+                            launchSingleTop = true
+                        }
+                    },
+
+
+                    // =========================================
+                    // BACK → SUBSCRIPTION
+                    // =========================================
+
+                    onBackClick = {
+
+                        Log.d(
+                            "PAID_PLAN",
+                            "Back to subscription"
+                        )
 
                         navController.navigate(
                             Routes.ADMIN_SUBSCRIPTION
@@ -1443,7 +1375,6 @@ fun AppNavigation(
                         }
                     }
                 )
-
 
             } else {
 
@@ -1480,17 +1411,16 @@ fun AppNavigation(
                 role == "ADMIN"
             ) {
 
-
                 AdminHomeScreen(
 
-                    token = token,
+                    token =
+                        token,
 
                     onLogout = {
 
                         logout()
                     }
                 )
-
 
             } else {
 
@@ -1530,18 +1460,15 @@ fun AppNavigation(
                 "Dashboard opened"
             )
 
-
             Log.d(
                 "SUPER_ADMIN",
                 "Token exists = ${!token.isNullOrBlank()}"
             )
 
-
             Log.d(
                 "SUPER_ADMIN",
                 "Role = $role"
             )
-
 
             Log.d(
                 "SUPER_ADMIN",
@@ -1554,17 +1481,15 @@ fun AppNavigation(
                 role == "SUPER_ADMIN"
             ) {
 
-
                 SuperAdminHomeScreen(
 
-                    token = token,
-
+                    token =
+                        token,
 
                     onLogout = {
 
                         logout()
                     },
-
 
                     onUsersClick = {
 
@@ -1574,7 +1499,6 @@ fun AppNavigation(
                         )
                     },
 
-
                     onOwnersClick = {
 
                         Log.d(
@@ -1582,7 +1506,6 @@ fun AppNavigation(
                             "Turf Owners clicked"
                         )
                     },
-
 
                     onTurfsClick = {
 
@@ -1592,7 +1515,6 @@ fun AppNavigation(
                         )
                     },
 
-
                     onBookingsClick = {
 
                         Log.d(
@@ -1600,7 +1522,6 @@ fun AppNavigation(
                             "Bookings clicked"
                         )
                     },
-
 
                     onSubscriptionsClick = {
 
@@ -1610,7 +1531,6 @@ fun AppNavigation(
                         )
                     },
 
-
                     onSettingsClick = {
 
                         Log.d(
@@ -1619,7 +1539,6 @@ fun AppNavigation(
                         )
                     }
                 )
-
 
             } else {
 
@@ -1636,3 +1555,4 @@ fun AppNavigation(
         }
     }
 }
+

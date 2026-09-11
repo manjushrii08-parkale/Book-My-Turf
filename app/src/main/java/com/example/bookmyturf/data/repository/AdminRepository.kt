@@ -1,24 +1,25 @@
+
 package com.example.bookmyturf.data.repository
 
 import com.example.bookmyturf.data.model.AdminDashboardResponse
 import com.example.bookmyturf.data.model.AdminSubscriptionResponse
-
 import com.example.bookmyturf.data.model.slot.CreateSlotRequest
 import com.example.bookmyturf.data.model.slot.SlotResponse
 import com.example.bookmyturf.data.model.slot.SlotsResponse
 import com.example.bookmyturf.data.model.slot.UpdateSlotRequest
 import com.example.bookmyturf.data.model.slot.UpdateSlotStatusRequest
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
 import com.example.bookmyturf.data.model.turf.CreateTurfRequest
 import com.example.bookmyturf.data.model.turf.ImageUploadResponse
 import com.example.bookmyturf.data.model.turf.TurfListResponse
 import com.example.bookmyturf.data.model.turf.TurfResponse
 import com.example.bookmyturf.data.model.turf.UpdateTurfRequest
-
 import com.example.bookmyturf.data.remote.ApiService
-
+import com.example.bookmyturf.data.remote.CreateSubscriptionOrderRequest
+import com.example.bookmyturf.data.remote.RazorpaySubscriptionOrderResponse
+import com.example.bookmyturf.data.remote.VerifySubscriptionPaymentRequest
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 
 class AdminRepository(
@@ -63,12 +64,42 @@ class AdminRepository(
     }
 
 
-    suspend fun choosePaidPlan(
-        token: String
+    // =========================================================
+    // RAZORPAY SUBSCRIPTION - CREATE ORDER
+    // =========================================================
+
+    suspend fun createSubscriptionOrder(
+        token: String,
+        plan: String
+    ): RazorpaySubscriptionOrderResponse {
+
+        return api.createSubscriptionOrder(
+            authorization = "Bearer $token",
+            request = CreateSubscriptionOrderRequest(
+                plan = plan
+            )
+        )
+    }
+
+
+    // =========================================================
+    // RAZORPAY SUBSCRIPTION - VERIFY PAYMENT
+    // =========================================================
+
+    suspend fun verifySubscriptionPayment(
+        token: String,
+        razorpayOrderId: String,
+        razorpayPaymentId: String,
+        razorpaySignature: String
     ): AdminSubscriptionResponse {
 
-        return api.choosePaidPlan(
-            authorization = "Bearer $token"
+        return api.verifySubscriptionPayment(
+            authorization = "Bearer $token",
+            request = VerifySubscriptionPaymentRequest(
+                razorpay_order_id = razorpayOrderId,
+                razorpay_payment_id = razorpayPaymentId,
+                razorpay_signature = razorpaySignature
+            )
         )
     }
 
@@ -115,10 +146,6 @@ class AdminRepository(
     // IMAGE UPLOAD
     // =========================================================
 
-    // =========================================================
-// IMAGE UPLOAD
-// =========================================================
-
     suspend fun uploadTurfImages(
         token: String,
         turfId: Int,
@@ -128,7 +155,9 @@ class AdminRepository(
         val turfIdBody =
             turfId
                 .toString()
-                .toRequestBody("text/plain".toMediaType())
+                .toRequestBody(
+                    "text/plain".toMediaType()
+                )
 
         return api.uploadTurfImages(
             authorization = "Bearer $token",
@@ -239,3 +268,4 @@ class AdminRepository(
         )
     }
 }
+

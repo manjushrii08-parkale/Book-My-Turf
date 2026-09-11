@@ -1,5 +1,6 @@
 package com.example.bookmyturf.screens.admin.components
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Dashboard
@@ -10,10 +11,15 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.MaterialTheme
 import com.example.bookmyturf.ui.theme.AdminDarkGreen
 import com.example.bookmyturf.ui.theme.AdminGray
+import com.example.bookmyturf.ui.theme.AdminLightGreen
 import com.example.bookmyturf.ui.theme.AdminWhite
-
+import androidx.compose.ui.unit.dp
 @Composable
 fun AdminBottomBar(
     selectedTab: Int,
@@ -21,7 +27,9 @@ fun AdminBottomBar(
 ) {
 
     NavigationBar(
-        containerColor = AdminWhite
+        containerColor = AdminWhite,
+
+        tonalElevation = 4.dp
     ) {
 
         // =====================================================
@@ -29,6 +37,7 @@ fun AdminBottomBar(
         // =====================================================
 
         NavigationBarItem(
+
             selected = selectedTab == 0,
 
             onClick = {
@@ -36,25 +45,54 @@ fun AdminBottomBar(
             },
 
             icon = {
+
                 Icon(
                     imageVector = Icons.Default.Dashboard,
-                    contentDescription = "Dashboard"
+
+                    contentDescription = "Dashboard",
+
+                    modifier = Modifier.size(22.dp)
                 )
             },
 
             label = {
+
                 Text(
-                    text = "Dashboard"
+                    text = "Dashboard",
+
+                    fontSize = 11.sp,
+
+                    fontWeight =
+                        if (selectedTab == 0) {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Medium
+                        }
                 )
             },
 
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = AdminDarkGreen,
-                selectedTextColor = AdminDarkGreen,
-                unselectedIconColor = AdminGray,
-                unselectedTextColor = AdminGray,
-                indicatorColor = AdminWhite
-            )
+            alwaysShowLabel = true,
+
+            colors =
+                NavigationBarItemDefaults.colors(
+
+                    selectedIconColor =
+                        AdminDarkGreen,
+
+                    selectedTextColor =
+                        AdminDarkGreen,
+
+                    unselectedIconColor =
+                        AdminGray,
+
+                    unselectedTextColor =
+                        AdminGray,
+
+                    indicatorColor =
+                        AdminLightGreen.copy(
+                            alpha = 0.20f
+                        )
+                )
         )
 
 
@@ -63,6 +101,7 @@ fun AdminBottomBar(
         // =====================================================
 
         NavigationBarItem(
+
             selected = selectedTab == 1,
 
             onClick = {
@@ -70,25 +109,57 @@ fun AdminBottomBar(
             },
 
             icon = {
+
                 Icon(
-                    imageVector = Icons.Default.SportsSoccer,
-                    contentDescription = "Turfs"
+                    imageVector =
+                        Icons.Default.SportsSoccer,
+
+                    contentDescription =
+                        "Turfs",
+
+                    modifier =
+                        Modifier.size(22.dp)
                 )
             },
 
             label = {
+
                 Text(
-                    text = "Turfs"
+                    text = "Turfs",
+
+                    fontSize = 11.sp,
+
+                    fontWeight =
+                        if (selectedTab == 1) {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Medium
+                        }
                 )
             },
 
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = AdminDarkGreen,
-                selectedTextColor = AdminDarkGreen,
-                unselectedIconColor = AdminGray,
-                unselectedTextColor = AdminGray,
-                indicatorColor = AdminWhite
-            )
+            alwaysShowLabel = true,
+
+            colors =
+                NavigationBarItemDefaults.colors(
+
+                    selectedIconColor =
+                        AdminDarkGreen,
+
+                    selectedTextColor =
+                        AdminDarkGreen,
+
+                    unselectedIconColor =
+                        AdminGray,
+
+                    unselectedTextColor =
+                        AdminGray,
+
+                    indicatorColor =
+                        AdminLightGreen.copy(
+                            alpha = 0.20f
+                        )
+                )
         )
 
 
@@ -97,6 +168,7 @@ fun AdminBottomBar(
         // =====================================================
 
         NavigationBarItem(
+
             selected = selectedTab == 2,
 
             onClick = {
@@ -104,25 +176,57 @@ fun AdminBottomBar(
             },
 
             icon = {
+
                 Icon(
-                    imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = "Bookings"
+                    imageVector =
+                        Icons.Default.CalendarMonth,
+
+                    contentDescription =
+                        "Bookings",
+
+                    modifier =
+                        Modifier.size(22.dp)
                 )
             },
 
             label = {
+
                 Text(
-                    text = "Bookings"
+                    text = "Bookings",
+
+                    fontSize = 11.sp,
+
+                    fontWeight =
+                        if (selectedTab == 2) {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Medium
+                        }
                 )
             },
 
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = AdminDarkGreen,
-                selectedTextColor = AdminDarkGreen,
-                unselectedIconColor = AdminGray,
-                unselectedTextColor = AdminGray,
-                indicatorColor = AdminWhite
-            )
+            alwaysShowLabel = true,
+
+            colors =
+                NavigationBarItemDefaults.colors(
+
+                    selectedIconColor =
+                        AdminDarkGreen,
+
+                    selectedTextColor =
+                        AdminDarkGreen,
+
+                    unselectedIconColor =
+                        AdminGray,
+
+                    unselectedTextColor =
+                        AdminGray,
+
+                    indicatorColor =
+                        AdminLightGreen.copy(
+                            alpha = 0.20f
+                        )
+                )
         )
     }
 }

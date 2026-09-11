@@ -2,8 +2,10 @@ package com.example.bookmyturf.screens.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,9 +13,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -22,17 +27,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -44,6 +48,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bookmyturf.R
+import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
+import com.example.bookmyturf.ui.theme.AdminDarkGreen
+import com.example.bookmyturf.ui.theme.AdminForestGreen
+import com.example.bookmyturf.ui.theme.AdminGray
+import com.example.bookmyturf.ui.theme.AdminLightGreen
+import com.example.bookmyturf.ui.theme.AdminOffWhite
+import com.example.bookmyturf.ui.theme.AdminWhite
 import com.example.bookmyturf.viewmodel.AuthViewModel
 
 @Composable
@@ -57,10 +68,9 @@ fun PhoneLoginScreen(
     // EMAIL STATE
     // =========================================================
 
-    var email by rememberSaveable() {
+    var email by rememberSaveable {
         mutableStateOf("")
     }
-
 
     // =========================================================
     // UI STATE
@@ -69,67 +79,45 @@ fun PhoneLoginScreen(
     val uiState by viewModel.uiState
         .collectAsStateWithLifecycle()
 
-
     // =========================================================
     // OTP SENT
     // =========================================================
 
     LaunchedEffect(uiState.otpSent) {
-
         if (uiState.otpSent) {
-
-            onOtpSent(email)
+            onOtpSent(email.trim())
         }
     }
 
-
     // =========================================================
-    // ROLE TITLE
+    // ROLE DETAILS
     // =========================================================
 
     val roleTitle = when (role) {
-
         "ADMIN" -> "TURF OWNER"
-
         "SUPER_ADMIN" -> "SUPER ADMIN"
-
         else -> "USER"
     }
 
-
-    // =========================================================
-    // MAIN TITLE
-    // =========================================================
-
     val mainTitle = when (role) {
-
-        "ADMIN" -> "Welcome, Turf Owner"
-
-        "SUPER_ADMIN" -> "Welcome, Super Admin"
-
-        else -> "Welcome Back"
+        "ADMIN" -> "Welcome back, Turf Owner"
+        "SUPER_ADMIN" -> "Welcome back, Super Admin"
+        else -> "Welcome back!"
     }
-
-
-    // =========================================================
-    // SUBTITLE
-    // =========================================================
 
     val subtitle = when (role) {
-
         "ADMIN" ->
-            "Manage your turf, slots and bookings"
+            "Manage your turf, slots and bookings."
 
         "SUPER_ADMIN" ->
-            "Manage users, turf owners and turfs"
+            "Manage users, turf owners and platform activity."
 
         else ->
-            "Book your favourite turf in seconds"
+            "Book your favourite turf in seconds."
     }
 
-
     // =========================================================
-    // MAIN SCREEN
+    // SCREEN
     // =========================================================
 
     Box(
@@ -144,17 +132,13 @@ fun PhoneLoginScreen(
             painter = painterResource(
                 id = R.drawable.bg_turf
             ),
-
             contentDescription = null,
-
             modifier = Modifier.fillMaxSize(),
-
             contentScale = ContentScale.Crop
         )
 
-
         // =====================================================
-        // DARK GRADIENT
+        // BACKGROUND OVERLAY
         // =====================================================
 
         Box(
@@ -163,74 +147,75 @@ fun PhoneLoginScreen(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color.Black.copy(alpha = 0.20f),
-                            Color.Black.copy(alpha = 0.40f),
-                            Color.Black.copy(alpha = 0.75f)
+                            AdminDarkGreen.copy(alpha = 0.10f),
+                            Color.Black.copy(alpha = 0.25f),
+                            Color.Black.copy(alpha = 0.72f)
                         )
                     )
                 )
         )
 
-
         // =====================================================
-        // TOP LOGO + BRAND
+        // TOP HERO SECTION
         // =====================================================
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 45.dp),
+                .padding(
+                    top = 55.dp,
+                    start = 24.dp,
+                    end = 24.dp,
+                    bottom = 355.dp
+                ),
 
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment =
+                Alignment.CenterHorizontally,
+
+            verticalArrangement =
+                Arrangement.Center
         ) {
+
+            // =================================================
+            // LOGO
+            // No white circle
+            // =================================================
 
             Image(
                 painter = painterResource(
                     id = R.drawable.logo
                 ),
 
-                contentDescription = "Turf Logo",
+                contentDescription =
+                    "Book My Turf logo",
 
-                modifier = Modifier.size(130.dp),
+                modifier =
+                    Modifier.size(175.dp),
 
-                contentScale = ContentScale.Fit
+                contentScale =
+                    ContentScale.Fit
             )
-
 
             Spacer(
-                modifier = Modifier.height(8.dp)
+                modifier =
+                    Modifier.height(18.dp)
             )
 
+            // =================================================
+            // SMALL GREEN BRAND LINE
+            // =================================================
 
-            Text(
-                text = "BOOK MY TURF",
-
-                color = Color.White,
-
-                fontSize = 23.sp,
-
-                fontWeight = FontWeight.ExtraBold,
-
-                letterSpacing = 2.sp
-            )
-
-
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
-
-
-            Text(
-                text = "Play • Book • Enjoy",
-
-                color = Color.White.copy(
-                    alpha = 0.85f
-                ),
-
-                fontSize = 13.sp
+            Box(
+                modifier = Modifier
+                    .width(45.dp)
+                    .height(4.dp)
+                    .background(
+                        color = AdminLightGreen,
+                        shape =
+                            RoundedCornerShape(50.dp)
+                    )
             )
         }
-
 
         // =====================================================
         // LOGIN CARD
@@ -241,18 +226,22 @@ fun PhoneLoginScreen(
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
 
-            shape = RoundedCornerShape(
-                topStart = 32.dp,
-                topEnd = 32.dp
-            ),
+            shape =
+                RoundedCornerShape(
+                    topStart = 30.dp,
+                    topEnd = 30.dp
+                ),
 
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor =
+                        AdminOffWhite
+                ),
 
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 12.dp
-            )
+            elevation =
+                CardDefaults.cardElevation(
+                    defaultElevation = 14.dp
+                )
         ) {
 
             Column(
@@ -261,279 +250,475 @@ fun PhoneLoginScreen(
                     .navigationBarsPadding()
                     .padding(
                         horizontal = 24.dp,
-                        vertical = 28.dp
+                        vertical = 25.dp
                     )
             ) {
+
+                // =================================================
+                // TOP HANDLE
+                // =================================================
+
+                Box(
+                    modifier =
+                        Modifier.fillMaxWidth(),
+
+                    contentAlignment =
+                        Alignment.Center
+                ) {
+
+                    Box(
+                        modifier = Modifier
+                            .width(42.dp)
+                            .height(4.dp)
+                            .background(
+                                color =
+                                    Color(0xFFD3D8D3),
+                                shape =
+                                    RoundedCornerShape(50.dp)
+                            )
+                    )
+                }
+
+                Spacer(
+                    modifier =
+                        Modifier.height(18.dp)
+                )
 
                 // =================================================
                 // ROLE BADGE
                 // =================================================
 
-                Box(
-                    modifier = Modifier
-                        .clip(
-                            RoundedCornerShape(50.dp)
-                        )
-                        .background(
-                            Color(0xFFE8F5E9)
-                        )
-                        .padding(
-                            horizontal = 14.dp,
-                            vertical = 7.dp
+                Surface(
+                    shape =
+                        RoundedCornerShape(50.dp),
+
+                    color =
+                        AdminLightGreen.copy(
+                            alpha = 0.18f
                         )
                 ) {
 
-                    Text(
-                        text = roleTitle,
+                    Row(
+                        modifier =
+                            Modifier.padding(
+                                horizontal = 13.dp,
+                                vertical = 7.dp
+                            ),
 
-                        color = Color(0xFF2E7D32),
+                        verticalAlignment =
+                            Alignment.CenterVertically
+                    ) {
 
-                        fontSize = 11.sp,
+                        Icon(
+                            imageVector =
+                                Icons.Default.VerifiedUser,
 
-                        fontWeight = FontWeight.Bold,
+                            contentDescription =
+                                null,
 
-                        letterSpacing = 1.sp
-                    )
+                            modifier =
+                                Modifier.size(15.dp),
+
+                            tint =
+                                AdminForestGreen
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(6.dp)
+                        )
+
+                        Text(
+                            text =
+                                roleTitle,
+
+                            color =
+                                AdminForestGreen,
+
+                            fontSize =
+                                10.sp,
+
+                            fontWeight =
+                                FontWeight.Bold,
+
+                            letterSpacing =
+                                1.sp
+                        )
+                    }
                 }
 
-
                 Spacer(
-                    modifier = Modifier.height(14.dp)
+                    modifier =
+                        Modifier.height(13.dp)
                 )
-
 
                 // =================================================
                 // TITLE
                 // =================================================
 
                 Text(
-                    text = mainTitle,
+                    text =
+                        mainTitle,
 
-                    color = Color(0xFF14213D),
+                    color =
+                        AdminDarkCharcoal,
 
-                    fontSize = 28.sp,
+                    fontSize =
+                        27.sp,
 
-                    fontWeight = FontWeight.Bold
+                    fontWeight =
+                        FontWeight.Bold
                 )
-
 
                 Spacer(
-                    modifier = Modifier.height(6.dp)
+                    modifier =
+                        Modifier.height(5.dp)
                 )
-
 
                 // =================================================
                 // SUBTITLE
                 // =================================================
 
                 Text(
-                    text = subtitle,
+                    text =
+                        subtitle,
 
-                    color = Color(0xFF6B7280),
+                    color =
+                        AdminGray,
 
-                    fontSize = 14.sp,
+                    fontSize =
+                        13.sp,
 
-                    lineHeight = 20.sp
+                    lineHeight =
+                        19.sp
                 )
-
 
                 Spacer(
-                    modifier = Modifier.height(24.dp)
+                    modifier =
+                        Modifier.height(20.dp)
                 )
-
 
                 // =================================================
                 // EMAIL LABEL
                 // =================================================
 
                 Text(
-                    text = "Email Address",
+                    text =
+                        "Email Address",
 
-                    color = Color(0xFF374151),
+                    color =
+                        AdminDarkCharcoal,
 
-                    fontSize = 14.sp,
+                    fontSize =
+                        14.sp,
 
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight =
+                        FontWeight.SemiBold
                 )
-
 
                 Spacer(
-                    modifier = Modifier.height(8.dp)
+                    modifier =
+                        Modifier.height(8.dp)
                 )
 
-
                 // =================================================
-                // EMAIL INPUT
+                // EMAIL FIELD
                 // =================================================
 
                 OutlinedTextField(
-
-                    value = email,
+                    value =
+                        email,
 
                     onValueChange = { value ->
-
                         email = value.trimStart()
                     },
 
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier.fillMaxWidth(),
 
-                    singleLine = true,
+                    singleLine =
+                        true,
+
+                    enabled =
+                        !uiState.isLoading,
 
                     leadingIcon = {
 
                         Icon(
-                            imageVector = Icons.Default.Email,
+                            imageVector =
+                                Icons.Default.Email,
 
-                            contentDescription = "Email",
+                            contentDescription =
+                                "Email",
 
-                            tint = Color(0xFF2E7D32)
+                            tint =
+                                AdminForestGreen
                         )
                     },
 
                     placeholder = {
 
                         Text(
-                            text = "Enter your email address"
+                            text =
+                                "Enter your email address",
+
+                            color =
+                                AdminGray
                         )
                     },
 
-                    shape = RoundedCornerShape(14.dp),
+                    shape =
+                        RoundedCornerShape(14.dp),
 
-                    colors = OutlinedTextFieldDefaults.colors(
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
 
-                        focusedBorderColor =
-                            Color(0xFF2E7D32),
+                            focusedBorderColor =
+                                AdminForestGreen,
 
-                        unfocusedBorderColor =
-                            Color(0xFFD1D5DB),
+                            unfocusedBorderColor =
+                                Color(0xFFD5DCD5),
 
-                        focusedLeadingIconColor =
-                            Color(0xFF2E7D32),
+                            focusedContainerColor =
+                                AdminWhite,
 
-                        unfocusedLeadingIconColor =
-                            Color(0xFF6B7280),
+                            unfocusedContainerColor =
+                                AdminWhite,
 
-                        cursorColor =
-                            Color(0xFF2E7D32)
-                    )
+                            focusedLeadingIconColor =
+                                AdminForestGreen,
+
+                            unfocusedLeadingIconColor =
+                                AdminGray,
+
+                            cursorColor =
+                                AdminForestGreen,
+
+                            disabledBorderColor =
+                                Color(0xFFE0E4E0),
+
+                            disabledTextColor =
+                                AdminGray
+                        )
                 )
-
 
                 Spacer(
-                    modifier = Modifier.height(20.dp)
+                    modifier =
+                        Modifier.height(18.dp)
                 )
 
-
                 // =================================================
-                // SEND OTP BUTTON
+                // CONTINUE BUTTON
                 // =================================================
 
                 Button(
-
                     onClick = {
 
                         if (isValidEmail(email)) {
 
                             viewModel.sendOtp(
-                                email = email.trim(),
-                                role = role
+                                email =
+                                    email.trim(),
+
+                                role =
+                                    role
                             )
                         }
                     },
 
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(55.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(54.dp),
 
                     enabled =
                         isValidEmail(email) &&
                                 !uiState.isLoading,
 
-                    shape = RoundedCornerShape(16.dp),
+                    shape =
+                        RoundedCornerShape(14.dp),
 
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor =
-                            Color(0xFF2E7D32),
+                    colors =
+                        ButtonDefaults.buttonColors(
 
-                        disabledContainerColor =
-                            Color(0xFFBDBDBD)
-                    )
+                            containerColor =
+                                AdminDarkGreen,
+
+                            contentColor =
+                                AdminWhite,
+
+                            disabledContainerColor =
+                                Color(0xFFD0D5D0),
+
+                            disabledContentColor =
+                                AdminWhite
+                        )
                 ) {
 
                     if (uiState.isLoading) {
 
                         CircularProgressIndicator(
+                            modifier =
+                                Modifier.size(21.dp),
 
-                            modifier = Modifier.size(23.dp),
+                            color =
+                                AdminWhite,
 
-                            color = Color.White,
+                            strokeWidth =
+                                2.2.dp
+                        )
 
-                            strokeWidth = 2.dp
+                        Spacer(
+                            modifier =
+                                Modifier.width(9.dp)
+                        )
+
+                        Text(
+                            text =
+                                "Sending OTP...",
+
+                            fontSize =
+                                15.sp,
+
+                            fontWeight =
+                                FontWeight.Bold
                         )
 
                     } else {
 
+                        Icon(
+                            imageVector =
+                                Icons.Default.Lock,
+
+                            contentDescription =
+                                null,
+
+                            modifier =
+                                Modifier.size(18.dp)
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(8.dp)
+                        )
+
                         Text(
-                            text = "Continue with Email OTP",
+                            text =
+                                "Continue with Email OTP",
 
-                            fontSize = 16.sp,
+                            fontSize =
+                                15.sp,
 
-                            fontWeight = FontWeight.Bold
+                            fontWeight =
+                                FontWeight.Bold
                         )
                     }
                 }
 
-
                 Spacer(
-                    modifier = Modifier.height(14.dp)
+                    modifier =
+                        Modifier.height(12.dp)
                 )
 
+                // =================================================
+                // SECURITY TEXT
+                // =================================================
+
+                Row(
+                    modifier =
+                        Modifier.fillMaxWidth(),
+
+                    horizontalArrangement =
+                        Arrangement.Center,
+
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+
+                    Icon(
+                        imageVector =
+                            Icons.Default.Lock,
+
+                        contentDescription =
+                            null,
+
+                        modifier =
+                            Modifier.size(13.dp),
+
+                        tint =
+                            AdminGray
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(5.dp)
+                    )
+
+                    Text(
+                        text =
+                            "A 6-digit OTP will be sent to your email.",
+
+                        color =
+                            AdminGray,
+
+                        fontSize =
+                            11.sp,
+
+                        textAlign =
+                            TextAlign.Center
+                    )
+                }
 
                 // =================================================
-                // SECURITY MESSAGE
-                // =================================================
-
-                Text(
-                    text =
-                        "We'll send a 6-digit verification code to your email address.",
-
-                    modifier = Modifier.fillMaxWidth(),
-
-                    textAlign = TextAlign.Center,
-
-                    color = Color(0xFF9CA3AF),
-
-                    fontSize = 12.sp,
-
-                    lineHeight = 17.sp
-                )
-
-
-                // =================================================
-                // ERROR MESSAGE
+                // ERROR
                 // =================================================
 
                 uiState.errorMessage?.let { message ->
 
                     Spacer(
-                        modifier = Modifier.height(10.dp)
+                        modifier =
+                            Modifier.height(10.dp)
                     )
 
-                    Text(
-                        text = message,
+                    Surface(
+                        modifier =
+                            Modifier.fillMaxWidth(),
 
-                        modifier = Modifier.fillMaxWidth(),
+                        shape =
+                            RoundedCornerShape(10.dp),
 
-                        textAlign = TextAlign.Center,
+                        color =
+                            Color(0xFFFFF1F2)
+                    ) {
 
-                        color = Color(0xFFD32F2F),
+                        Text(
+                            text =
+                                message,
 
-                        fontSize = 13.sp,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontal = 12.dp,
+                                        vertical = 9.dp
+                                    ),
 
-                        fontWeight = FontWeight.Medium,
+                            color =
+                                Color(0xFFB91C1C),
 
-                        lineHeight = 18.sp
-                    )
+                            fontSize =
+                                12.sp,
+
+                            fontWeight =
+                                FontWeight.Medium,
+
+                            textAlign =
+                                TextAlign.Center,
+
+                            lineHeight =
+                                17.sp
+                        )
+                    }
                 }
             }
         }
@@ -553,3 +738,4 @@ private fun isValidEmail(
         .matcher(email.trim())
         .matches()
 }
+

@@ -1,5 +1,6 @@
 package com.example.bookmyturf.screens.admin
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,13 +14,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -33,6 +39,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
 import com.example.bookmyturf.ui.theme.AdminDarkGreen
 import com.example.bookmyturf.ui.theme.AdminForestGreen
@@ -55,6 +63,7 @@ import com.example.bookmyturf.ui.theme.AdminLightGreen
 import com.example.bookmyturf.ui.theme.AdminOffWhite
 import com.example.bookmyturf.ui.theme.AdminWhite
 import com.example.bookmyturf.viewmodel.AdminViewModel
+
 
 // =============================================================
 // ADMIN SUBSCRIPTION SCREEN
@@ -69,6 +78,10 @@ fun AdminSubscriptionScreen(
     onPaidPlanClick: () -> Unit,
     onBackClick: () -> Unit = {}
 ) {
+
+    // =========================================================
+    // UI STATE
+    // =========================================================
 
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -89,9 +102,11 @@ fun AdminSubscriptionScreen(
     // SUBSCRIPTION DATA
     // =========================================================
 
-    val data = subscriptionResponse?.data
+    val data =
+        subscriptionResponse?.data
 
-    val subscription = data?.subscription
+    val subscription =
+        data?.subscription
 
     val trialUsed =
         data?.trialUsed ?: false
@@ -131,7 +146,9 @@ fun AdminSubscriptionScreen(
     // =========================================================
 
     Scaffold(
-        containerColor = AdminOffWhite,
+
+        containerColor =
+            AdminOffWhite,
 
         topBar = {
 
@@ -142,15 +159,28 @@ fun AdminSubscriptionScreen(
                     Column {
 
                         Text(
-                            text = "Subscription",
-                            color = AdminDarkCharcoal,
-                            fontWeight = FontWeight.Bold
+                            text =
+                                "Subscription",
+
+                            color =
+                                AdminDarkCharcoal,
+
+                            fontSize =
+                                18.sp,
+
+                            fontWeight =
+                                FontWeight.Bold
                         )
 
                         Text(
-                            text = "Manage your plan",
-                            color = AdminGray,
-                            style = MaterialTheme.typography.labelSmall
+                            text =
+                                "Plans & access",
+
+                            color =
+                                AdminGray,
+
+                            fontSize =
+                                10.sp
                         )
                     }
                 },
@@ -158,20 +188,28 @@ fun AdminSubscriptionScreen(
                 navigationIcon = {
 
                     IconButton(
-                        onClick = onBackClick
+                        onClick =
+                            onBackClick
                     ) {
 
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = AdminDarkGreen
+                            imageVector =
+                                Icons.Default.ArrowBack,
+
+                            contentDescription =
+                                "Back",
+
+                            tint =
+                                AdminDarkGreen
                         )
                     }
                 },
 
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AdminWhite
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor =
+                            AdminWhite
+                    )
             )
         }
 
@@ -186,9 +224,12 @@ fun AdminSubscriptionScreen(
             isLoading -> {
 
                 SubscriptionLoading(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                innerPadding
+                            )
                 )
             }
 
@@ -199,12 +240,16 @@ fun AdminSubscriptionScreen(
             !error.isNullOrBlank() -> {
 
                 SubscriptionError(
-                    message = error
-                        ?: "Something went wrong.",
+                    message =
+                        error
+                            ?: "Something went wrong.",
 
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                innerPadding
+                            ),
 
                     onRetry = {
 
@@ -234,12 +279,12 @@ fun AdminSubscriptionScreen(
                             rememberScrollState()
                         )
                         .padding(
-                            horizontal = 20.dp,
-                            vertical = 20.dp
+                            horizontal = 18.dp,
+                            vertical = 18.dp
                         ),
 
                     verticalArrangement =
-                        Arrangement.spacedBy(20.dp)
+                        Arrangement.spacedBy(16.dp)
                 ) {
 
                     // =================================================
@@ -252,13 +297,21 @@ fun AdminSubscriptionScreen(
                     ) {
 
                         ActivePlanSection(
-                            plan = plan,
-                            isTrial = isTrial,
-                            isPro = isPro,
-                            expiresAt = expiresAt,
-                            onUpgradeClick = onPaidPlanClick
-                        )
+                            plan =
+                                plan,
 
+                            isTrial =
+                                isTrial,
+
+                            isPro =
+                                isPro,
+
+                            expiresAt =
+                                expiresAt,
+
+                            onUpgradeClick =
+                                onPaidPlanClick
+                        )
                     }
 
                     // =================================================
@@ -288,7 +341,8 @@ fun AdminSubscriptionScreen(
 
                                 viewModel.startFreeTrial(
 
-                                    token = token,
+                                    token =
+                                        token,
 
                                     onSuccess = {
 
@@ -335,64 +389,85 @@ private fun ActivePlanSection(
 
     Column(
         verticalArrangement =
-            Arrangement.spacedBy(16.dp)
+            Arrangement.spacedBy(14.dp)
     ) {
 
+        // =====================================================
+        // HEADER
+        // =====================================================
+
         SectionHeading(
-            eyebrow = "YOUR PLAN",
+            eyebrow =
+                "CURRENT SUBSCRIPTION",
 
-            title = if (isTrial) {
-                "Free Trial"
-            } else {
-                plan.replace(
-                    "_",
-                    " "
-                )
-            },
+            title =
+                if (isTrial) {
+                    "Free Trial"
+                } else {
+                    plan
+                        .replace("_", " ")
+                        .uppercase()
+                },
 
-            subtitle = if (isTrial) {
-                "Everything you need to get started."
-            } else {
-                "Your PRO subscription is active."
-            }
+            subtitle =
+                if (isTrial) {
+                    "Your trial is active and ready to use."
+                } else if (isPro) {
+                    "Your PRO plan is active."
+                } else {
+                    "Your subscription is currently active."
+                }
         )
 
-        // =========================================================
+        // =====================================================
         // ACTIVE CARD
-        // =========================================================
+        // =====================================================
 
         Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = AdminDarkGreen
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 4.dp
-            )
+            modifier =
+                Modifier.fillMaxWidth(),
+
+            shape =
+                RoundedCornerShape(22.dp),
+
+            colors =
+                CardDefaults.cardColors(
+                    containerColor =
+                        AdminDarkGreen
+                ),
+
+            elevation =
+                CardDefaults.cardElevation(
+                    defaultElevation = 3.dp
+                )
         ) {
 
             Column(
-                modifier = Modifier.padding(22.dp),
+                modifier =
+                    Modifier.padding(20.dp),
+
                 verticalArrangement =
-                    Arrangement.spacedBy(18.dp)
+                    Arrangement.spacedBy(16.dp)
             ) {
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier.fillMaxWidth(),
+
                     verticalAlignment =
                         Alignment.CenterVertically
                 ) {
 
                     Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(
-                                RoundedCornerShape(16.dp)
-                            )
-                            .background(
-                                AdminLightGreen
-                            ),
+                        modifier =
+                            Modifier
+                                .size(50.dp)
+                                .clip(
+                                    RoundedCornerShape(15.dp)
+                                )
+                                .background(
+                                    AdminLightGreen
+                                ),
 
                         contentAlignment =
                             Alignment.Center
@@ -401,107 +476,256 @@ private fun ActivePlanSection(
                         Icon(
                             imageVector =
                                 Icons.Default.WorkspacePremium,
+
                             contentDescription =
                                 null,
-                            tint = AdminDarkGreen
+
+                            modifier =
+                                Modifier.size(27.dp),
+
+                            tint =
+                                AdminDarkGreen
                         )
                     }
 
                     Spacer(
-                        modifier = Modifier.width(14.dp)
+                        modifier =
+                            Modifier.width(13.dp)
                     )
 
                     Column(
-                        modifier = Modifier.weight(1f)
+                        modifier =
+                            Modifier.weight(1f)
                     ) {
 
                         Text(
-                            text = if (isTrial) {
-                                "FREE TRIAL"
-                            } else {
-                                "PRO"
-                            },
-                            color = AdminWhite,
+                            text =
+                                if (isTrial) {
+                                    "FREE TRIAL"
+                                } else {
+                                    "PRO PLAN"
+                                },
+
+                            color =
+                                AdminWhite,
+
+                            fontSize =
+                                16.sp,
+
                             fontWeight =
                                 FontWeight.Bold
                         )
 
-                        Text(
-                            text = "ACTIVE",
-                            color = AdminLightGreen,
-                            fontWeight =
-                                FontWeight.SemiBold
+                        Spacer(
+                            modifier =
+                                Modifier.height(3.dp)
                         )
+
+                        Row(
+                            verticalAlignment =
+                                Alignment.CenterVertically
+                        ) {
+
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .size(7.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            AdminLightGreen
+                                        )
+                            )
+
+                            Spacer(
+                                modifier =
+                                    Modifier.width(6.dp)
+                            )
+
+                            Text(
+                                text =
+                                    "ACTIVE",
+
+                                color =
+                                    AdminLightGreen,
+
+                                fontSize =
+                                    10.sp,
+
+                                fontWeight =
+                                    FontWeight.Bold,
+
+                                letterSpacing =
+                                    0.8.sp
+                            )
+                        }
                     }
                 }
 
                 HorizontalDivider(
                     color =
                         AdminWhite.copy(
-                            alpha = 0.16f
+                            alpha = 0.14f
                         )
                 )
 
                 SubscriptionDetailRow(
-                    label = "Expires",
-                    value = formatDate(
-                        expiresAt
-                    )
+                    label =
+                        "Expires",
+
+                    value =
+                        formatDate(
+                            expiresAt
+                        )
                 )
 
                 SubscriptionDetailRow(
-                    label = "Access",
-                    value = if (isTrial) {
-                        "Full access • 1 turf"
-                    } else {
-                        "Full access • Multiple turfs"
-                    }
+                    label =
+                        "Access",
+
+                    value =
+                        if (isTrial) {
+                            "Full access • 1 turf"
+                        } else {
+                            "Full access • Multiple turfs"
+                        }
                 )
 
                 SubscriptionDetailRow(
-                    label = "Booking access",
-                    value = "Enabled"
+                    label =
+                        "Bookings",
+
+                    value =
+                        "Enabled"
                 )
             }
         }
 
-        // =========================================================
-        // FEATURES
-        // =========================================================
-
-        IncludedFeaturesCard()
-
-        // =========================================================
-        // UPGRADE BUTTON
-        // =========================================================
+        // =====================================================
+        // TRIAL MESSAGE
+        // =====================================================
 
         if (isTrial) {
 
+            TrialInfoCard()
+
             Button(
-                onClick = onUpgradeClick,
+                onClick =
+                    onUpgradeClick,
 
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-
-                colors = ButtonDefaults.buttonColors(
-                    containerColor =
-                        AdminLightGreen,
-
-                    contentColor =
-                        AdminDarkCharcoal
-                ),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(53.dp),
 
                 shape =
-                    RoundedCornerShape(16.dp)
+                    RoundedCornerShape(14.dp),
+
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor =
+                            AdminLightGreen,
+
+                        contentColor =
+                            AdminDarkCharcoal
+                    )
             ) {
 
+                Icon(
+                    imageVector =
+                        Icons.Default.WorkspacePremium,
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.size(18.dp)
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.width(8.dp)
+                )
+
                 Text(
-                    text = "Upgrade to PRO",
+                    text =
+                        "Upgrade to PRO",
+
                     fontWeight =
                         FontWeight.Bold
                 )
             }
+        }
+
+        // =====================================================
+        // FEATURES
+        // =====================================================
+
+        IncludedFeaturesCard()
+    }
+}
+
+
+// =============================================================
+// TRIAL INFO
+// =============================================================
+
+@Composable
+private fun TrialInfoCard() {
+
+    Surface(
+        modifier =
+            Modifier.fillMaxWidth(),
+
+        shape =
+            RoundedCornerShape(16.dp),
+
+        color =
+            AdminLightGreen.copy(
+                alpha = 0.13f
+            )
+    ) {
+
+        Row(
+            modifier =
+                Modifier.padding(15.dp),
+
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+
+            Icon(
+                imageVector =
+                    Icons.Default.Timer,
+
+                contentDescription =
+                    null,
+
+                modifier =
+                    Modifier.size(20.dp),
+
+                tint =
+                    AdminForestGreen
+            )
+
+            Spacer(
+                modifier =
+                    Modifier.width(10.dp)
+            )
+
+            Text(
+                text =
+                    "Enjoy your free trial. Upgrade to PRO " +
+                            "when you need more turf capacity.",
+
+                color =
+                    AdminDarkCharcoal,
+
+                fontSize =
+                    11.sp,
+
+                lineHeight =
+                    17.sp
+            )
         }
     }
 }
@@ -518,41 +742,60 @@ private fun ExpiredPlanSection(
 
     Column(
         verticalArrangement =
-            Arrangement.spacedBy(16.dp)
+            Arrangement.spacedBy(14.dp)
     ) {
 
         SectionHeading(
-            eyebrow = "ACCOUNT STATUS",
-            title = "Subscription Expired",
-            subtitle = "Your account is currently view-only."
+            eyebrow =
+                "ACCOUNT STATUS",
+
+            title =
+                "Subscription Expired",
+
+            subtitle =
+                "Your account is currently in view-only mode."
         )
 
         Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = AdminWhite
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 2.dp
-            )
+            modifier =
+                Modifier.fillMaxWidth(),
+
+            shape =
+                RoundedCornerShape(22.dp),
+
+            colors =
+                CardDefaults.cardColors(
+                    containerColor =
+                        AdminWhite
+                ),
+
+            elevation =
+                CardDefaults.cardElevation(
+                    defaultElevation = 1.dp
+                )
         ) {
 
             Column(
-                modifier = Modifier.padding(22.dp),
+                modifier =
+                    Modifier.padding(20.dp),
+
                 horizontalAlignment =
                     Alignment.CenterHorizontally,
+
                 verticalArrangement =
-                    Arrangement.spacedBy(14.dp)
+                    Arrangement.spacedBy(12.dp)
             ) {
 
                 Box(
-                    modifier = Modifier
-                        .size(68.dp)
-                        .clip(
-                            RoundedCornerShape(20.dp)
-                        )
-                        .background(AdminOffWhite),
+                    modifier =
+                        Modifier
+                            .size(64.dp)
+                            .clip(
+                                RoundedCornerShape(18.dp)
+                            )
+                            .background(
+                                AdminOffWhite
+                            ),
 
                     contentAlignment =
                         Alignment.Center
@@ -569,7 +812,7 @@ private fun ExpiredPlanSection(
                             AdminForestGreen,
 
                         modifier =
-                            Modifier.size(32.dp)
+                            Modifier.size(31.dp)
                     )
                 }
 
@@ -580,6 +823,9 @@ private fun ExpiredPlanSection(
                     color =
                         AdminDarkCharcoal,
 
+                    fontSize =
+                        17.sp,
+
                     fontWeight =
                         FontWeight.Bold,
 
@@ -589,13 +835,18 @@ private fun ExpiredPlanSection(
 
                 Text(
                     text =
-                        "Your existing turf data remains safe. " +
-                                "You can continue viewing your data, " +
-                                "but new bookings, payments and Admin " +
-                                "actions are disabled.",
+                        "Your existing turf information remains available, " +
+                                "but management features are restricted until " +
+                                "you choose a new plan.",
 
                     color =
                         AdminGray,
+
+                    fontSize =
+                        12.sp,
+
+                    lineHeight =
+                        18.sp,
 
                     textAlign =
                         TextAlign.Center
@@ -610,26 +861,27 @@ private fun ExpiredPlanSection(
                     onClick =
                         onUpgradeClick,
 
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(53.dp),
+
+                    shape =
+                        RoundedCornerShape(14.dp),
 
                     colors =
                         ButtonDefaults.buttonColors(
                             containerColor =
-                                AdminLightGreen,
+                                AdminDarkGreen,
 
                             contentColor =
-                                AdminDarkCharcoal
-                        ),
-
-                    shape =
-                        RoundedCornerShape(16.dp)
+                                AdminWhite
+                        )
                 ) {
 
                     Text(
                         text =
-                            "Upgrade to PRO",
+                            "Choose a PRO Plan",
 
                         fontWeight =
                             FontWeight.Bold
@@ -642,7 +894,7 @@ private fun ExpiredPlanSection(
 
 
 // =============================================================
-// FIRST TIME
+// FIRST TIME PLAN
 // =============================================================
 
 @Composable
@@ -653,43 +905,60 @@ private fun FirstTimePlanSection(
 
     Column(
         verticalArrangement =
-            Arrangement.spacedBy(16.dp)
+            Arrangement.spacedBy(14.dp)
     ) {
 
         SectionHeading(
-            eyebrow = "WELCOME",
-            title = "Choose your plan",
+            eyebrow =
+                "WELCOME",
+
+            title =
+                "Start your turf business",
+
             subtitle =
-                "Start your turf business with the plan that suits you."
+                "Begin with a free trial or choose PRO from the start."
         )
 
-        // =========================================================
+        // =====================================================
         // FREE TRIAL
-        // =========================================================
+        // =====================================================
 
         PlanOptionCard(
-            title = "15-Day Free Trial",
+            title =
+                "15-Day Free Trial",
 
             subtitle =
-                "Start managing your turf with no upfront cost.",
+                "Start with no upfront cost.",
 
-            features = listOf(
-                "1 turf included",
-                "Manage slots",
-                "Manage bookings",
-                "Business dashboard"
-            ),
+            badge =
+                "FREE TO START",
 
-            highlighted = true
+            icon =
+                Icons.Default.Timer,
+
+            features =
+                listOf(
+                    "1 turf included",
+                    "Manage slots",
+                    "Manage bookings",
+                    "Business dashboard"
+                ),
+
+            highlighted =
+                true
         )
 
         Button(
             onClick =
                 onStartTrial,
 
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(53.dp),
+
+            shape =
+                RoundedCornerShape(14.dp),
 
             colors =
                 ButtonDefaults.buttonColors(
@@ -698,10 +967,7 @@ private fun FirstTimePlanSection(
 
                     contentColor =
                         AdminDarkCharcoal
-                ),
-
-            shape =
-                RoundedCornerShape(16.dp)
+                )
         ) {
 
             Text(
@@ -713,36 +979,54 @@ private fun FirstTimePlanSection(
             )
         }
 
-        // =========================================================
+        // =====================================================
         // PRO
-        // =========================================================
+        // =====================================================
 
         PlanOptionCard(
-            title = "PRO",
+            title =
+                "PRO",
 
             subtitle =
                 "For growing turf businesses.",
 
-            features = listOf(
-                "Multiple turfs",
-                "Full Admin access",
-                "Manage slots",
-                "Manage bookings"
-            ),
+            badge =
+                "PAID PLAN",
 
-            highlighted = false
+            icon =
+                Icons.Default.WorkspacePremium,
+
+            features =
+                listOf(
+                    "Multiple turfs",
+                    "Full Admin access",
+                    "Manage slots",
+                    "Manage bookings"
+                ),
+
+            highlighted =
+                false
         )
 
         OutlinedButton(
             onClick =
                 onPaidPlanClick,
 
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(53.dp),
 
             shape =
-                RoundedCornerShape(16.dp)
+                RoundedCornerShape(14.dp),
+
+            border =
+                BorderStroke(
+                    1.dp,
+                    AdminForestGreen.copy(
+                        alpha = 0.55f
+                    )
+                )
         ) {
 
             Text(
@@ -756,6 +1040,12 @@ private fun FirstTimePlanSection(
                     FontWeight.Bold
             )
         }
+
+        // =====================================================
+        // NOTE
+        // =====================================================
+
+        SecurityNote()
     }
 }
 
@@ -771,18 +1061,24 @@ private fun PaidPlanRequiredSection(
 
     Column(
         verticalArrangement =
-            Arrangement.spacedBy(16.dp)
+            Arrangement.spacedBy(14.dp)
     ) {
 
         SectionHeading(
-            eyebrow = "PLAN REQUIRED",
-            title = "Choose a paid plan",
+            eyebrow =
+                "PLAN REQUIRED",
+
+            title =
+                "Choose a paid plan",
+
             subtitle =
                 "Your free trial is no longer available."
         )
 
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier.fillMaxWidth(),
+
             shape =
                 RoundedCornerShape(20.dp),
 
@@ -790,24 +1086,32 @@ private fun PaidPlanRequiredSection(
                 CardDefaults.cardColors(
                     containerColor =
                         AdminWhite
+                ),
+
+            elevation =
+                CardDefaults.cardElevation(
+                    defaultElevation = 1.dp
                 )
         ) {
 
             Column(
-                modifier = Modifier.padding(20.dp),
+                modifier =
+                    Modifier.padding(20.dp),
+
                 verticalArrangement =
                     Arrangement.spacedBy(12.dp)
             ) {
 
                 Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(
-                            RoundedCornerShape(12.dp)
-                        )
-                        .background(
-                            AdminOffWhite
-                        ),
+                    modifier =
+                        Modifier
+                            .size(46.dp)
+                            .clip(
+                                RoundedCornerShape(13.dp)
+                            )
+                            .background(
+                                AdminOffWhite
+                            ),
 
                     contentAlignment =
                         Alignment.Center
@@ -835,16 +1139,26 @@ private fun PaidPlanRequiredSection(
                     color =
                         AdminDarkCharcoal,
 
+                    fontSize =
+                        16.sp,
+
                     fontWeight =
                         FontWeight.Bold
                 )
 
                 Text(
                     text =
-                        "Upgrade to continue using full Admin features.",
+                        "Upgrade to continue using full Admin features " +
+                                "for your turf business.",
 
                     color =
-                        AdminGray
+                        AdminGray,
+
+                    fontSize =
+                        12.sp,
+
+                    lineHeight =
+                        18.sp
                 )
 
                 Button(
@@ -852,19 +1166,21 @@ private fun PaidPlanRequiredSection(
                         onPaidPlanClick,
 
                     modifier =
-                        Modifier.fillMaxWidth(),
+                        Modifier
+                            .fillMaxWidth()
+                            .height(53.dp),
+
+                    shape =
+                        RoundedCornerShape(14.dp),
 
                     colors =
                         ButtonDefaults.buttonColors(
                             containerColor =
-                                AdminLightGreen,
+                                AdminDarkGreen,
 
                             contentColor =
-                                AdminDarkCharcoal
-                        ),
-
-                    shape =
-                        RoundedCornerShape(14.dp)
+                                AdminWhite
+                        )
                 ) {
 
                     Text(
@@ -889,6 +1205,8 @@ private fun PaidPlanRequiredSection(
 private fun PlanOptionCard(
     title: String,
     subtitle: String,
+    badge: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     features: List<String>,
     highlighted: Boolean
 ) {
@@ -909,36 +1227,50 @@ private fun PlanOptionCard(
         elevation =
             CardDefaults.cardElevation(
                 defaultElevation =
-                    if (highlighted) 3.dp else 1.dp
+                    if (highlighted) {
+                        3.dp
+                    } else {
+                        1.dp
+                    }
             )
     ) {
 
         Column(
             modifier =
-                Modifier.padding(20.dp),
+                Modifier.padding(19.dp),
 
             verticalArrangement =
                 Arrangement.spacedBy(12.dp)
         ) {
 
+            // =================================================
+            // HEADER
+            // =================================================
+
             Row(
+                modifier =
+                    Modifier.fillMaxWidth(),
+
                 verticalAlignment =
                     Alignment.CenterVertically
             ) {
 
                 Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(
-                            RoundedCornerShape(12.dp)
-                        )
-                        .background(
-                            if (highlighted) {
-                                AdminLightGreen
-                            } else {
-                                AdminOffWhite
-                            }
-                        ),
+                    modifier =
+                        Modifier
+                            .size(46.dp)
+                            .clip(
+                                RoundedCornerShape(13.dp)
+                            )
+                            .background(
+                                if (highlighted) {
+                                    AdminLightGreen.copy(
+                                        alpha = 0.25f
+                                    )
+                                } else {
+                                    AdminOffWhite
+                                }
+                            ),
 
                     contentAlignment =
                         Alignment.Center
@@ -946,22 +1278,28 @@ private fun PlanOptionCard(
 
                     Icon(
                         imageVector =
-                            Icons.Default.WorkspacePremium,
+                            icon,
 
                         contentDescription =
                             null,
 
+                        modifier =
+                            Modifier.size(23.dp),
+
                         tint =
-                            AdminDarkGreen
+                            AdminForestGreen
                     )
                 }
 
                 Spacer(
                     modifier =
-                        Modifier.width(12.dp)
+                        Modifier.width(11.dp)
                 )
 
-                Column {
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
 
                     Text(
                         text =
@@ -970,8 +1308,16 @@ private fun PlanOptionCard(
                         color =
                             AdminDarkCharcoal,
 
+                        fontSize =
+                            17.sp,
+
                         fontWeight =
                             FontWeight.Bold
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(2.dp)
                     )
 
                     Text(
@@ -979,10 +1325,57 @@ private fun PlanOptionCard(
                             subtitle,
 
                         color =
-                            AdminGray
+                            AdminGray,
+
+                        fontSize =
+                            11.sp
+                    )
+                }
+
+                Surface(
+                    shape =
+                        RoundedCornerShape(7.dp),
+
+                    color =
+                        if (highlighted) {
+                            AdminLightGreen.copy(
+                                alpha = 0.20f
+                            )
+                        } else {
+                            AdminOffWhite
+                        }
+                ) {
+
+                    Text(
+                        text =
+                            badge,
+
+                        modifier =
+                            Modifier.padding(
+                                horizontal = 7.dp,
+                                vertical = 5.dp
+                            ),
+
+                        color =
+                            AdminForestGreen,
+
+                        fontSize =
+                            8.sp,
+
+                        fontWeight =
+                            FontWeight.Bold
                     )
                 }
             }
+
+            HorizontalDivider(
+                color =
+                    Color(0xFFE8ECE8)
+            )
+
+            // =================================================
+            // FEATURES
+            // =================================================
 
             features.forEach { feature ->
 
@@ -1002,12 +1395,12 @@ private fun PlanOptionCard(
                             AdminForestGreen,
 
                         modifier =
-                            Modifier.size(19.dp)
+                            Modifier.size(17.dp)
                     )
 
                     Spacer(
                         modifier =
-                            Modifier.width(9.dp)
+                            Modifier.width(8.dp)
                     )
 
                     Text(
@@ -1015,7 +1408,10 @@ private fun PlanOptionCard(
                             feature,
 
                         color =
-                            AdminDarkCharcoal
+                            AdminDarkCharcoal,
+
+                        fontSize =
+                            12.sp
                     )
                 }
             }
@@ -1036,48 +1432,90 @@ private fun IncludedFeaturesCard() {
             Modifier.fillMaxWidth(),
 
         shape =
-            RoundedCornerShape(20.dp),
+            RoundedCornerShape(19.dp),
 
         colors =
             CardDefaults.cardColors(
                 containerColor =
                     AdminWhite
+            ),
+
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = 1.dp
             )
     ) {
 
         Column(
             modifier =
-                Modifier.padding(20.dp),
+                Modifier.padding(18.dp),
 
             verticalArrangement =
-                Arrangement.spacedBy(13.dp)
+                Arrangement.spacedBy(12.dp)
         ) {
 
-            Text(
-                text =
-                    "What's included",
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
 
+                Icon(
+                    imageVector =
+                        Icons.Default.VerifiedUser,
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.size(19.dp),
+
+                    tint =
+                        AdminForestGreen
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.width(8.dp)
+                )
+
+                Text(
+                    text =
+                        "What's included",
+
+                    color =
+                        AdminDarkCharcoal,
+
+                    fontSize =
+                        15.sp,
+
+                    fontWeight =
+                        FontWeight.Bold
+                )
+            }
+
+            HorizontalDivider(
                 color =
-                    AdminDarkCharcoal,
-
-                fontWeight =
-                    FontWeight.Bold
+                    Color(0xFFE8ECE8)
             )
 
             FeatureRow(
-                text = "Manage your turf"
+                text =
+                    "Manage your turf"
             )
 
             FeatureRow(
-                text = "Create and manage slots"
+                text =
+                    "Create and manage slots"
             )
 
             FeatureRow(
-                text = "Manage bookings"
+                text =
+                    "Manage customer bookings"
             )
 
             FeatureRow(
-                text = "View business activity"
+                text =
+                    "View business activity"
             )
         }
     }
@@ -1098,18 +1536,14 @@ private fun FeatureRow(
             Alignment.CenterVertically
     ) {
 
-        Icon(
-            imageVector =
-                Icons.Default.CheckCircle,
-
-            contentDescription =
-                null,
-
-            tint =
-                AdminForestGreen,
-
+        Box(
             modifier =
-                Modifier.size(19.dp)
+                Modifier
+                    .size(7.dp)
+                    .clip(CircleShape)
+                    .background(
+                        AdminLightGreen
+                    )
         )
 
         Spacer(
@@ -1122,7 +1556,10 @@ private fun FeatureRow(
                 text,
 
             color =
-                AdminDarkCharcoal
+                AdminDarkCharcoal,
+
+            fontSize =
+                12.sp
         )
     }
 }
@@ -1151,8 +1588,14 @@ private fun SectionHeading(
             color =
                 AdminForestGreen,
 
+            fontSize =
+                10.sp,
+
             fontWeight =
-                FontWeight.Bold
+                FontWeight.Bold,
+
+            letterSpacing =
+                1.sp
         )
 
         Text(
@@ -1176,8 +1619,11 @@ private fun SectionHeading(
             color =
                 AdminGray,
 
-            style =
-                MaterialTheme.typography.bodyMedium
+            fontSize =
+                12.sp,
+
+            lineHeight =
+                18.sp
         )
     }
 }
@@ -1198,7 +1644,10 @@ private fun SubscriptionDetailRow(
             Modifier.fillMaxWidth(),
 
         horizontalArrangement =
-            Arrangement.SpaceBetween
+            Arrangement.SpaceBetween,
+
+        verticalAlignment =
+            Alignment.CenterVertically
     ) {
 
         Text(
@@ -1208,7 +1657,10 @@ private fun SubscriptionDetailRow(
             color =
                 AdminWhite.copy(
                     alpha = 0.70f
-                )
+                ),
+
+            fontSize =
+                12.sp
         )
 
         Text(
@@ -1218,8 +1670,69 @@ private fun SubscriptionDetailRow(
             color =
                 AdminWhite,
 
+            fontSize =
+                12.sp,
+
             fontWeight =
                 FontWeight.SemiBold
+        )
+    }
+}
+
+
+// =============================================================
+// SECURITY NOTE
+// =============================================================
+
+@Composable
+private fun SecurityNote() {
+
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 6.dp
+                ),
+
+        horizontalArrangement =
+            Arrangement.Center,
+
+        verticalAlignment =
+            Alignment.CenterVertically
+    ) {
+
+        Icon(
+            imageVector =
+                Icons.Default.Lock,
+
+            contentDescription =
+                null,
+
+            modifier =
+                Modifier.size(13.dp),
+
+            tint =
+                AdminGray
+        )
+
+        Spacer(
+            modifier =
+                Modifier.width(5.dp)
+        )
+
+        Text(
+            text =
+                "Secure payment integration will be available soon.",
+
+            color =
+                AdminGray,
+
+            fontSize =
+                10.sp,
+
+            textAlign =
+                TextAlign.Center
         )
     }
 }
@@ -1262,7 +1775,10 @@ private fun SubscriptionLoading(
                     "Loading subscription...",
 
                 color =
-                    AdminGray
+                    AdminGray,
+
+                fontSize =
+                    12.sp
             )
         }
     }
@@ -1290,8 +1806,48 @@ private fun SubscriptionError(
 
         Column(
             horizontalAlignment =
-                Alignment.CenterHorizontally
+                Alignment.CenterHorizontally,
+
+            verticalArrangement =
+                Arrangement.Center
         ) {
+
+            Box(
+                modifier =
+                    Modifier
+                        .size(60.dp)
+                        .clip(
+                            CircleShape
+                        )
+                        .background(
+                            AdminLightGreen.copy(
+                                alpha = 0.16f
+                            )
+                        ),
+
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.Lock,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        AdminForestGreen,
+
+                    modifier =
+                        Modifier.size(27.dp)
+                )
+            }
+
+            Spacer(
+                modifier =
+                    Modifier.height(15.dp)
+            )
 
             Text(
                 text =
@@ -1300,13 +1856,16 @@ private fun SubscriptionError(
                 color =
                     AdminDarkCharcoal,
 
+                fontSize =
+                    17.sp,
+
                 fontWeight =
                     FontWeight.Bold
             )
 
             Spacer(
                 modifier =
-                    Modifier.height(8.dp)
+                    Modifier.height(7.dp)
             )
 
             Text(
@@ -1316,8 +1875,14 @@ private fun SubscriptionError(
                 color =
                     AdminGray,
 
+                fontSize =
+                    12.sp,
+
                 textAlign =
-                    TextAlign.Center
+                    TextAlign.Center,
+
+                lineHeight =
+                    18.sp
             )
 
             Spacer(
@@ -1329,6 +1894,9 @@ private fun SubscriptionError(
                 onClick =
                     onRetry,
 
+                shape =
+                    RoundedCornerShape(12.dp),
+
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
@@ -1336,15 +1904,15 @@ private fun SubscriptionError(
 
                         contentColor =
                             AdminWhite
-                    ),
-
-                shape =
-                    RoundedCornerShape(14.dp)
+                    )
             ) {
 
                 Text(
                     text =
-                        "Retry"
+                        "Retry",
+
+                    fontWeight =
+                        FontWeight.Bold
                 )
             }
         }

@@ -32,7 +32,10 @@ private val LightGreen = Color(0xFF7DBB4A)
 private val White = Color(0xFFFFFFFF)
 private val Charcoal = Color(0xFF1C1C1C)
 private val Gray = Color(0xFF737373)
+
 private val SoftBorder = Color(0xFFE3E8DF)
+private val FocusBorder = Color(0xFF7DBB4A)
+private val SoftGreen = Color(0xFFF0F5EA)
 
 
 // ============================================================
@@ -55,7 +58,6 @@ fun TurfSearchBar(
 
         onValueChange = onQueryChange,
 
-
         // =====================================================
         // SIZE
         // =====================================================
@@ -64,11 +66,10 @@ fun TurfSearchBar(
             .fillMaxWidth()
             .padding(
                 horizontal = 18.dp,
-                vertical = 8.dp
+                vertical = 7.dp
             ),
 
         singleLine = true,
-
 
         // =====================================================
         // PLACEHOLDER
@@ -79,14 +80,13 @@ fun TurfSearchBar(
             Text(
                 text = "Search turf, city or location",
 
-                fontSize = 14.sp,
+                fontSize = 13.sp,
 
                 fontWeight = FontWeight.Normal,
 
                 color = Gray
             )
         },
-
 
         // =====================================================
         // SEARCH ICON
@@ -95,21 +95,13 @@ fun TurfSearchBar(
         leadingIcon = {
 
             Icon(
-                imageVector =
-                    Icons.Default.Search,
+                imageVector = Icons.Default.Search,
 
-                contentDescription =
-                    "Search",
+                contentDescription = "Search",
 
-                modifier =
-                    Modifier.padding(
-                        start = 2.dp
-                    ),
-
-                tint = DarkGreen
+                tint = ForestGreen
             )
         },
-
 
         // =====================================================
         // CLEAR BUTTON
@@ -126,11 +118,9 @@ fun TurfSearchBar(
                 ) {
 
                     Icon(
-                        imageVector =
-                            Icons.Default.Clear,
+                        imageVector = Icons.Default.Clear,
 
-                        contentDescription =
-                            "Clear search",
+                        contentDescription = "Clear search",
 
                         tint = Gray
                     )
@@ -138,116 +128,91 @@ fun TurfSearchBar(
             }
         },
 
-
         // =====================================================
         // SHAPE
         // =====================================================
 
-        shape =
-            RoundedCornerShape(18.dp),
-
+        shape = RoundedCornerShape(16.dp),
 
         // =====================================================
         // KEYBOARD
         // =====================================================
 
-        keyboardOptions =
-            KeyboardOptions(
-                imeAction =
-                    ImeAction.Search
-            ),
-
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search
+        ),
 
         // =====================================================
         // COLORS
         // =====================================================
 
-        colors =
-            OutlinedTextFieldDefaults.colors(
+        colors = OutlinedTextFieldDefaults.colors(
 
-                // -------------------------------------------------
-                // NORMAL
-                // -------------------------------------------------
+            // -------------------------------------------------
+            // UNFOCUSED
+            // -------------------------------------------------
 
-                unfocusedContainerColor =
-                    White,
+            unfocusedContainerColor = White,
 
-                unfocusedBorderColor =
-                    SoftBorder,
+            unfocusedBorderColor = SoftBorder,
 
-                unfocusedTextColor =
-                    Charcoal,
+            unfocusedTextColor = Charcoal,
 
+            // -------------------------------------------------
+            // FOCUSED
+            // -------------------------------------------------
 
-                // -------------------------------------------------
-                // FOCUSED
-                // -------------------------------------------------
-
-                focusedContainerColor =
-                    White,
-
-                focusedBorderColor =
-                    LightGreen,
-
-                focusedTextColor =
-                    Charcoal,
-
-
-                // -------------------------------------------------
-                // CURSOR
-                // -------------------------------------------------
-
-                cursorColor =
-                    ForestGreen,
-
-
-                // -------------------------------------------------
-                // ICON
-                // -------------------------------------------------
-
-                focusedLeadingIconColor =
-                    DarkGreen,
-
-                unfocusedLeadingIconColor =
-                    DarkGreen,
-
-
-                // -------------------------------------------------
-                // PLACEHOLDER
-                // -------------------------------------------------
-
-                focusedPlaceholderColor =
-                    Gray,
-
-                unfocusedPlaceholderColor =
-                    Gray,
-
-
-                // -------------------------------------------------
-                // TRAILING ICON
-                // -------------------------------------------------
-
-                focusedTrailingIconColor =
-                    Gray,
-
-                unfocusedTrailingIconColor =
-                    Gray
+            focusedContainerColor = SoftGreen.copy(
+                alpha = 0.35f
             ),
 
+            focusedBorderColor = FocusBorder,
+
+            focusedTextColor = Charcoal,
+
+            // -------------------------------------------------
+            // CURSOR
+            // -------------------------------------------------
+
+            cursorColor = ForestGreen,
+
+            // -------------------------------------------------
+            // LEADING ICON
+            // -------------------------------------------------
+
+            focusedLeadingIconColor = ForestGreen,
+
+            unfocusedLeadingIconColor = ForestGreen,
+
+            // -------------------------------------------------
+            // PLACEHOLDER
+            // -------------------------------------------------
+
+            focusedPlaceholderColor = Gray,
+
+            unfocusedPlaceholderColor = Gray,
+
+            // -------------------------------------------------
+            // TRAILING ICON
+            // -------------------------------------------------
+
+            focusedTrailingIconColor = Gray,
+
+            unfocusedTrailingIconColor = Gray
+        ),
 
         // =====================================================
         // TEXT STYLE
         // =====================================================
 
-        textStyle =
-            androidx.compose.material3.MaterialTheme
-                .typography
-                .bodyMedium
-                .copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Charcoal
-                )
+        textStyle = androidx.compose.material3.MaterialTheme
+            .typography
+            .bodyMedium
+            .copy(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Charcoal
+            )
     )
 }
 

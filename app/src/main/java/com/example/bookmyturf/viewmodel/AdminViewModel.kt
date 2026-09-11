@@ -18,6 +18,7 @@ import com.example.bookmyturf.data.model.turf.TurfListResponse
 import com.example.bookmyturf.data.model.turf.TurfResponse
 import com.example.bookmyturf.data.model.turf.UpdateTurfRequest
 
+import com.example.bookmyturf.data.remote.RazorpaySubscriptionOrderResponse
 import com.example.bookmyturf.data.repository.AdminRepository
 
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -93,6 +94,17 @@ class AdminViewModel(
 
 
     // =========================================================
+    // RAZORPAY ORDER
+    // =========================================================
+
+    private val _razorpayOrder =
+        MutableStateFlow<RazorpaySubscriptionOrderResponse?>(null)
+
+    val razorpayOrder: StateFlow<RazorpaySubscriptionOrderResponse?> =
+        _razorpayOrder.asStateFlow()
+
+
+    // =========================================================
     // TURFS
     // =========================================================
 
@@ -141,7 +153,6 @@ class AdminViewModel(
     // =========================================================
 
     fun clearError() {
-
         _error.value = null
     }
 
@@ -151,8 +162,16 @@ class AdminViewModel(
     // =========================================================
 
     fun clearSuccessMessage() {
-
         _successMessage.value = null
+    }
+
+
+    // =========================================================
+    // CLEAR RAZORPAY ORDER
+    // =========================================================
+
+    fun clearRazorpayOrder() {
+        _razorpayOrder.value = null
     }
 
 
@@ -176,7 +195,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _dashboard.value = response
+                    _dashboard.value =
+                        response
 
                 } else {
 
@@ -225,7 +245,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _subscription.value = response
+                    _subscription.value =
+                        response
 
                 } else {
 
@@ -277,7 +298,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _subscription.value = response
+                    _subscription.value =
+                        response
 
                     val status =
                         response.data
@@ -306,7 +328,8 @@ class AdminViewModel(
                             "Unable to check subscription."
                         }
 
-                    _error.value = message
+                    _error.value =
+                        message
 
                     onError(message)
                 }
@@ -316,7 +339,8 @@ class AdminViewModel(
                 val message =
                     parseHttpError(e)
 
-                _error.value = message
+                _error.value =
+                    message
 
                 onError(message)
 
@@ -326,7 +350,8 @@ class AdminViewModel(
                     e.message
                         ?: "Failed to check subscription."
 
-                _error.value = message
+                _error.value =
+                    message
 
                 onError(message)
 
@@ -373,36 +398,17 @@ class AdminViewModel(
                     "message = ${response.message}"
                 )
 
-                Log.d(
-                    "FREE_TRIAL",
-                    "data = ${response.data}"
-                )
-
                 if (response.success) {
 
-                    Log.d(
-                        "FREE_TRIAL",
-                        "Free trial activated successfully"
-                    )
-
-                    _subscription.value = response
+                    _subscription.value =
+                        response
 
                     _successMessage.value =
                         response.message
 
-                    Log.d(
-                        "FREE_TRIAL",
-                        "Calling onSuccess()"
-                    )
-
                     onSuccess()
 
                 } else {
-
-                    Log.e(
-                        "FREE_TRIAL",
-                        "API returned success=false"
-                    )
 
                     _error.value =
                         response.message.ifBlank {
@@ -421,7 +427,8 @@ class AdminViewModel(
                     e
                 )
 
-                _error.value = message
+                _error.value =
+                    message
 
             } catch (e: Exception) {
 
@@ -442,12 +449,108 @@ class AdminViewModel(
         }
     }
 
+
     // =========================================================
-    // CHOOSE PAID PLAN
+    // CREATE RAZORPAY SUBSCRIPTION ORDER
     // =========================================================
 
-    fun choosePaidPlan(
+    fun createSubscriptionOrder(
         token: String,
+        plan: String,
+        onOrderCreated: (RazorpaySubscriptionOrderResponse) -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoading.value = true
+            _error.value = null
+            _successMessage.value = null
+            _razorpayOrder.value = null
+
+            try {
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Creating order for plan = $plan"
+                )
+
+                val response =
+                    repository.createSubscriptionOrder(
+                        token = token,
+                        plan = plan
+                    )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "success = ${response.success}"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "message = ${response.message}"
+                )
+
+                if (
+                    response.success &&
+                    response.data != null
+                ) {
+
+                    _razorpayOrder.value =
+                        response
+
+                    onOrderCreated(response)
+
+                } else {
+
+                    _error.value =
+                        response.message.ifBlank {
+                            "Unable to create payment order."
+                        }
+                }
+
+            } catch (e: HttpException) {
+
+                val message =
+                    parseHttpError(e)
+
+                Log.e(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "HTTP ${e.code()}: $message",
+                    e
+                )
+
+                _error.value =
+                    message
+
+            } catch (e: Exception) {
+
+                Log.e(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Create order failed",
+                    e
+                )
+
+                _error.value =
+                    e.message
+                        ?: "Unable to create payment order."
+
+            } finally {
+
+                _isLoading.value = false
+            }
+        }
+    }
+
+
+    // =========================================================
+    // VERIFY RAZORPAY SUBSCRIPTION PAYMENT
+    // =========================================================
+
+    fun verifySubscriptionPayment(
+        token: String,
+        razorpayOrderId: String,
+        razorpayPaymentId: String,
+        razorpaySignature: String,
         onSuccess: () -> Unit
     ) {
 
@@ -459,15 +562,34 @@ class AdminViewModel(
 
             try {
 
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Verifying payment..."
+                )
+
                 val response =
-                    repository.choosePaidPlan(token)
+                    repository.verifySubscriptionPayment(
+                        token = token,
+                        razorpayOrderId = razorpayOrderId,
+                        razorpayPaymentId = razorpayPaymentId,
+                        razorpaySignature = razorpaySignature
+                    )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Verification success = ${response.success}"
+                )
 
                 if (response.success) {
 
-                    _subscription.value = response
+                    _subscription.value =
+                        response
 
                     _successMessage.value =
                         response.message
+
+                    _razorpayOrder.value =
+                        null
 
                     onSuccess()
 
@@ -475,20 +597,35 @@ class AdminViewModel(
 
                     _error.value =
                         response.message.ifBlank {
-                            "Failed to select paid plan."
+                            "Payment verification failed."
                         }
                 }
 
             } catch (e: HttpException) {
 
-                _error.value =
+                val message =
                     parseHttpError(e)
+
+                Log.e(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "HTTP ${e.code()}: $message",
+                    e
+                )
+
+                _error.value =
+                    message
 
             } catch (e: Exception) {
 
+                Log.e(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Payment verification failed",
+                    e
+                )
+
                 _error.value =
                     e.message
-                        ?: "Failed to select paid plan."
+                        ?: "Payment verification failed."
 
             } finally {
 
@@ -518,7 +655,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _turfs.value = response
+                    _turfs.value =
+                        response
 
                 } else {
 
@@ -571,7 +709,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _turf.value = response
+                    _turf.value =
+                        response
 
                 } else {
 
@@ -599,9 +738,10 @@ class AdminViewModel(
         }
     }
 
-// =========================================================
-// CREATE TURF
-// =========================================================
+
+    // =========================================================
+    // CREATE TURF
+    // =========================================================
 
     fun createTurf(
         token: String,
@@ -625,7 +765,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _turf.value = response
+                    _turf.value =
+                        response
 
                     _successMessage.value =
                         response.message
@@ -662,10 +803,6 @@ class AdminViewModel(
     // =========================================================
     // UPLOAD TURF IMAGES
     // =========================================================
-
-    // =========================================================
-// UPLOAD TURF IMAGES
-// =========================================================
 
     fun uploadTurfImages(
         token: String,
@@ -720,6 +857,7 @@ class AdminViewModel(
         }
     }
 
+
     // =========================================================
     // UPDATE TURF
     // =========================================================
@@ -737,16 +875,6 @@ class AdminViewModel(
             _error.value = null
             _successMessage.value = null
 
-            Log.d(
-                "ADMIN_UPDATE_TURF",
-                "Updating turf ID = $turfId"
-            )
-
-            Log.d(
-                "ADMIN_UPDATE_TURF",
-                "Request = $request"
-            )
-
             try {
 
                 val response =
@@ -758,12 +886,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    Log.d(
-                        "ADMIN_UPDATE_TURF",
-                        "Update successful"
-                    )
-
-                    _turf.value = response
+                    _turf.value =
+                        response
 
                     _successMessage.value =
                         response.message.ifBlank {
@@ -782,24 +906,10 @@ class AdminViewModel(
 
             } catch (e: HttpException) {
 
-                val message =
+                _error.value =
                     parseHttpError(e)
 
-                Log.e(
-                    "ADMIN_UPDATE_TURF",
-                    "HTTP ${e.code()}: $message",
-                    e
-                )
-
-                _error.value = message
-
             } catch (e: Exception) {
-
-                Log.e(
-                    "ADMIN_UPDATE_TURF",
-                    "Update turf failed",
-                    e
-                )
 
                 _error.value =
                     e.message
@@ -884,7 +994,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _slots.value = response
+                    _slots.value =
+                        response
 
                 } else {
 
@@ -941,7 +1052,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _slot.value = response
+                    _slot.value =
+                        response
 
                     _successMessage.value =
                         response.message
@@ -1005,7 +1117,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _slot.value = response
+                    _slot.value =
+                        response
 
                     _successMessage.value =
                         response.message
@@ -1118,7 +1231,8 @@ class AdminViewModel(
 
                 if (response.success) {
 
-                    _slot.value = response
+                    _slot.value =
+                        response
 
                     _successMessage.value =
                         response.message
@@ -1170,7 +1284,7 @@ class AdminViewModel(
                     ?.errorBody()
                     ?.string()
 
-            } catch (e: Exception) {
+            } catch (_: Exception) {
 
                 null
             }
@@ -1221,30 +1335,11 @@ class AdminViewModel(
             val json =
                 JSONObject(body)
 
-
-            // =================================================
-            // NORMAL MESSAGE
-            // =================================================
-
             val message =
                 json.optString(
                     "message",
                     ""
                 )
-
-
-            // =================================================
-            // LARAVEL VALIDATION ERRORS
-            //
-            // {
-            //   "message": "The given data was invalid.",
-            //   "errors": {
-            //      "opening_time": [
-            //          "The opening time field must match..."
-            //      ]
-            //   }
-            // }
-            // =================================================
 
             val errors =
                 json.optJSONObject("errors")
@@ -1317,7 +1412,6 @@ class AdminViewModel(
                     }
                 }
 
-
                 if (messages.isNotEmpty()) {
 
                     return messages.joinToString(
@@ -1327,19 +1421,11 @@ class AdminViewModel(
             }
 
 
-            // =================================================
-            // MESSAGE
-            // =================================================
-
             if (message.isNotBlank()) {
 
                 return message
             }
 
-
-            // =================================================
-            // FALLBACK
-            // =================================================
 
             when (code) {
 

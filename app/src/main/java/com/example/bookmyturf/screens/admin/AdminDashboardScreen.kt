@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -104,35 +103,7 @@ fun AdminHomeScreen(
     // =========================================================
 
     var selectedTab by remember {
-
         mutableIntStateOf(0)
-    }
-
-
-    // =========================================================
-    // SYSTEM BACK BUTTON
-    // =========================================================
-
-    val context = LocalContext.current
-
-    BackHandler {
-
-        if (selectedTab != 0) {
-
-            // -------------------------------------------------
-            // Turfs / Bookings → Dashboard
-            // -------------------------------------------------
-
-            selectedTab = 0
-
-        } else {
-
-            // -------------------------------------------------
-            // Dashboard → Close App
-            // -------------------------------------------------
-
-            (context as? Activity)?.finish()
-        }
     }
 
 
@@ -141,7 +112,6 @@ fun AdminHomeScreen(
     // =========================================================
 
     var showAddTurfScreen by remember {
-
         mutableStateOf(false)
     }
 
@@ -151,7 +121,6 @@ fun AdminHomeScreen(
     // =========================================================
 
     var editTurfId by remember {
-
         mutableStateOf<Int?>(null)
     }
 
@@ -161,12 +130,10 @@ fun AdminHomeScreen(
     // =========================================================
 
     var selectedTurfId by remember {
-
         mutableStateOf<Int?>(null)
     }
 
     var showSlotScreen by remember {
-
         mutableStateOf(false)
     }
 
@@ -176,7 +143,15 @@ fun AdminHomeScreen(
     // =========================================================
 
     var showSubscriptionScreen by remember {
+        mutableStateOf(false)
+    }
 
+
+    // =========================================================
+    // PAID PLANS SCREEN
+    // =========================================================
+
+    var showPaidPlansScreen by remember {
         mutableStateOf(false)
     }
 
@@ -186,8 +161,70 @@ fun AdminHomeScreen(
     // =========================================================
 
     var showLogoutDialog by remember {
-
         mutableStateOf(false)
+    }
+
+
+    // =========================================================
+    // CONTEXT
+    // =========================================================
+
+    val context =
+        LocalContext.current
+
+
+    // =========================================================
+    // SYSTEM BACK BUTTON
+    // =========================================================
+
+    BackHandler {
+
+        when {
+
+            // PRO Plans → Subscription
+            showPaidPlansScreen -> {
+
+                showPaidPlansScreen = false
+                showSubscriptionScreen = true
+            }
+
+            // Subscription → Dashboard
+            showSubscriptionScreen -> {
+
+                showSubscriptionScreen = false
+            }
+
+            // Edit Turf → Dashboard
+            editTurfId != null -> {
+
+                editTurfId = null
+            }
+
+            // Add Turf → Dashboard
+            showAddTurfScreen -> {
+
+                showAddTurfScreen = false
+            }
+
+            // Manage Slots → Turfs
+            showSlotScreen -> {
+
+                showSlotScreen = false
+                selectedTurfId = null
+            }
+
+            // Other tabs → Dashboard
+            selectedTab != 0 -> {
+
+                selectedTab = 0
+            }
+
+            // Dashboard → Close app
+            else -> {
+
+                (context as? Activity)?.finish()
+            }
+        }
     }
 
 
@@ -265,6 +302,10 @@ fun AdminHomeScreen(
                 viewModel.loadTurfs(
                     token
                 )
+
+                viewModel.loadDashboard(
+                    token
+                )
             }
         )
 
@@ -291,17 +332,9 @@ fun AdminHomeScreen(
 
                 showAddTurfScreen = false
 
-                // -------------------------------------------------
-                // Refresh dashboard
-                // -------------------------------------------------
-
                 viewModel.loadDashboard(
                     token
                 )
-
-                // -------------------------------------------------
-                // Refresh turfs
-                // -------------------------------------------------
 
                 viewModel.loadTurfs(
                     token
@@ -331,8 +364,54 @@ fun AdminHomeScreen(
             onBack = {
 
                 showSlotScreen = false
-
                 selectedTurfId = null
+            }
+        )
+
+        return
+    }
+
+
+    // =========================================================
+    // PAID PLANS SCREEN
+    // =========================================================
+
+    if (showPaidPlansScreen) {
+
+        AdminPaidPlansScreen(
+
+            token = token,
+
+            viewModel = viewModel,
+
+            // =================================================
+            // PAYMENT SUCCESS
+            // =================================================
+
+            onPlanActivated = {
+
+                showPaidPlansScreen = false
+                showSubscriptionScreen = false
+
+                // Refresh dashboard
+                viewModel.loadDashboard(
+                    token
+                )
+
+                // Refresh subscription
+                viewModel.loadSubscriptionStatus(
+                    token
+                )
+            },
+
+            // =================================================
+            // BACK → SUBSCRIPTION
+            // =================================================
+
+            onBackClick = {
+
+                showPaidPlansScreen = false
+                showSubscriptionScreen = true
             }
         )
 
@@ -363,10 +442,8 @@ fun AdminHomeScreen(
 
             onPaidPlanClick = {
 
-                // -------------------------------------------------
-                // Paid Plans will be connected next
-                // -------------------------------------------------
-
+                showSubscriptionScreen = false
+                showPaidPlansScreen = true
             },
 
             onBackClick = {
@@ -385,8 +462,8 @@ fun AdminHomeScreen(
 
     Scaffold(
 
-        containerColor = AdminOffWhite,
-
+        containerColor =
+            AdminOffWhite,
 
         // =====================================================
         // TOP BAR
@@ -423,18 +500,14 @@ fun AdminHomeScreen(
                             )
                         }
 
+
                         // =========================================
                         // BOOKINGS
-                        // =========================================
-                        //
-                        // Booking screen has its own ViewModel,
-                        // so refresh is handled there.
-                        //
                         // =========================================
 
                         2 -> {
 
-                            // No AdminViewModel booking refresh here.
+                            // Booking screen has its own ViewModel.
                         }
                     }
                 },
@@ -455,7 +528,8 @@ fun AdminHomeScreen(
 
             AdminBottomBar(
 
-                selectedTab = selectedTab,
+                selectedTab =
+                    selectedTab,
 
                 onTabSelected = { tab ->
 
@@ -473,7 +547,6 @@ fun AdminHomeScreen(
 
         when (selectedTab) {
 
-
             // =================================================
             // TAB 0 — DASHBOARD
             // =================================================
@@ -482,21 +555,27 @@ fun AdminHomeScreen(
 
                 AdminDashboardContent(
 
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(
-                            paddingValues
-                        ),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                paddingValues
+                            ),
 
-                    admin = admin,
+                    admin =
+                        admin,
 
-                    subscription = subscription,
+                    subscription =
+                        subscription,
 
-                    statistics = statistics,
+                    statistics =
+                        statistics,
 
-                    isLoading = isLoading,
+                    isLoading =
+                        isLoading,
 
-                    error = error,
+                    error =
+                        error,
 
                     onRetry = {
 
@@ -507,7 +586,6 @@ fun AdminHomeScreen(
                         )
                     },
 
-
                     // =========================================
                     // MANAGE TURFS
                     // =========================================
@@ -516,7 +594,6 @@ fun AdminHomeScreen(
 
                         selectedTab = 1
                     },
-
 
                     // =========================================
                     // BOOKINGS
@@ -527,7 +604,6 @@ fun AdminHomeScreen(
                         selectedTab = 2
                     },
 
-
                     // =========================================
                     // SUBSCRIPTION
                     // =========================================
@@ -536,7 +612,6 @@ fun AdminHomeScreen(
 
                         showSubscriptionScreen = true
                     },
-
 
                     // =========================================
                     // ADD TURF
@@ -558,11 +633,12 @@ fun AdminHomeScreen(
 
                 AdminTurfsContent(
 
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(
-                            paddingValues
-                        ),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                paddingValues
+                            ),
 
                     turfs =
                         turfsResponse
@@ -570,10 +646,11 @@ fun AdminHomeScreen(
                             ?.turfs
                             ?: emptyList(),
 
-                    isLoading = isLoading,
+                    isLoading =
+                        isLoading,
 
-                    error = error,
-
+                    error =
+                        error,
 
                     // =========================================
                     // ADD TURF
@@ -583,7 +660,6 @@ fun AdminHomeScreen(
 
                         showAddTurfScreen = true
                     },
-
 
                     // =========================================
                     // EDIT TURF
@@ -595,7 +671,6 @@ fun AdminHomeScreen(
                             turf.id
                     },
 
-
                     // =========================================
                     // MANAGE SLOTS
                     // =========================================
@@ -605,9 +680,9 @@ fun AdminHomeScreen(
                         selectedTurfId =
                             turf.id
 
-                        showSlotScreen = true
+                        showSlotScreen =
+                            true
                     },
-
 
                     // =========================================
                     // DELETE TURF
@@ -617,9 +692,11 @@ fun AdminHomeScreen(
 
                         viewModel.deleteTurf(
 
-                            token = token,
+                            token =
+                                token,
 
-                            turfId = turf.id,
+                            turfId =
+                                turf.id,
 
                             onSuccess = {
 
@@ -633,7 +710,6 @@ fun AdminHomeScreen(
                             }
                         )
                     },
-
 
                     // =========================================
                     // RETRY
@@ -659,13 +735,15 @@ fun AdminHomeScreen(
 
                 AdminBookingsContent(
 
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(
-                            paddingValues
-                        ),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                paddingValues
+                            ),
 
-                    token = token
+                    token =
+                        token
                 )
             }
         }
@@ -685,22 +763,13 @@ fun AdminHomeScreen(
                 showLogoutDialog = false
             },
 
-
-            // =================================================
-            // TITLE
-            // =================================================
-
             title = {
 
                 Text(
-                    text = "Logout"
+                    text =
+                        "Logout"
                 )
             },
-
-
-            // =================================================
-            // MESSAGE
-            // =================================================
 
             text = {
 
@@ -709,11 +778,6 @@ fun AdminHomeScreen(
                         "Are you sure you want to logout?"
                 )
             },
-
-
-            // =================================================
-            // CONFIRM
-            // =================================================
 
             confirmButton = {
 
@@ -728,16 +792,14 @@ fun AdminHomeScreen(
                 ) {
 
                     Text(
-                        text = "Logout",
-                        color = AdminDarkGreen
+                        text =
+                            "Logout",
+
+                        color =
+                            AdminDarkGreen
                     )
                 }
             },
-
-
-            // =================================================
-            // CANCEL
-            // =================================================
 
             dismissButton = {
 
@@ -750,7 +812,8 @@ fun AdminHomeScreen(
                 ) {
 
                     Text(
-                        text = "Cancel"
+                        text =
+                            "Cancel"
                     )
                 }
             }

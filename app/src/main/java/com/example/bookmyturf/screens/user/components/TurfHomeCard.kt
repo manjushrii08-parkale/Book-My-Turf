@@ -14,18 +14,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
-
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,13 +33,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,9 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import coil.compose.AsyncImage
-
 import com.example.bookmyturf.data.model.turf.Turf
 
 
@@ -89,19 +85,10 @@ fun TurfHomeCard(
 
     val images = turf.imageUrls
 
-    // =========================================================
-    // DEBUG LOG
-    // =========================================================
-
     Log.d(
         "TURF_IMAGE_DEBUG",
         "Turf: ${turf.name} | Images: $images"
     )
-
-
-    // =========================================================
-    // MAIN CARD
-    // =========================================================
 
     Card(
         modifier = modifier
@@ -124,7 +111,7 @@ fun TurfHomeCard(
         Column {
 
             // =================================================
-            // IMAGE SECTION
+            // IMAGE
             // =================================================
 
             TurfImageSection(
@@ -133,7 +120,6 @@ fun TurfHomeCard(
                 isFavorite = isFavorite,
                 onFavoriteClick = onFavoriteClick
             )
-
 
             // =================================================
             // TURF INFORMATION
@@ -173,19 +159,12 @@ fun TurfHomeCard(
                         overflow = TextOverflow.Ellipsis
                     )
 
-
                     Spacer(
-                        modifier = Modifier.size(8.dp)
+                        modifier = Modifier.width(8.dp)
                     )
-
-
-                    // =========================================
-                    // RATING
-                    // =========================================
 
                     Surface(
                         shape = RoundedCornerShape(50.dp),
-
                         color = SoftGreen
                     ) {
 
@@ -195,15 +174,19 @@ fun TurfHomeCard(
                                 vertical = 5.dp
                             ),
 
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment =
+                                Alignment.CenterVertically
                         ) {
 
                             Icon(
-                                imageVector = Icons.Default.Star,
+                                imageVector =
+                                    Icons.Default.Star,
 
-                                contentDescription = "Rating",
+                                contentDescription =
+                                    "Rating",
 
-                                modifier = Modifier.size(15.dp),
+                                modifier =
+                                    Modifier.size(15.dp),
 
                                 tint = LightGreen
                             )
@@ -220,7 +203,8 @@ fun TurfHomeCard(
 
                                 fontSize = 11.sp,
 
-                                fontWeight = FontWeight.Bold,
+                                fontWeight =
+                                    FontWeight.Bold,
 
                                 color = DarkGreen
                             )
@@ -228,11 +212,9 @@ fun TurfHomeCard(
                     }
                 }
 
-
                 Spacer(
                     modifier = Modifier.height(7.dp)
                 )
-
 
                 // =============================================
                 // LOCATION
@@ -240,22 +222,52 @@ fun TurfHomeCard(
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment =
+                        Alignment.CenterVertically
                 ) {
 
                     Icon(
-                        imageVector = Icons.Default.LocationOn,
+                        imageVector =
+                            Icons.Default.LocationOn,
 
-                        contentDescription = "Location",
+                        contentDescription =
+                            "Location",
 
-                        modifier = Modifier.size(17.dp),
+                        modifier =
+                            Modifier.size(17.dp),
 
                         tint = ForestGreen
                     )
 
                     Text(
-                        text = "${turf.location}, ${turf.city}",
+                        text =
+                            buildString {
+
+                                if (
+                                    turf.location.isNotBlank()
+                                ) {
+                                    append(
+                                        turf.location
+                                    )
+                                }
+
+                                if (
+                                    turf.location.isNotBlank() &&
+                                    turf.city.isNotBlank()
+                                ) {
+                                    append(", ")
+                                }
+
+                                if (
+                                    turf.city.isNotBlank()
+                                ) {
+                                    append(
+                                        turf.city
+                                    )
+                                }
+                            }.ifBlank {
+                                "Location unavailable"
+                            },
 
                         modifier = Modifier
                             .padding(start = 5.dp)
@@ -267,67 +279,103 @@ fun TurfHomeCard(
 
                         maxLines = 1,
 
-                        overflow = TextOverflow.Ellipsis
+                        overflow =
+                            TextOverflow.Ellipsis
                     )
                 }
-
 
                 Spacer(
                     modifier = Modifier.height(12.dp)
                 )
 
-
                 // =============================================
                 // SPORTS
                 // =============================================
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
+                if (turf.sportsTypes.isNotEmpty()) {
 
-                    horizontalArrangement =
-                        Arrangement.spacedBy(6.dp)
-                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
 
-                    turf.sportsTypes
-                        .take(3)
-                        .forEach { sport ->
+                        horizontalArrangement =
+                            Arrangement.spacedBy(6.dp)
+                    ) {
+
+                        turf.sportsTypes
+                            .take(3)
+                            .forEach { sport ->
+
+                                Surface(
+                                    shape =
+                                        RoundedCornerShape(
+                                            50.dp
+                                        ),
+
+                                    color = SoftGray
+                                ) {
+
+                                    Text(
+                                        text = sport,
+
+                                        modifier =
+                                            Modifier.padding(
+                                                horizontal = 9.dp,
+                                                vertical = 5.dp
+                                            ),
+
+                                        fontSize = 10.sp,
+
+                                        fontWeight =
+                                            FontWeight.Medium,
+
+                                        color = Gray,
+
+                                        maxLines = 1,
+
+                                        overflow =
+                                            TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+
+                        if (
+                            turf.sportsTypes.size > 3
+                        ) {
 
                             Surface(
                                 shape =
-                                    RoundedCornerShape(50.dp),
+                                    RoundedCornerShape(
+                                        50.dp
+                                    ),
 
                                 color = SoftGray
                             ) {
 
                                 Text(
-                                    text = sport,
+                                    text =
+                                        "+${turf.sportsTypes.size - 3}",
 
-                                    modifier = Modifier.padding(
-                                        horizontal = 9.dp,
-                                        vertical = 5.dp
-                                    ),
+                                    modifier =
+                                        Modifier.padding(
+                                            horizontal = 9.dp,
+                                            vertical = 5.dp
+                                        ),
 
                                     fontSize = 10.sp,
 
                                     fontWeight =
                                         FontWeight.Medium,
 
-                                    color = Gray,
-
-                                    maxLines = 1,
-
-                                    overflow =
-                                        TextOverflow.Ellipsis
+                                    color = Gray
                                 )
                             }
                         }
+                    }
                 }
-
 
                 Spacer(
                     modifier = Modifier.height(15.dp)
                 )
-
 
                 // =============================================
                 // DIVIDER
@@ -342,11 +390,9 @@ fun TurfHomeCard(
                         )
                 )
 
-
                 Spacer(
                     modifier = Modifier.height(13.dp)
                 )
-
 
                 // =============================================
                 // PRICE + ACTION
@@ -385,7 +431,8 @@ fun TurfHomeCard(
                         ) {
 
                             Text(
-                                text = "₹${turf.price}",
+                                text =
+                                    "₹${turf.price}",
 
                                 fontSize = 21.sp,
 
@@ -398,10 +445,11 @@ fun TurfHomeCard(
                             Text(
                                 text = " / hour",
 
-                                modifier = Modifier.padding(
-                                    start = 3.dp,
-                                    bottom = 3.dp
-                                ),
+                                modifier =
+                                    Modifier.padding(
+                                        start = 3.dp,
+                                        bottom = 3.dp
+                                    ),
 
                                 fontSize = 11.sp,
 
@@ -410,9 +458,8 @@ fun TurfHomeCard(
                         }
                     }
 
-
                     // =========================================
-                    // VIEW TURF BUTTON
+                    // VIEW TURF
                     // =========================================
 
                     Surface(
@@ -448,16 +495,19 @@ fun TurfHomeCard(
                             )
 
                             Spacer(
-                                modifier = Modifier.size(5.dp)
+                                modifier =
+                                    Modifier.width(5.dp)
                             )
 
                             Icon(
                                 imageVector =
                                     Icons.Default.ArrowForward,
 
-                                contentDescription = null,
+                                contentDescription =
+                                    null,
 
-                                modifier = Modifier.size(15.dp),
+                                modifier =
+                                    Modifier.size(15.dp),
 
                                 tint = DarkGreen
                             )
@@ -502,7 +552,6 @@ private fun TurfImageSection(
                     }
                 )
 
-
             HorizontalPager(
                 state = pagerState,
 
@@ -511,19 +560,11 @@ private fun TurfImageSection(
                     .height(195.dp)
             ) { page ->
 
-                // =================================================
-                // IMAGE LOADING STATE
-                // =================================================
-
                 var isLoading by remember(
                     images[page]
                 ) {
                     mutableStateOf(true)
                 }
-
-                // =================================================
-                // IMAGE ERROR STATE
-                // =================================================
 
                 var hasError by remember(
                     images[page]
@@ -531,10 +572,9 @@ private fun TurfImageSection(
                     mutableStateOf(false)
                 }
 
-
-                // =================================================
+                // =============================================
                 // IMAGE
-                // =================================================
+                // =============================================
 
                 AsyncImage(
                     model = images[page],
@@ -590,10 +630,9 @@ private fun TurfImageSection(
                     }
                 )
 
-
-                // =================================================
-                // LOADING INDICATOR
-                // =================================================
+                // =============================================
+                // LOADING
+                // =============================================
 
                 if (isLoading && !hasError) {
 
@@ -609,37 +648,19 @@ private fun TurfImageSection(
                     ) {
 
                         CircularProgressIndicator(
-                            modifier = Modifier.size(
-                                35.dp
-                            ),
+                            modifier =
+                                Modifier.size(30.dp),
 
                             strokeWidth = 3.dp,
 
                             color = ForestGreen
                         )
-
-                        Text(
-                            text = "Loading image...",
-
-                            modifier = Modifier
-                                .align(
-                                    Alignment.Center
-                                )
-                                .padding(
-                                    top = 70.dp
-                                ),
-
-                            fontSize = 10.sp,
-
-                            color = Gray
-                        )
                     }
                 }
 
-
-                // =================================================
-                // ERROR UI
-                // =================================================
+                // =============================================
+                // ERROR
+                // =============================================
 
                 if (hasError) {
 
@@ -659,10 +680,17 @@ private fun TurfImageSection(
                                 Alignment.CenterHorizontally
                         ) {
 
-                            Text(
-                                text = "❌",
+                            Icon(
+                                imageVector =
+                                    Icons.Default.BrokenImage,
 
-                                fontSize = 30.sp
+                                contentDescription =
+                                    null,
+
+                                modifier =
+                                    Modifier.size(34.dp),
+
+                                tint = Gray
                             )
 
                             Spacer(
@@ -671,84 +699,24 @@ private fun TurfImageSection(
                             )
 
                             Text(
-                                text = "Image failed",
+                                text =
+                                    "Image unavailable",
 
-                                fontSize = 12.sp,
+                                fontSize = 11.sp,
 
                                 fontWeight =
-                                    FontWeight.Bold,
-
-                                color = FavoriteRed
-                            )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(5.dp)
-                            )
-
-                            Text(
-                                text = "Check image URL",
-
-                                fontSize = 9.sp,
+                                    FontWeight.Medium,
 
                                 color = Gray
                             )
                         }
                     }
                 }
-
-
-                // =================================================
-                // DEBUG IMAGE URL
-                // =================================================
-
-                if (!hasError) {
-
-                    Surface(
-                        modifier = Modifier
-                            .align(
-                                Alignment.BottomCenter
-                            )
-                            .padding(
-                                bottom = 8.dp,
-                                start = 8.dp,
-                                end = 8.dp
-                            ),
-
-                        shape =
-                            RoundedCornerShape(6.dp),
-
-                        color =
-                            Color.Black.copy(
-                                alpha = 0.70f
-                            )
-                    ) {
-
-                        Text(
-                            text = images[page],
-
-                            modifier = Modifier.padding(
-                                horizontal = 7.dp,
-                                vertical = 4.dp
-                            ),
-
-                            fontSize = 8.sp,
-
-                            color = White,
-
-                            maxLines = 2,
-
-                            overflow =
-                                TextOverflow.Ellipsis
-                        )
-                    }
-                }
             }
 
-
-            // =====================================================
+            // =================================================
             // FAVORITE BUTTON
-            // =====================================================
+            // =================================================
 
             IconButton(
                 onClick = onFavoriteClick,
@@ -782,7 +750,8 @@ private fun TurfImageSection(
                             "Add favorite"
                         },
 
-                    modifier = Modifier.size(20.dp),
+                    modifier =
+                        Modifier.size(20.dp),
 
                     tint =
                         if (isFavorite) {
@@ -793,10 +762,9 @@ private fun TurfImageSection(
                 )
             }
 
-
-            // =====================================================
+            // =================================================
             // IMAGE COUNTER
-            // =====================================================
+            // =================================================
 
             if (images.size > 1) {
 
@@ -834,7 +802,6 @@ private fun TurfImageSection(
                     )
                 }
 
-
                 // =================================================
                 // PAGE INDICATORS
                 // =================================================
@@ -867,7 +834,9 @@ private fun TurfImageSection(
                                     }
                                 )
                                 .clip(
-                                    RoundedCornerShape(50.dp)
+                                    RoundedCornerShape(
+                                        50.dp
+                                    )
                                 )
                                 .background(
                                     White.copy(
@@ -889,9 +858,9 @@ private fun TurfImageSection(
 
         } else {
 
-            // =====================================================
+            // =================================================
             // NO IMAGE
-            // =====================================================
+            // =================================================
 
             Box(
                 modifier = Modifier
@@ -916,10 +885,17 @@ private fun TurfImageSection(
                         Alignment.CenterHorizontally
                 ) {
 
-                    Text(
-                        text = "⚽",
+                    Icon(
+                        imageVector =
+                            Icons.Default.BrokenImage,
 
-                        fontSize = 30.sp
+                        contentDescription =
+                            null,
+
+                        modifier =
+                            Modifier.size(36.dp),
+
+                        tint = Gray
                     )
 
                     Spacer(
@@ -928,7 +904,8 @@ private fun TurfImageSection(
                     )
 
                     Text(
-                        text = "No Image Available",
+                        text =
+                            "No Image Available",
 
                         fontSize = 12.sp,
 
@@ -938,6 +915,54 @@ private fun TurfImageSection(
                         color = Gray
                     )
                 }
+            }
+
+            // =================================================
+            // FAVORITE BUTTON WITHOUT IMAGE
+            // =================================================
+
+            IconButton(
+                onClick = onFavoriteClick,
+
+                modifier = Modifier
+                    .padding(12.dp)
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(
+                        White.copy(
+                            alpha = 0.94f
+                        )
+                    )
+                    .align(
+                        Alignment.TopEnd
+                    )
+            ) {
+
+                Icon(
+                    imageVector =
+                        if (isFavorite) {
+                            Icons.Default.Favorite
+                        } else {
+                            Icons.Default.FavoriteBorder
+                        },
+
+                    contentDescription =
+                        if (isFavorite) {
+                            "Remove favorite"
+                        } else {
+                            "Add favorite"
+                        },
+
+                    modifier =
+                        Modifier.size(20.dp),
+
+                    tint =
+                        if (isFavorite) {
+                            FavoriteRed
+                        } else {
+                            DarkGreen
+                        }
+                )
             }
         }
     }
