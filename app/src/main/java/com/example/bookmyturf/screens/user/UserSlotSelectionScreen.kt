@@ -1025,6 +1025,7 @@ private fun BookingSectionTitle(
 // SLOT CARD
 // ============================================================
 
+
 @Composable
 private fun BookingSlotCard(
     slot: Slot,
@@ -1032,15 +1033,21 @@ private fun BookingSlotCard(
     onClick: () -> Unit
 ) {
 
-    val isActive =
-        slot.status == "ACTIVE"
+    // =====================================================
+    // AVAILABILITY
+    // =====================================================
+
+    val isAvailable =
+        slot.status == "ACTIVE" &&
+                !slot.isBooked
+
 
     Card(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .clickable(
-                    enabled = isActive,
+                    enabled = isAvailable,
                     onClick = onClick
                 )
                 .then(
@@ -1048,12 +1055,9 @@ private fun BookingSlotCard(
 
                         Modifier.border(
                             width = 2.dp,
-                            color =
-                                ForestGreen,
+                            color = ForestGreen,
                             shape =
-                                RoundedCornerShape(
-                                    16.dp
-                                )
+                                RoundedCornerShape(16.dp)
                         )
 
                     } else {
@@ -1063,9 +1067,7 @@ private fun BookingSlotCard(
                 ),
 
         shape =
-            RoundedCornerShape(
-                16.dp
-            ),
+            RoundedCornerShape(16.dp),
 
         colors =
             CardDefaults.cardColors(
@@ -1077,7 +1079,10 @@ private fun BookingSlotCard(
                                 alpha = 0.16f
                             )
 
-                        !isActive ->
+                        slot.isBooked ->
+                            Color(0xFFEAEAE7)
+
+                        !isAvailable ->
                             Color(0xFFF1F1EE)
 
                         else ->
@@ -1106,22 +1111,29 @@ private fun BookingSlotCard(
                 Alignment.CenterVertically
         ) {
 
-            // =====================================================
+            // =================================================
             // ICON
-            // =====================================================
+            // =================================================
 
             Box(
                 modifier =
                     Modifier
                         .size(44.dp)
                         .background(
-                            if (isSelected) {
-                                DarkGreen
-                            } else {
-                                LightGreen.copy(
-                                    alpha = 0.14f
-                                )
+                            when {
+
+                                isSelected ->
+                                    DarkGreen
+
+                                slot.isBooked ->
+                                    Color(0xFFD9D9D5)
+
+                                else ->
+                                    LightGreen.copy(
+                                        alpha = 0.14f
+                                    )
                             },
+
                             RoundedCornerShape(12.dp)
                         ),
 
@@ -1132,15 +1144,24 @@ private fun BookingSlotCard(
                 Icon(
                     imageVector =
                         Icons.Default.AccessTime,
+
                     contentDescription =
                         null,
+
                     modifier =
                         Modifier.size(22.dp),
+
                     tint =
-                        if (isSelected) {
-                            White
-                        } else {
-                            ForestGreen
+                        when {
+
+                            isSelected ->
+                                White
+
+                            slot.isBooked ->
+                                Gray
+
+                            else ->
+                                ForestGreen
                         }
                 )
             }
@@ -1150,9 +1171,9 @@ private fun BookingSlotCard(
                     Modifier.width(12.dp)
             )
 
-            // =====================================================
-            // TIME
-            // =====================================================
+            // =================================================
+            // TIME + STATUS
+            // =================================================
 
             Column(
                 modifier =
@@ -1168,11 +1189,15 @@ private fun BookingSlotCard(
                                 slot.endTime
                             )
                         }",
-                    fontSize = 15.sp,
+
+                    fontSize =
+                        15.sp,
+
                     fontWeight =
                         FontWeight.Bold,
+
                     color =
-                        if (isActive) {
+                        if (isAvailable) {
                             Charcoal
                         } else {
                             Gray
@@ -1186,35 +1211,55 @@ private fun BookingSlotCard(
 
                 Text(
                     text =
-                        if (isActive) {
-                            "Available"
-                        } else {
-                            "Unavailable"
+                        when {
+
+                            slot.isBooked ->
+                                "Already booked"
+
+                            isAvailable ->
+                                "Available"
+
+                            else ->
+                                "Unavailable"
                         },
-                    fontSize = 11.sp,
+
+                    fontSize =
+                        11.sp,
+
                     fontWeight =
                         FontWeight.Medium,
+
                     color =
-                        if (isActive) {
-                            ForestGreen
-                        } else {
-                            Gray
+                        when {
+
+                            slot.isBooked ->
+                                Color(0xFFD32F2F)
+
+                            isAvailable ->
+                                ForestGreen
+
+                            else ->
+                                Gray
                         }
                 )
             }
 
-            // =====================================================
+            // =================================================
             // PRICE
-            // =====================================================
+            // =================================================
 
             Text(
                 text =
                     "₹${slot.price.toInt()}",
-                fontSize = 16.sp,
+
+                fontSize =
+                    16.sp,
+
                 fontWeight =
                     FontWeight.ExtraBold,
+
                 color =
-                    if (isActive) {
+                    if (isAvailable) {
                         DarkGreen
                     } else {
                         Gray
@@ -1223,6 +1268,9 @@ private fun BookingSlotCard(
         }
     }
 }
+
+
+
 
 // ============================================================
 // TIME FORMATTER

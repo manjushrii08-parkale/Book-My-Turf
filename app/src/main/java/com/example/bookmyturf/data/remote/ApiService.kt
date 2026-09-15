@@ -12,7 +12,7 @@ import com.example.bookmyturf.data.model.OtpResponse
 import com.example.bookmyturf.data.model.SendOtpRequest
 import com.example.bookmyturf.data.model.SuperAdminDashboardResponse
 import com.example.bookmyturf.data.model.VerifyOtpRequest
-
+import com.example.bookmyturf.data.model.SuperAdminUsersResponse
 import okhttp3.RequestBody
 
 // =========================================================
@@ -34,7 +34,6 @@ import com.example.bookmyturf.data.model.slot.SlotResponse
 import com.example.bookmyturf.data.model.slot.SlotsResponse
 import com.example.bookmyturf.data.model.slot.UpdateSlotRequest
 import com.example.bookmyturf.data.model.slot.UpdateSlotStatusRequest
-
 // =========================================================
 // FAVORITE MODELS
 // =========================================================
@@ -69,6 +68,9 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 
+// =========================================================
+// API SERVICE
+// =========================================================
 
 interface ApiService {
 
@@ -148,6 +150,12 @@ interface ApiService {
     ): SuperAdminDashboardResponse
 
 
+    @GET("api/v1/super-admin/users")
+    suspend fun getSuperAdminUsers(
+        @Header("Authorization") authorization: String
+    ): SuperAdminUsersResponse
+
+
     // =========================================================
     // ADMIN DASHBOARD
     // =========================================================
@@ -176,13 +184,6 @@ interface ApiService {
 
 
     @DELETE("api/v1/user/favorites/{turfId}")
-    @POST("api/v1/user/bookings")
-    suspend fun createBooking(
-        @Header("Authorization") authorization: String,
-        @Body request: CreateBookingRequest
-    ): BookingResponse
-
-
     suspend fun removeFavorite(
         @Header("Authorization") authorization: String,
         @Path("turfId") turfId: Int
@@ -199,6 +200,13 @@ interface ApiService {
     // =========================================================
     // USER BOOKINGS
     // =========================================================
+
+    @POST("api/v1/user/bookings")
+    suspend fun createBooking(
+        @Header("Authorization") authorization: String,
+        @Body request: CreateBookingRequest
+    ): BookingResponse
+
 
     @GET("api/v1/user/bookings")
     suspend fun getMyBookings(
@@ -363,3 +371,4 @@ data class RazorpaySubscriptionOrderData(
     val days: Int,
     val razorpay_key: String
 )
+

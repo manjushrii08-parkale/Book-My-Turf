@@ -22,8 +22,23 @@ data class Slot(
 
     val status: String,
 
+    // =========================================================
+    // DATE-SPECIFIC BOOKING STATUS
+    // =========================================================
+
+    @SerializedName("is_booked")
+    val isBooked: Boolean = false,
+
+    // =========================================================
+    // BOOKING ID
+    // =========================================================
+
     @SerializedName("booking_id")
     val bookingId: Int? = null,
+
+    // =========================================================
+    // TIMESTAMPS
+    // =========================================================
 
     @SerializedName("created_at")
     val createdAt: String? = null,

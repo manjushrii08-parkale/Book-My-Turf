@@ -1,7 +1,7 @@
 package com.example.bookmyturf.screens.admin
 
 import android.widget.Toast
-
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -166,8 +166,8 @@ fun AdminPaidPlansScreen(
 
 
     // =========================================================
-    // SELECT PLAN
-    // =========================================================
+// SELECT PLAN
+// =========================================================
 
     fun selectPlan(
         plan: String
@@ -177,20 +177,62 @@ fun AdminPaidPlansScreen(
             return
         }
 
+        Log.d(
+            "RAZORPAY_SUBSCRIPTION",
+            "================================"
+        )
+
+        Log.d(
+            "RAZORPAY_SUBSCRIPTION",
+            "Pay button clicked"
+        )
+
+        Log.d(
+            "RAZORPAY_SUBSCRIPTION",
+            "Plan = $plan"
+        )
+
+        Log.d(
+            "RAZORPAY_SUBSCRIPTION",
+            "Token available = ${token.isNotBlank()}"
+        )
+
+        Log.d(
+            "RAZORPAY_SUBSCRIPTION",
+            "================================"
+        )
+
         viewModel.createSubscriptionOrder(
 
-            token =
-                token,
+            token = token,
 
-            plan =
-                plan,
+            plan = plan,
 
             onOrderCreated = { response ->
 
-                val data =
-                    response.data
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Order callback received"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "success = ${response.success}"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "message = ${response.message}"
+                )
+
+                val data = response.data
 
                 if (data == null) {
+
+                    Log.e(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "Order data is NULL"
+                    )
 
                     Toast.makeText(
                         context,
@@ -201,10 +243,51 @@ fun AdminPaidPlansScreen(
                     return@createSubscriptionOrder
                 }
 
-                val currentActivity =
-                    activity
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Subscription ID = ${data.subscription_id}"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Order ID = ${data.order_id}"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Amount = ${data.amount}"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Amount Paise = ${data.amount_paise}"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Currency = ${data.currency}"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Plan = ${data.plan}"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Razorpay key available = ${
+                        data.razorpay_key.isNotBlank()
+                    }"
+                )
+
+                val currentActivity = activity
 
                 if (currentActivity == null) {
+
+                    Log.e(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "MainActivity is NULL"
+                    )
 
                     Toast.makeText(
                         context,
@@ -214,6 +297,11 @@ fun AdminPaidPlansScreen(
 
                     return@createSubscriptionOrder
                 }
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Opening Razorpay Checkout..."
+                )
 
                 currentActivity.startSubscriptionPayment(
 

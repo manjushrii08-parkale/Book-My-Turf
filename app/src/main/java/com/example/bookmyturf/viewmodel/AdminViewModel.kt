@@ -449,10 +449,9 @@ class AdminViewModel(
         }
     }
 
-
-    // =========================================================
-    // CREATE RAZORPAY SUBSCRIPTION ORDER
-    // =========================================================
+// =========================================================
+// CREATE RAZORPAY SUBSCRIPTION ORDER
+// =========================================================
 
     fun createSubscriptionOrder(
         token: String,
@@ -471,7 +470,22 @@ class AdminViewModel(
 
                 Log.d(
                     "RAZORPAY_SUBSCRIPTION",
-                    "Creating order for plan = $plan"
+                    "================================"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Creating Razorpay order"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Plan = $plan"
+                )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Token exists = ${token.isNotBlank()}"
                 )
 
                 val response =
@@ -479,6 +493,11 @@ class AdminViewModel(
                         token = token,
                         plan = plan
                     )
+
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Response received"
+                )
 
                 Log.d(
                     "RAZORPAY_SUBSCRIPTION",
@@ -490,22 +509,72 @@ class AdminViewModel(
                     "message = ${response.message}"
                 )
 
-                if (
-                    response.success &&
-                    response.data != null
-                ) {
+                Log.d(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "data = ${response.data}"
+                )
 
-                    _razorpayOrder.value =
-                        response
+                if (response.success && response.data != null) {
+
+                    Log.d(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "--------------------------------"
+                    )
+
+                    Log.d(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "Subscription ID = ${response.data.subscription_id}"
+                    )
+
+                    Log.d(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "Order ID = ${response.data.order_id}"
+                    )
+
+                    Log.d(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "Amount = ${response.data.amount}"
+                    )
+
+                    Log.d(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "Amount Paise = ${response.data.amount_paise}"
+                    )
+
+                    Log.d(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "Plan = ${response.data.plan}"
+                    )
+
+                    Log.d(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "Key present = ${
+                            response.data.razorpay_key.isNotBlank()
+                        }"
+                    )
+
+                    Log.d(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "================================"
+                    )
+
+                    _razorpayOrder.value = response
 
                     onOrderCreated(response)
 
                 } else {
 
-                    _error.value =
+                    val message =
                         response.message.ifBlank {
-                            "Unable to create payment order."
+                            "Unable to create Razorpay order."
                         }
+
+                    Log.e(
+                        "RAZORPAY_SUBSCRIPTION",
+                        "SERVER ERROR = $message"
+                    )
+
+                    _error.value = message
                 }
 
             } catch (e: HttpException) {
@@ -515,24 +584,48 @@ class AdminViewModel(
 
                 Log.e(
                     "RAZORPAY_SUBSCRIPTION",
-                    "HTTP ${e.code()}: $message",
-                    e
+                    "HTTP ERROR"
                 )
 
-                _error.value =
-                    message
+                Log.e(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "HTTP Code = ${e.code()}"
+                )
+
+                Log.e(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "HTTP Message = ${e.message()}"
+                )
+
+                Log.e(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Parsed Error = $message"
+                )
+
+                _error.value = message
 
             } catch (e: Exception) {
 
                 Log.e(
                     "RAZORPAY_SUBSCRIPTION",
-                    "Create order failed",
+                    "EXCEPTION WHILE CREATING ORDER",
                     e
+                )
+
+                Log.e(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Exception type = ${e.javaClass.name}"
+                )
+
+                Log.e(
+                    "RAZORPAY_SUBSCRIPTION",
+                    "Exception message = ${e.message}"
                 )
 
                 _error.value =
                     e.message
-                        ?: "Unable to create payment order."
+                        ?.takeIf { it.isNotBlank() }
+                        ?: "Unable to create Razorpay order."
 
             } finally {
 
@@ -540,7 +633,6 @@ class AdminViewModel(
             }
         }
     }
-
 
     // =========================================================
     // VERIFY RAZORPAY SUBSCRIPTION PAYMENT
@@ -1274,18 +1366,14 @@ class AdminViewModel(
         exception: HttpException
     ): String {
 
-        val code =
-            exception.code()
+        val code = exception.code()
 
         val body =
             try {
-
                 exception.response()
                     ?.errorBody()
                     ?.string()
-
             } catch (_: Exception) {
-
                 null
             }
 
@@ -1296,7 +1384,7 @@ class AdminViewModel(
 
         Log.e(
             "LARAVEL_API",
-            "Body = $body"
+            "Raw response = $body"
         )
 
         if (body.isNullOrBlank()) {
@@ -1329,11 +1417,14 @@ class AdminViewModel(
             }
         }
 
-
         return try {
 
             val json =
                 JSONObject(body)
+
+            // =====================================================
+            // MAIN MESSAGE
+            // =====================================================
 
             val message =
                 json.optString(
@@ -1341,9 +1432,22 @@ class AdminViewModel(
                     ""
                 )
 
+            // =====================================================
+            // ACTUAL SERVER ERROR
+            // =====================================================
+
+            val serverError =
+                json.optString(
+                    "error",
+                    ""
+                )
+
+            // =====================================================
+            // VALIDATION ERRORS
+            // =====================================================
+
             val errors =
                 json.optJSONObject("errors")
-
 
             if (
                 errors != null &&
@@ -1380,9 +1484,7 @@ class AdminViewModel(
                                 ) {
 
                                     messages.add(
-                                        formatValidationField(
-                                            key
-                                        ) +
+                                        formatValidationField(key) +
                                                 ": " +
                                                 errorMessage
                                     )
@@ -1401,9 +1503,7 @@ class AdminViewModel(
                             ) {
 
                                 messages.add(
-                                    formatValidationField(
-                                        key
-                                    ) +
+                                    formatValidationField(key) +
                                             ": " +
                                             errorMessage
                                 )
@@ -1420,12 +1520,31 @@ class AdminViewModel(
                 }
             }
 
+            // =====================================================
+            // SHOW SERVER ERROR
+            // =====================================================
+
+            if (
+                message.isNotBlank() &&
+                serverError.isNotBlank()
+            ) {
+
+                return "$message\n$serverError"
+            }
+
+            if (serverError.isNotBlank()) {
+
+                return serverError
+            }
 
             if (message.isNotBlank()) {
 
                 return message
             }
 
+            // =====================================================
+            // FALLBACK
+            // =====================================================
 
             when (code) {
 
@@ -1465,6 +1584,7 @@ class AdminViewModel(
             "Request failed ($code)."
         }
     }
+
 
 
     // =========================================================

@@ -12,8 +12,7 @@ data class SuperAdminDashboardData(
     val super_admins: SuperAdminStatistics,
     val subscriptions: SubscriptionStatistics,
     val turfs: TurfStatistics,
-    val bookings: BookingStatistics,
-    val revenue: RevenueStatistics
+    val bookings: BookingStatistics
 )
 
 data class UserStatistics(
@@ -24,7 +23,8 @@ data class UserStatistics(
 
 data class AdminStatistics(
     val total: Int,
-    val active: Int
+    val active: Int,
+    val blocked: Int
 )
 
 data class SuperAdminStatistics(
@@ -32,9 +32,13 @@ data class SuperAdminStatistics(
 )
 
 data class SubscriptionStatistics(
+    val total: Int,
     val active: Int,
-    val expired: Int,
-    val inactive: Int
+    val inactive: Int,
+    val pending_payments: Int,
+    val paid: Int,
+    val free_trials: Int,
+    val total_paid_revenue: Double
 )
 
 data class TurfStatistics(
@@ -43,8 +47,4 @@ data class TurfStatistics(
 
 data class BookingStatistics(
     val total: Int
-)
-
-data class RevenueStatistics(
-    val total: Double
 )

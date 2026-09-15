@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 
+
 import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminRepository
@@ -33,9 +34,6 @@ import com.example.bookmyturf.screens.auth.OtpVerificationScreen
 import com.example.bookmyturf.screens.auth.PhoneLoginScreen
 
 import com.example.bookmyturf.screens.role.RoleSelectionScreen
-
-import com.example.bookmyturf.screens.superadmin.SuperAdminHomeScreen
-
 import com.example.bookmyturf.screens.user.BookingSuccessScreen
 import com.example.bookmyturf.screens.user.BookingSummaryScreen
 import com.example.bookmyturf.screens.user.EditProfileScreen
@@ -47,8 +45,9 @@ import com.example.bookmyturf.screens.user.UserSlotSelectionScreen
 
 import com.example.bookmyturf.viewmodel.AdminViewModel
 import com.example.bookmyturf.viewmodel.BookingViewModel
-
-
+import com.example.bookmyturf.screens.superadmin.SuperAdminDashboardScreen
+import com.example.bookmyturf.screens.superadmin.SuperAdminUsersScreen
+import com.example.bookmyturf.screens.superadmin.SuperAdminUserDetailsScreen
 @Composable
 fun AppNavigation(
     navController: NavHostController
@@ -1437,122 +1436,138 @@ fun AppNavigation(
         }
 
 
+                // =====================================================
+// SUPER ADMIN HOME
+// =====================================================
+
+                composable(
+                    Routes.SUPER_ADMIN_HOME
+                ) {
+
+                    val token =
+                        sessionManager.getToken()
+
+                    val role =
+                        sessionManager.getRole()
+
+                    val userId =
+                        sessionManager.getUserId()
+
+
+                    Log.d(
+                        "SUPER_ADMIN",
+                        "Dashboard opened"
+                    )
+
+                    Log.d(
+                        "SUPER_ADMIN",
+                        "Token exists = ${!token.isNullOrBlank()}"
+                    )
+
+                    Log.d(
+                        "SUPER_ADMIN",
+                        "Role = $role"
+                    )
+
+                    Log.d(
+                        "SUPER_ADMIN",
+                        "User ID = $userId"
+                    )
+
+
+                    if (
+                        !token.isNullOrBlank() &&
+                        role == "SUPER_ADMIN"
+                    ) {
+                        SuperAdminDashboardScreen(
+                            onLogout = {
+                                logout()
+                            },
+                            onUsersClick = {
+                                navController.navigate(Routes.SUPER_ADMIN_USERS)
+                            }
+                        )
+
+                    } else {
+
+                        LaunchedEffect(Unit) {
+
+                            Log.e(
+                                "SUPER_ADMIN",
+                                "Invalid session"
+                            )
+
+                            logout()
+                        }
+                    }
+                }
         // =====================================================
-        // SUPER ADMIN HOME
-        // =====================================================
+// SUPER ADMIN USERS
+// =====================================================
 
         composable(
-            Routes.SUPER_ADMIN_HOME
+            route = Routes.SUPER_ADMIN_USERS
         ) {
+            SuperAdminUsersScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onUserClick = { userId ->
 
-            val token =
-                sessionManager.getToken()
+                    navController.navigate(
+                        Routes.superAdminUserDetails(userId)
+                    )
+                }
+            )
+        }
 
-            val role =
-                sessionManager.getRole()
+        // =====================================================
+// SUPER ADMIN USER DETAILS
+// =====================================================
+
+        composable(
+            route = Routes.SUPER_ADMIN_USER_DETAILS,
+            arguments = listOf(
+                navArgument("userId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
 
             val userId =
-                sessionManager.getUserId()
+                backStackEntry.arguments?.getInt("userId") ?: -1
 
+            val usersViewModel: com.example.bookmyturf.viewmodel.SuperAdminUsersViewModel =
+                viewModel()
 
-            Log.d(
-                "SUPER_ADMIN",
-                "Dashboard opened"
-            )
+            val users by usersViewModel.users.collectAsState()
 
-            Log.d(
-                "SUPER_ADMIN",
-                "Token exists = ${!token.isNullOrBlank()}"
-            )
+            val selectedUser =
+                users.firstOrNull { it.id == userId }
 
-            Log.d(
-                "SUPER_ADMIN",
-                "Role = $role"
-            )
+            if (selectedUser != null) {
 
-            Log.d(
-                "SUPER_ADMIN",
-                "User ID = $userId"
-            )
-
-
-            if (
-                !token.isNullOrBlank() &&
-                role == "SUPER_ADMIN"
-            ) {
-
-                SuperAdminHomeScreen(
-
-                    token =
-                        token,
-
-                    onLogout = {
-
-                        logout()
-                    },
-
-                    onUsersClick = {
-
-                        Log.d(
-                            "SUPER_ADMIN",
-                            "Users clicked"
-                        )
-                    },
-
-                    onOwnersClick = {
-
-                        Log.d(
-                            "SUPER_ADMIN",
-                            "Turf Owners clicked"
-                        )
-                    },
-
-                    onTurfsClick = {
-
-                        Log.d(
-                            "SUPER_ADMIN",
-                            "Turfs clicked"
-                        )
-                    },
-
-                    onBookingsClick = {
-
-                        Log.d(
-                            "SUPER_ADMIN",
-                            "Bookings clicked"
-                        )
-                    },
-
-                    onSubscriptionsClick = {
-
-                        Log.d(
-                            "SUPER_ADMIN",
-                            "Subscriptions clicked"
-                        )
-                    },
-
-                    onSettingsClick = {
-
-                        Log.d(
-                            "SUPER_ADMIN",
-                            "Settings clicked"
-                        )
+                SuperAdminUserDetailsScreen(
+                    user = selectedUser,
+                    onBackClick = {
+                        navController.popBackStack()
                     }
                 )
 
             } else {
 
                 LaunchedEffect(Unit) {
-
-                    Log.e(
-                        "SUPER_ADMIN",
-                        "Invalid session"
-                    )
-
-                    logout()
+                    usersViewModel.loadUsers()
                 }
+
+                Text(
+                    text = "Loading user details..."
+                )
             }
         }
-    }
-}
+            }
+
+        }
+
+
 

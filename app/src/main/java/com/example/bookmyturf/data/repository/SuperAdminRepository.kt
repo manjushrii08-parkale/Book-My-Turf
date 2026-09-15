@@ -1,22 +1,16 @@
 package com.example.bookmyturf.data.repository
 
-import com.example.bookmyturf.data.model.SuperAdminDashboardResponse
+import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.remote.ApiService
 
-class SuperAdminRepository(
-    private val apiService: ApiService
-) {
+class SuperAdminRepository {
 
-    // =========================================================
-    // GET SUPER ADMIN DASHBOARD
-    // =========================================================
+    private val api: ApiService
+        get() = RetrofitClient.api
 
-    suspend fun getDashboard(
-        token: String
-    ): SuperAdminDashboardResponse {
+    suspend fun getDashboard(token: String) =
+        api.getSuperAdminDashboard("Bearer $token")
 
-        return apiService.getSuperAdminDashboard(
-            authorization = "Bearer $token"
-        )
-    }
+    suspend fun getUsers(token: String) =
+        api.getSuperAdminUsers("Bearer $token")
 }

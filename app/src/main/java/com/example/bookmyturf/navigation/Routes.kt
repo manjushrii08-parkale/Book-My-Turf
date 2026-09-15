@@ -66,4 +66,11 @@ object Routes {
     const val ADMIN_PAID_PLANS = "admin_paid_plans"
 
     const val SUPER_ADMIN_HOME = "super_admin_home"
+
+    const val SUPER_ADMIN_USERS = "super_admin_users"
+
+    const val SUPER_ADMIN_USER_DETAILS = "super_admin_user_details/{userId}"
+    fun superAdminUserDetails(userId: Int): String {
+        return "super_admin_user_details/$userId"
+    }
 }

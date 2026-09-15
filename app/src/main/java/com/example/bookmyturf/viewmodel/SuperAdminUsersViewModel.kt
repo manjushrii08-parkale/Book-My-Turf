@@ -4,24 +4,24 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bookmyturf.data.local.SessionManager
-import com.example.bookmyturf.data.model.SuperAdminDashboardData
+import com.example.bookmyturf.data.model.SuperAdminUser
 import com.example.bookmyturf.data.repository.SuperAdminRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class SuperAdminViewModel(
+class SuperAdminUsersViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
     private val repository = SuperAdminRepository()
     private val sessionManager = SessionManager(application)
 
-    private val _dashboard =
-        MutableStateFlow<SuperAdminDashboardData?>(null)
+    private val _users =
+        MutableStateFlow<List<SuperAdminUser>>(emptyList())
 
-    val dashboard: StateFlow<SuperAdminDashboardData?> =
-        _dashboard
+    val users: StateFlow<List<SuperAdminUser>> =
+        _users
 
     private val _isLoading =
         MutableStateFlow(false)
@@ -35,7 +35,7 @@ class SuperAdminViewModel(
     val error: StateFlow<String?> =
         _error
 
-    fun loadDashboard() {
+    fun loadUsers() {
         val token = sessionManager.getToken()
 
         if (token.isNullOrBlank()) {
@@ -48,16 +48,16 @@ class SuperAdminViewModel(
             _error.value = null
 
             try {
-                val response = repository.getDashboard(token)
+                val response = repository.getUsers(token)
 
                 if (response.success) {
-                    _dashboard.value = response.data
+                    _users.value = response.data
                 } else {
                     _error.value = response.message
                 }
             } catch (exception: Exception) {
                 _error.value =
-                    exception.message ?: "Unable to load dashboard."
+                    exception.message ?: "Unable to load users."
             } finally {
                 _isLoading.value = false
             }

@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
 
     private const val BASE_URL =
-        "http://192.168.1.198:8000/"
+        "http://192.168.1.224:8000/"
+        ///"http://192.168.1.198:8000/"
 
 //    📱 Physical phone → 192.168.1.198:8000
 //    🖥️ Android Emulator → 10.0.2.2:8000
