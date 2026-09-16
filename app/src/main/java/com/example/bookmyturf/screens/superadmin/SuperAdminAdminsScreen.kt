@@ -22,12 +22,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
@@ -41,12 +42,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -59,10 +60,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.bookmyturf.data.model.SuperAdminUser
-import com.example.bookmyturf.viewmodel.SuperAdminUsersViewModel
+import com.example.bookmyturf.data.model.SuperAdminAdmin
+import com.example.bookmyturf.viewmodel.SuperAdminAdminsViewModel
 
 private val DarkGreen = Color(0xFF173D20)
 private val ForestGreen = Color(0xFF2E6B35)
@@ -82,13 +84,13 @@ private val ActiveText = Color(0xFF2E7D32)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SuperAdminUsersScreen(
+fun SuperAdminAdminsScreen(
     onBackClick: () -> Unit,
-    onUserClick: (Int) -> Unit
+    onAdminClick: (Int) -> Unit
 ) {
-    val viewModel: SuperAdminUsersViewModel = viewModel()
+    val viewModel: SuperAdminAdminsViewModel = viewModel()
 
-    val users by viewModel.users.collectAsState()
+    val admins by viewModel.admins.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
@@ -97,35 +99,40 @@ fun SuperAdminUsersScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.loadUsers()
+        viewModel.loadAdmins()
     }
 
     BackHandler {
         onBackClick()
     }
 
-    val filteredUsers = users.filter { user ->
-        user.name.contains(
-            other = searchQuery,
+    val filteredAdmins = admins.filter { admin ->
+        val query = searchQuery.trim()
+
+        admin.name.orEmpty().contains(
+            other = query,
             ignoreCase = true
         ) ||
-                user.email.contains(
-                    other = searchQuery,
+                admin.email.orEmpty().contains(
+                    other = query,
                     ignoreCase = true
                 ) ||
-                user.phone.orEmpty().contains(
-                    other = searchQuery,
+                admin.phone.orEmpty().contains(
+                    other = query,
                     ignoreCase = true
                 ) ||
-                user.id.toString().contains(searchQuery)
+                admin.id.toString().contains(
+                    other = query,
+                    ignoreCase = true
+                )
     }
 
     Scaffold(
         topBar = {
-            SuperAdminTopBar(
+            SuperAdminAdminsTopBar(
                 onBackClick = onBackClick,
                 onRefreshClick = {
-                    viewModel.loadUsers()
+                    viewModel.loadAdmins()
                 }
             )
         },
@@ -154,7 +161,7 @@ fun SuperAdminUsersScreen(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search users",
+                        contentDescription = "Search admins",
                         tint = ForestGreen
                     )
                 },
@@ -182,20 +189,20 @@ fun SuperAdminUsersScreen(
 
             when {
                 isLoading -> {
-                    LoadingState()
+                    LoadingAdminsState()
                 }
 
                 error != null -> {
-                    ErrorState(
+                    ErrorAdminsState(
                         message = error ?: "Something went wrong.",
                         onRetry = {
-                            viewModel.loadUsers()
+                            viewModel.loadAdmins()
                         }
                     )
                 }
 
-                filteredUsers.isEmpty() -> {
-                    EmptyUsersState()
+                filteredAdmins.isEmpty() -> {
+                    EmptyAdminsState()
                 }
 
                 else -> {
@@ -208,22 +215,22 @@ fun SuperAdminUsersScreen(
                         verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
                         items(
-                            items = filteredUsers,
-                            key = { user ->
-                                user.id
+                            items = filteredAdmins,
+                            key = { admin ->
+                                admin.id
                             }
-                        ) { user ->
+                        ) { admin ->
 
-                            UserCard(
-                                user = user,
+                            AdminCard(
+                                admin = admin,
                                 onClick = {
-                                    onUserClick(user.id)
+                                    onAdminClick(admin.id)
                                 },
                                 onBlockClick = {
-                                    viewModel.blockUser(user.id)
+                                    viewModel.blockAdmin(admin.id)
                                 },
                                 onActivateClick = {
-                                    viewModel.activateUser(user.id)
+                                    viewModel.activateAdmin(admin.id)
                                 }
                             )
                         }
@@ -236,14 +243,14 @@ fun SuperAdminUsersScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SuperAdminTopBar(
+private fun SuperAdminAdminsTopBar(
     onBackClick: () -> Unit,
     onRefreshClick: () -> Unit
 ) {
     TopAppBar(
         title = {
             Text(
-                text = "Users Management",
+                text = "Admins Management",
                 color = DarkGreen,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge
@@ -266,7 +273,7 @@ private fun SuperAdminTopBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refresh users",
+                    contentDescription = "Refresh admins",
                     tint = ForestGreen
                 )
             }
@@ -281,13 +288,13 @@ private fun SuperAdminTopBar(
 }
 
 @Composable
-private fun UserCard(
-    user: SuperAdminUser,
+private fun AdminCard(
+    admin: SuperAdminAdmin,
     onClick: () -> Unit,
     onBlockClick: () -> Unit,
     onActivateClick: () -> Unit
 ) {
-    val isActive = user.status.equals(
+    val isActive = admin.status.orEmpty().equals(
         other = "ACTIVE",
         ignoreCase = true
     )
@@ -332,14 +339,14 @@ private fun UserCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "User",
+                        imageVector = Icons.Default.AdminPanelSettings,
+                        contentDescription = "Admin",
                         tint = if (isActive) {
                             ForestGreen
                         } else {
                             DangerRed
                         },
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(29.dp)
                     )
                 }
 
@@ -351,10 +358,14 @@ private fun UserCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = user.name,
+                        text = admin.name
+                            .orEmpty()
+                            .ifBlank { "Admin" },
                         color = DarkGreen,
                         fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     Spacer(
@@ -362,14 +373,14 @@ private fun UserCard(
                     )
 
                     Text(
-                        text = "User ID: ${user.id}",
+                        text = "Admin ID: ${admin.id}",
                         color = TextGray,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
 
                 StatusBadge(
-                    status = user.status
+                    status = admin.status.orEmpty()
                 )
             }
 
@@ -386,28 +397,28 @@ private fun UserCard(
                     modifier = Modifier.padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    UserInfoRow(
+                    AdminInfoRow(
                         icon = Icons.Default.Email,
                         label = "Email",
-                        value = user.email
+                        value = admin.email
+                            .orEmpty()
+                            .ifBlank { "Not available" }
                     )
 
-                    UserInfoRow(
+                    AdminInfoRow(
                         icon = Icons.Default.Phone,
                         label = "Phone",
-                        value = user.phone ?: "Not added"
+                        value = admin.phone
+                            .orEmpty()
+                            .ifBlank { "Not available" }
                     )
 
-                    UserInfoRow(
-                        icon = Icons.Default.Person,
-                        label = "Date of Birth",
-                        value = user.date_of_birth ?: "Not added"
-                    )
-
-                    UserInfoRow(
-                        icon = Icons.Default.CheckCircle,
-                        label = "Joined",
-                        value = user.created_at.substringBefore("T")
+                    AdminInfoRow(
+                        icon = Icons.Default.CalendarToday,
+                        label = "Created",
+                        value = admin.created_at
+                            .orEmpty()
+                            .ifBlank { "Not available" }
                     )
                 }
             }
@@ -435,7 +446,7 @@ private fun UserCard(
                 )
 
                 Text(
-                    text = "View User Details",
+                    text = "View Admin Details",
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -464,7 +475,7 @@ private fun UserCard(
                     )
 
                     Text(
-                        text = "Block User",
+                        text = "Block Admin",
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -492,7 +503,7 @@ private fun UserCard(
                     )
 
                     Text(
-                        text = "Activate User",
+                        text = "Activate Admin",
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -502,7 +513,7 @@ private fun UserCard(
 }
 
 @Composable
-private fun UserInfoRow(
+private fun AdminInfoRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     value: String
@@ -589,7 +600,7 @@ private fun StatusBadge(
             )
 
             Text(
-                text = status,
+                text = status.ifBlank { "UNKNOWN" },
                 color = textColor,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.labelMedium
@@ -599,7 +610,7 @@ private fun StatusBadge(
 }
 
 @Composable
-private fun LoadingState() {
+private fun LoadingAdminsState() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -611,7 +622,7 @@ private fun LoadingState() {
 }
 
 @Composable
-private fun ErrorState(
+private fun ErrorAdminsState(
     message: String,
     onRetry: () -> Unit
 ) {
@@ -655,7 +666,7 @@ private fun ErrorState(
 }
 
 @Composable
-private fun EmptyUsersState() {
+private fun EmptyAdminsState() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -665,14 +676,14 @@ private fun EmptyUsersState() {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Person,
+                imageVector = Icons.Default.AdminPanelSettings,
                 contentDescription = null,
                 tint = LightGreen,
                 modifier = Modifier.size(48.dp)
             )
 
             Text(
-                text = "No users found.",
+                text = "No admins found.",
                 color = TextGray,
                 fontWeight = FontWeight.Medium
             )

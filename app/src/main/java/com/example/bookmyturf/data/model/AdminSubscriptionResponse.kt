@@ -14,3 +14,9 @@ data class AdminSubscriptionStatusData(
     @SerializedName("trial_used")
     val trialUsed: Boolean
 )
+
+data class SuperAdminSubscriptionDetailsResponse(
+    val success: Boolean,
+    val message: String,
+    val data: SuperAdminSubscription?
+)

@@ -8,6 +8,10 @@ object Routes {
 
     const val OTP = "otp/{email}/{role}"
 
+    // =====================================================
+    // USER ROUTES
+    // =====================================================
+
     const val USER_HOME = "user_home"
 
     const val USER_BOOKINGS = "user_bookings"
@@ -26,15 +30,19 @@ object Routes {
         return "turf_details/$turfId"
     }
 
-    // =========================================================
-// USER SLOT SELECTION
-// =========================================================
+    // =====================================================
+    // USER SLOT SELECTION
+    // =====================================================
 
     const val SLOT_SELECTION = "slot_selection/{turfId}"
 
     fun slotSelection(turfId: Int): String {
         return "slot_selection/$turfId"
     }
+
+    // =====================================================
+    // USER BOOKING
+    // =====================================================
 
     const val BOOKING_SUMMARY =
         "booking_summary/{turfId}/{slotId}/{bookingDate}"
@@ -43,20 +51,26 @@ object Routes {
         turfId: Int,
         slotId: Int,
         bookingDate: String
-    ): String =
-        "booking_summary/$turfId/$slotId/$bookingDate"
+    ): String {
+        return "booking_summary/$turfId/$slotId/$bookingDate"
+    }
 
     const val PAYMENT = "payment/{bookingId}"
 
-    fun payment(bookingId: Int) =
-        "payment/$bookingId"
-
+    fun payment(bookingId: Int): String {
+        return "payment/$bookingId"
+    }
 
     const val BOOKING_SUCCESS = "booking_success/{bookingId}"
 
     fun bookingSuccess(bookingId: Int): String {
         return "booking_success/$bookingId"
     }
+
+    // =====================================================
+    // ADMIN ROUTES
+    // =====================================================
+
     const val ADMIN_HOME = "admin_home"
 
     const val ADMIN_ENTRY = "admin_entry"
@@ -65,12 +79,74 @@ object Routes {
 
     const val ADMIN_PAID_PLANS = "admin_paid_plans"
 
+    // =====================================================
+    // SUPER ADMIN DASHBOARD
+    // =====================================================
+
     const val SUPER_ADMIN_HOME = "super_admin_home"
+
+    // =====================================================
+    // SUPER ADMIN USERS
+    // =====================================================
 
     const val SUPER_ADMIN_USERS = "super_admin_users"
 
-    const val SUPER_ADMIN_USER_DETAILS = "super_admin_user_details/{userId}"
+    const val SUPER_ADMIN_USER_DETAILS =
+        "super_admin_user_details/{userId}"
+
     fun superAdminUserDetails(userId: Int): String {
         return "super_admin_user_details/$userId"
     }
+
+    // =====================================================
+    // SUPER ADMIN ADMINS
+    // =====================================================
+
+    const val SUPER_ADMIN_ADMINS = "super_admin_admins"
+
+    const val SUPER_ADMIN_ADMIN_DETAILS =
+        "super_admin_admin_details/{adminId}"
+
+    fun superAdminAdminDetails(adminId: Int): String {
+        return "super_admin_admin_details/$adminId"
+    }
+
+    // =====================================================
+    // SUPER ADMIN SUBSCRIPTIONS
+    // =====================================================
+
+    const val SUPER_ADMIN_SUBSCRIPTIONS =
+        "super_admin_subscriptions"
+
+    const val SUPER_ADMIN_SUBSCRIPTION_DETAILS =
+        "super_admin_subscription_details/{subscriptionId}"
+
+    fun superAdminSubscriptionDetails(
+        subscriptionId: Int
+    ): String {
+        return "super_admin_subscription_details/$subscriptionId"
+    }
+
+    // =====================================================
+    // SUPER ADMIN TURFS
+    // =====================================================
+
+    const val SUPER_ADMIN_TURFS = "super_admin_turfs"
+
+    const val SUPER_ADMIN_TURF_DETAILS =
+        "super_admin_turf_details/{turfId}"
+
+    fun superAdminTurfDetails(turfId: Int): String {
+        return "super_admin_turf_details/$turfId"
+    }
+
+    // =====================================================
+    // SUPER ADMIN BOOKINGS
+    // =====================================================
+
+    const val SUPER_ADMIN_BOOKINGS = "super_admin_bookings"
+
+    const val SUPER_ADMIN_BOOKING_DETAILS =
+        "super_admin_booking_details"
+
 }

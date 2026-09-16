@@ -14,7 +14,13 @@ import com.example.bookmyturf.data.model.SuperAdminDashboardResponse
 import com.example.bookmyturf.data.model.VerifyOtpRequest
 import com.example.bookmyturf.data.model.SuperAdminUsersResponse
 import okhttp3.RequestBody
-
+import com.example.bookmyturf.data.model.GenericResponse
+import com.example.bookmyturf.data.model.SuperAdminAdminsResponse
+import com.example.bookmyturf.data.model.SuperAdminSubscriptionsResponse
+import com.example.bookmyturf.data.model.SuperAdminSubscriptionDetailsResponse
+import com.example.bookmyturf.data.model.SuperAdminTurfsResponse
+import com.example.bookmyturf.data.model.SuperAdminTurfDetailsResponse
+import com.example.bookmyturf.data.model.SuperAdminBookingsResponse
 // =========================================================
 // TURF MODELS
 // =========================================================
@@ -154,6 +160,92 @@ interface ApiService {
     suspend fun getSuperAdminUsers(
         @Header("Authorization") authorization: String
     ): SuperAdminUsersResponse
+
+
+    @PATCH("api/v1/super-admin/users/{id}/block")
+    suspend fun blockSuperAdminUser(
+        @Path("id") userId: Int,
+        @Header("Authorization") authorization: String
+    ): GenericResponse
+
+
+    @PATCH("api/v1/super-admin/users/{id}/activate")
+    suspend fun activateSuperAdminUser(
+        @Path("id") userId: Int,
+        @Header("Authorization") authorization: String
+    ): GenericResponse
+
+
+    @GET("api/v1/super-admin/admins")
+    suspend fun getSuperAdminAdmins(
+        @Header("Authorization") authorization: String
+    ): SuperAdminAdminsResponse
+
+    @PATCH("api/v1/super-admin/admins/{id}/block")
+    suspend fun blockSuperAdminAdmin(
+        @Path("id") adminId: Int,
+        @Header("Authorization") authorization: String
+    ): GenericResponse
+
+    @PATCH("api/v1/super-admin/admins/{id}/activate")
+    suspend fun activateSuperAdminAdmin(
+        @Path("id") adminId: Int,
+        @Header("Authorization") authorization: String
+    ): GenericResponse
+
+
+    @GET("api/v1/super-admin/subscriptions")
+    suspend fun getSuperAdminSubscriptions(
+        @Header("Authorization") authorization: String
+    ): SuperAdminSubscriptionsResponse
+
+    @GET("api/v1/super-admin/subscriptions/{id}")
+    suspend fun getSuperAdminSubscriptionDetails(
+        @Path("id") subscriptionId: Int,
+        @Header("Authorization") authorization: String
+    ): SuperAdminSubscriptionDetailsResponse
+
+
+    // =========================================================
+// SUPER ADMIN TURF MANAGEMENT
+// =========================================================
+
+    @GET("api/v1/super-admin/turfs")
+    suspend fun getSuperAdminTurfs(
+        @Header("Authorization") authorization: String
+    ): SuperAdminTurfsResponse
+
+
+    @GET("api/v1/super-admin/turfs/{id}")
+    suspend fun getSuperAdminTurfDetails(
+        @Path("id") turfId: Int,
+        @Header("Authorization") authorization: String
+    ): SuperAdminTurfDetailsResponse
+
+
+    @PATCH("api/v1/super-admin/turfs/{id}/block")
+    suspend fun blockSuperAdminTurf(
+        @Path("id") turfId: Int,
+        @Header("Authorization") authorization: String
+    ): GenericResponse
+
+
+    @PATCH("api/v1/super-admin/turfs/{id}/activate")
+    suspend fun activateSuperAdminTurf(
+        @Path("id") turfId: Int,
+        @Header("Authorization") authorization: String
+    ): GenericResponse
+
+
+    // =========================================================
+    // SUPER ADMIN BOOKINGS MANAGEMENT
+    // =========================================================
+
+    // Get all platform bookings
+    @GET("api/v1/super-admin/bookings")
+    suspend fun getSuperAdminBookings(
+        @Header("Authorization") authorization: String
+    ): SuperAdminBookingsResponse
 
 
     // =========================================================
