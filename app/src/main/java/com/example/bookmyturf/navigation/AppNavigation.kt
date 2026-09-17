@@ -57,12 +57,18 @@ import com.example.bookmyturf.screens.superadmin.SuperAdminTurfDetailsScreen
 import com.example.bookmyturf.screens.superadmin.SuperAdminTurfsScreen
 import com.example.bookmyturf.screens.superadmin.SuperAdminUserDetailsScreen
 import com.example.bookmyturf.screens.superadmin.SuperAdminUsersScreen
-
+import com.example.bookmyturf.viewmodel.SuperAdminViewModel
 import com.example.bookmyturf.viewmodel.AdminViewModel
 import com.example.bookmyturf.viewmodel.BookingViewModel
 import com.example.bookmyturf.viewmodel.SuperAdminAdminsViewModel
 import com.example.bookmyturf.viewmodel.SuperAdminUsersViewModel
-
+import com.example.bookmyturf.screens.superadmin.SuperAdminReportsScreen
+import com.example.bookmyturf.viewmodel.SuperAdminBookingsViewModel
+import com.example.bookmyturf.screens.NotificationScreen
+import com.example.bookmyturf.data.repository.ReviewRepository
+import com.example.bookmyturf.screens.user.RateReviewScreen
+import com.example.bookmyturf.viewmodel.ReviewViewModel
+import com.example.bookmyturf.viewmodel.ReviewViewModelFactory
 @Composable
 fun AppNavigation(
     navController: NavHostController
@@ -81,6 +87,14 @@ fun AppNavigation(
     val sessionManager = remember {
         SessionManager(context)
     }
+
+    val superAdminViewModel: SuperAdminViewModel = viewModel()
+
+    val dashboardData by superAdminViewModel.dashboard.collectAsState()
+
+    val superAdminBookingsViewModel: SuperAdminBookingsViewModel = viewModel()
+
+    val superAdminBookings by superAdminBookingsViewModel.bookings.collectAsState()
 
     // =========================================================
     // SELECTED SUPER ADMIN BOOKING
@@ -349,10 +363,9 @@ fun AppNavigation(
                 }
             )
         }
-
-        // =====================================================
-        // USER MAIN
-        // =====================================================
+// =====================================================
+// USER MAIN
+// =====================================================
 
         composable(
             route = Routes.USER_HOME
@@ -380,6 +393,16 @@ fun AppNavigation(
                         )
                     },
 
+                    onNotificationsClick = {
+
+                        navController.navigate(
+                            Routes.USER_NOTIFICATIONS
+                        ) {
+
+                            launchSingleTop = true
+                        }
+                    },
+
                     onEditProfileClick = {
 
                         navController.navigate(
@@ -397,6 +420,16 @@ fun AppNavigation(
 
                     onLogoutClick = {
                         logout()
+                    },
+
+                    onRateReviewClick = { bookingId, turfName ->
+
+                        navController.navigate(
+                            Routes.rateReview(
+                                bookingId = bookingId,
+                                turfName = turfName
+                            )
+                        )
                     }
                 )
 
@@ -406,6 +439,43 @@ fun AppNavigation(
 
                     Log.e(
                         "USER",
+                        "Invalid USER session"
+                    )
+
+                    logout()
+                }
+            }
+        }
+        // =====================================================
+// USER NOTIFICATIONS
+// =====================================================
+
+        composable(
+            route = Routes.USER_NOTIFICATIONS
+        ) {
+
+            val token = sessionManager.getToken()
+            val role = sessionManager.getRole()
+
+            if (
+                !token.isNullOrBlank() &&
+                role == "USER"
+            ) {
+
+                NotificationScreen(
+                    sessionManager = sessionManager,
+
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+
+            } else {
+
+                LaunchedEffect(Unit) {
+
+                    Log.e(
+                        "USER_NOTIFICATIONS",
                         "Invalid USER session"
                     )
 
@@ -666,8 +736,8 @@ fun AppNavigation(
         }
 
         // =====================================================
-        // USER BOOKINGS
-        // =====================================================
+// USER BOOKINGS
+// =====================================================
 
         composable(
             route = Routes.USER_BOOKINGS
@@ -679,6 +749,16 @@ fun AppNavigation(
 
                 onBackClick = {
                     navController.popBackStack()
+                },
+
+                onRateReviewClick = { bookingId, turfName ->
+
+                    navController.navigate(
+                        Routes.rateReview(
+                            bookingId = bookingId,
+                            turfName = turfName
+                        )
+                    )
                 },
 
                 bookingViewModel = bookingViewModel
@@ -731,6 +811,80 @@ fun AppNavigation(
 
                 Text(
                     text = "Invalid payment details."
+                )
+            }
+        }
+
+        // =====================================================
+// USER RATE & REVIEW
+// =====================================================
+
+        composable(
+            route = Routes.RATE_REVIEW,
+            arguments = listOf(
+                navArgument("bookingId") {
+                    type = NavType.IntType
+                },
+                navArgument("turfName") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+
+            val bookingId =
+                backStackEntry.arguments
+                    ?.getInt("bookingId")
+                    ?: -1
+
+            val turfName =
+                backStackEntry.arguments
+                    ?.getString("turfName")
+                    ?: "Turf"
+
+            val token =
+                sessionManager.getToken()
+
+            val repository = remember {
+                ReviewRepository(
+                    RetrofitClient.api
+                )
+            }
+
+            val factory = remember {
+                ReviewViewModelFactory(
+                    repository
+                )
+            }
+
+            val reviewViewModel: ReviewViewModel =
+                viewModel(
+                    factory = factory
+                )
+
+            if (
+                bookingId > 0 &&
+                !token.isNullOrBlank()
+            ) {
+
+                RateReviewScreen(
+                    token = token,
+                    bookingId = bookingId,
+                    turfName = turfName,
+                    reviewViewModel = reviewViewModel,
+
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+
+                    onReviewSubmitted = {
+                        navController.popBackStack()
+                    }
+                )
+
+            } else {
+
+                Text(
+                    text = "Invalid review details."
                 )
             }
         }
@@ -1069,9 +1223,9 @@ fun AppNavigation(
             }
         }
 
-        // =====================================================
-        // SUPER ADMIN HOME
-        // =====================================================
+        // =========================================================
+// SUPER ADMIN HOME
+// =========================================================
 
         composable(
             route = Routes.SUPER_ADMIN_HOME
@@ -1119,6 +1273,12 @@ fun AppNavigation(
                         navController.navigate(
                             Routes.SUPER_ADMIN_BOOKINGS
                         )
+                    },
+
+                    onReportsClick = {
+                        navController.navigate(
+                            Routes.SUPER_ADMIN_REPORTS
+                        )
                     }
                 )
 
@@ -1135,8 +1295,68 @@ fun AppNavigation(
                 }
             }
         }
+// =========================================================
+// SUPER ADMIN REPORTS
+// =========================================================
 
-        // =====================================================
+        composable(
+            route = Routes.SUPER_ADMIN_REPORTS
+        ) {
+
+            val token = sessionManager.getToken()
+            val role = sessionManager.getRole()
+
+            if (
+                !token.isNullOrBlank() &&
+                role == "SUPER_ADMIN"
+            ) {
+
+                LaunchedEffect(token) {
+                    superAdminBookingsViewModel.loadBookings(token)
+                }
+
+                if (dashboardData != null) {
+
+                    SuperAdminReportsScreen(
+                        data = dashboardData!!,
+                        bookings = superAdminBookings,
+                        onBackClick = {
+                            navController.popBackStack()
+                        }
+                    )
+
+                } else {
+
+                    LaunchedEffect(Unit) {
+                        superAdminViewModel.loadDashboard()
+                    }
+
+                    Text(
+                        text = "Loading reports..."
+                    )
+                }
+
+            } else {
+
+                LaunchedEffect(Unit) {
+
+                    Log.e(
+                        "SUPER_ADMIN_REPORTS",
+                        "Invalid SUPER_ADMIN session"
+                    )
+
+                    logout()
+                }
+            }
+        }
+
+
+
+
+
+
+
+            // =====================================================
         // SUPER ADMIN USERS
         // =====================================================
 

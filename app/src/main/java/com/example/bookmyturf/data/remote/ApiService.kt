@@ -57,7 +57,11 @@ import com.example.bookmyturf.data.model.booking.BookingListResponse
 import com.example.bookmyturf.data.model.booking.BookingResponse
 import com.example.bookmyturf.data.model.booking.CancelBookingRequest
 import com.example.bookmyturf.data.model.booking.CreateBookingRequest
-
+import com.example.bookmyturf.data.model.review.SubmitReviewRequest
+import com.example.bookmyturf.data.model.notification.NotificationListResponse
+import com.example.bookmyturf.data.model.notification.UnreadCountResponse
+import com.example.bookmyturf.data.model.review.ReviewResponse
+import com.example.bookmyturf.data.model.review.SubmitReviewResponse
 // =========================================================
 // RETROFIT
 // =========================================================
@@ -419,48 +423,96 @@ interface ApiService {
     suspend fun getAdminBookings(
         @Header("Authorization") authorization: String
     ): AdminBookingResponse
+
+
+    // =========================================================
+// USER NOTIFICATIONS
+// =========================================================
+
+    @GET("api/v1/notifications")
+    suspend fun getNotifications(
+        @Header("Authorization") authorization: String
+    ): NotificationListResponse
+
+    @GET("api/v1/notifications/unread-count")
+    suspend fun getUnreadNotificationCount(
+        @Header("Authorization") authorization: String
+    ): UnreadCountResponse
+
+    @PATCH("api/v1/notifications/{id}/read")
+    suspend fun markNotificationAsRead(
+        @Header("Authorization") authorization: String,
+        @Path("id") notificationId: String
+    ): GenericResponse
+
+    @PATCH("api/v1/notifications/read-all")
+    suspend fun markAllNotificationsAsRead(
+        @Header("Authorization") authorization: String
+    ): GenericResponse
+
+// =====================================================
+// USER REVIEWS
+// =====================================================
+
+    // Submit review for a completed booking
+    @POST("api/v1/user/reviews")
+    suspend fun submitReview(
+        @Header("Authorization") authorization: String,
+        @Body request: SubmitReviewRequest
+    ): SubmitReviewResponse
+
+
+    // Get reviews and rating summary for a turf
+    @GET("api/v1/user/turfs/{turfId}/reviews")
+    suspend fun getTurfReviews(
+        @Header("Authorization") authorization: String,
+        @Path("turfId") turfId: Int
+    ): ReviewResponse
+
+
 }
 
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | RAZORPAY SUBSCRIPTION REQUEST MODELS
 |--------------------------------------------------------------------------
 */
 
-data class CreateSubscriptionOrderRequest(
-    val plan: String
-)
+    data class CreateSubscriptionOrderRequest(
+        val plan: String
+    )
 
 
-data class VerifySubscriptionPaymentRequest(
-    val razorpay_order_id: String,
-    val razorpay_payment_id: String,
-    val razorpay_signature: String
-)
+    data class VerifySubscriptionPaymentRequest(
+        val razorpay_order_id: String,
+        val razorpay_payment_id: String,
+        val razorpay_signature: String
+    )
 
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | RAZORPAY SUBSCRIPTION ORDER RESPONSE
 |--------------------------------------------------------------------------
 */
 
-data class RazorpaySubscriptionOrderResponse(
-    val success: Boolean,
-    val message: String,
-    val data: RazorpaySubscriptionOrderData?
-)
+    data class RazorpaySubscriptionOrderResponse(
+        val success: Boolean,
+        val message: String,
+        val data: RazorpaySubscriptionOrderData?
+    )
 
 
-data class RazorpaySubscriptionOrderData(
-    val subscription_id: Int,
-    val order_id: String,
-    val amount: Double,
-    val amount_paise: Int,
-    val currency: String,
-    val plan: String,
-    val days: Int,
-    val razorpay_key: String
-)
+    data class RazorpaySubscriptionOrderData(
+        val subscription_id: Int,
+        val order_id: String,
+        val amount: Double,
+        val amount_paise: Int,
+        val currency: String,
+        val plan: String,
+        val days: Int,
+        val razorpay_key: String
+    )
+
 

@@ -75,10 +75,14 @@ fun UserHomeScreen(
 
     onTurfClick: (Int) -> Unit,
 
+    onNotificationsClick: () -> Unit,
+
+    onProfileClick: () -> Unit,
+
     viewModel: UserHomeViewModel = viewModel(),
 
     favoriteViewModel: FavoriteViewModel = viewModel()
-) {
+){
 
     // =========================================================
     // TURF STATE
@@ -224,15 +228,11 @@ fun UserHomeScreen(
         UserHomeTopBar(
 
             onNotificationClick = {
-
-                // Notification screen
-                // will be connected later
+                onNotificationsClick()
             },
 
             onProfileClick = {
-
-                // Profile screen
-                // will be connected from UserMainScreen
+                onProfileClick()
             }
         )
 

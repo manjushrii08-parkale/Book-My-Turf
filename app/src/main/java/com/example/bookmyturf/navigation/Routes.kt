@@ -146,7 +146,17 @@ object Routes {
 
     const val SUPER_ADMIN_BOOKINGS = "super_admin_bookings"
 
-    const val SUPER_ADMIN_BOOKING_DETAILS =
-        "super_admin_booking_details"
+    const val SUPER_ADMIN_BOOKING_DETAILS = "super_admin_booking_details"
 
+    const val SUPER_ADMIN_REPORTS = "super_admin_reports"
+
+    const val USER_NOTIFICATIONS = "user_notifications"
+
+    const val RATE_REVIEW = "rate_review/{bookingId}/{turfName}"
+
+    fun rateReview(
+        bookingId: Int, turfName: String ): String {
+        return "rate_review/$bookingId/${android.net.Uri.encode(turfName)}"
+    }
 }
+

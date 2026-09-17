@@ -106,6 +106,7 @@ private enum class BookingFilter(
 @Composable
 fun UserBookingsScreen(
     onBackClick: () -> Unit,
+    onRateReviewClick: (bookingId: Int, turfName: String) -> Unit,
     bookingViewModel: BookingViewModel
 ) {
     val bookings by bookingViewModel.bookings.collectAsState()
@@ -130,11 +131,19 @@ fun UserBookingsScreen(
         mutableStateOf(BookingFilter.ALL)
     }
 
+    // =========================================================
+    // LOAD BOOKINGS
+    // =========================================================
+
     LaunchedEffect(token) {
         if (!token.isNullOrBlank()) {
             bookingViewModel.loadMyBookings(token)
         }
     }
+
+    // =========================================================
+    // FILTER BOOKINGS
+    // =========================================================
 
     val filteredBookings = remember(
         bookings,
@@ -187,6 +196,10 @@ fun UserBookingsScreen(
             matchesSearch && matchesFilter
         }
     }
+
+    // =========================================================
+    // MAIN CONTENT
+    // =========================================================
 
     Column(
         modifier = Modifier
@@ -281,6 +294,7 @@ fun UserBookingsScreen(
                 .padding(horizontal = 18.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
             BookingFilterChip(
                 title = BookingFilter.ALL.title,
                 selected = selectedFilter == BookingFilter.ALL,
@@ -336,6 +350,7 @@ fun UserBookingsScreen(
                 .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Text(
                 text = "${filteredBookings.size} " +
                         if (filteredBookings.size == 1) {
@@ -353,6 +368,7 @@ fun UserBookingsScreen(
             )
 
             if (selectedFilter != BookingFilter.ALL) {
+
                 Surface(
                     shape = RoundedCornerShape(50.dp),
                     color = LightGreen.copy(alpha = 0.16f)
@@ -380,13 +396,16 @@ fun UserBookingsScreen(
         // =====================================================
 
         if (isLoading) {
+
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
+
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
                     CircularProgressIndicator(
                         color = ForestGreen
                     )
@@ -411,9 +430,11 @@ fun UserBookingsScreen(
         // =====================================================
 
         if (error != null) {
+
             BookingErrorState(
                 error = error ?: "Something went wrong.",
                 onRetry = {
+
                     bookingViewModel.clearError()
 
                     if (!token.isNullOrBlank()) {
@@ -430,6 +451,7 @@ fun UserBookingsScreen(
         // =====================================================
 
         if (filteredBookings.isEmpty()) {
+
             BookingEmptyState(
                 searchQuery = searchQuery,
                 filter = selectedFilter
@@ -450,6 +472,7 @@ fun UserBookingsScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(13.dp)
         ) {
+
             items(
                 items = filteredBookings,
                 key = { booking ->
@@ -460,7 +483,8 @@ fun UserBookingsScreen(
                 BookingCard(
                     booking = booking,
                     token = token,
-                    bookingViewModel = bookingViewModel
+                    bookingViewModel = bookingViewModel,
+                    onRateReviewClick = onRateReviewClick
                 )
             }
         }
@@ -477,6 +501,7 @@ private fun BookingFilterChip(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(50.dp),
@@ -494,6 +519,7 @@ private fun BookingFilterChip(
             )
         }
     ) {
+
         Text(
             text = title,
             modifier = Modifier.padding(
@@ -523,8 +549,10 @@ private fun BookingFilterChip(
 private fun BookingCard(
     booking: Booking,
     token: String?,
-    bookingViewModel: BookingViewModel
+    bookingViewModel: BookingViewModel,
+    onRateReviewClick: (bookingId: Int, turfName: String) -> Unit
 ) {
+
     val turf = booking.turf
     val slot = booking.slot
 
@@ -544,6 +572,7 @@ private fun BookingCard(
             defaultElevation = 1.dp
         )
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -558,9 +587,11 @@ private fun BookingCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
+
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
+
                     Text(
                         text = turf?.name ?: "Turf",
                         fontSize = 18.sp,
@@ -569,6 +600,7 @@ private fun BookingCard(
                     )
 
                     if (!turf?.city.isNullOrBlank()) {
+
                         Spacer(
                             modifier = Modifier.height(4.dp)
                         )
@@ -595,24 +627,32 @@ private fun BookingCard(
             )
 
             // =================================================
-            // DATE AND TIME
+            // DATE
             // =================================================
 
             BookingInfoRow(
                 icon = Icons.Default.CalendarToday,
                 title = "Booking Date",
-                value = formatBookingDate(booking.booking_date)
+                value = formatBookingDate(
+                    booking.booking_date
+                )
             )
 
             Spacer(
                 modifier = Modifier.height(12.dp)
             )
 
+            // =================================================
+            // TIME
+            // =================================================
+
             BookingInfoRow(
                 icon = Icons.Default.Schedule,
                 title = "Time",
                 value = if (slot != null) {
-                    "${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}"
+                    "${formatTime(slot.startTime)} - ${
+                        formatTime(slot.endTime)
+                    }"
                 } else {
                     "Time unavailable"
                 }
@@ -630,6 +670,7 @@ private fun BookingCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Text(
                     text = "Payment Status",
                     fontSize = 11.sp,
@@ -648,6 +689,10 @@ private fun BookingCard(
             Spacer(
                 modifier = Modifier.height(15.dp)
             )
+
+            // =================================================
+            // DIVIDER
+            // =================================================
 
             Box(
                 modifier = Modifier
@@ -668,7 +713,9 @@ private fun BookingCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Column {
+
                     Text(
                         text = "Total Amount",
                         fontSize = 10.sp,
@@ -694,6 +741,7 @@ private fun BookingCard(
                 Column(
                     horizontalAlignment = Alignment.End
                 ) {
+
                     Text(
                         text = "Booking ID",
                         fontSize = 10.sp,
@@ -714,10 +762,47 @@ private fun BookingCard(
             }
 
             // =================================================
+            // RATE & REVIEW
+            // =================================================
+
+            if (
+                booking.booking_status.uppercase() == "COMPLETED" &&
+                booking.payment_status.uppercase() == "PAID"
+            ) {
+
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
+
+                Button(
+                    onClick = {
+                        onRateReviewClick(
+                            booking.id,
+                            turf?.name ?: "Turf"
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(13.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = DarkGreen
+                    )
+                ) {
+
+                    Text(
+                        text = "Rate & Review",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            // =================================================
             // CANCELLED INFORMATION
             // =================================================
 
-            if (booking.booking_status.uppercase() == "CANCELLED") {
+            if (
+                booking.booking_status.uppercase() == "CANCELLED"
+            ) {
+
                 Spacer(
                     modifier = Modifier.height(15.dp)
                 )
@@ -735,6 +820,7 @@ private fun BookingCard(
                 booking.booking_status.uppercase() == "PENDING" ||
                 booking.booking_status.uppercase() == "CONFIRMED"
             ) {
+
                 Spacer(
                     modifier = Modifier.height(16.dp)
                 )
@@ -749,6 +835,7 @@ private fun BookingCard(
                         containerColor = CancelledRed
                     )
                 ) {
+
                     Icon(
                         imageVector = Icons.Default.Cancel,
                         contentDescription = null,
@@ -773,6 +860,7 @@ private fun BookingCard(
     // =========================================================
 
     if (showCancelDialog) {
+
         CancelBookingDialog(
             booking = booking,
             onDismiss = {
@@ -781,6 +869,7 @@ private fun BookingCard(
             onConfirm = { reason ->
 
                 if (!token.isNullOrBlank()) {
+
                     bookingViewModel.cancelBooking(
                         token = token,
                         bookingId = booking.id,
@@ -802,20 +891,24 @@ private fun BookingCard(
 private fun CancelledBookingSection(
     booking: Booking
 ) {
+
     val refundStatus = booking.refund_status
         ?.uppercase()
         ?: "NOT_APPLICABLE"
 
     val refundText = when (refundStatus) {
+
         "ELIGIBLE" -> "Refund Eligible"
         "REQUESTED" -> "Refund Requested"
         "PROCESSING" -> "Refund Processing"
         "REFUNDED" -> "Refund Completed"
         "REJECTED" -> "Refund Rejected"
+
         else -> "Refund Not Applicable"
     }
 
     val refundColor = when (refundStatus) {
+
         "ELIGIBLE",
         "REQUESTED",
         "PROCESSING",
@@ -835,10 +928,13 @@ private fun CancelledBookingSection(
             )
             .padding(13.dp)
     ) {
+
         Column {
+
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Icon(
                     imageVector = Icons.Default.Cancel,
                     contentDescription = null,
@@ -859,6 +955,7 @@ private fun CancelledBookingSection(
             }
 
             if (!booking.cancellation_reason.isNullOrBlank()) {
+
                 Spacer(
                     modifier = Modifier.height(6.dp)
                 )
@@ -877,6 +974,7 @@ private fun CancelledBookingSection(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = null,
@@ -907,11 +1005,14 @@ private fun CancelledBookingSection(
 private fun PaymentStatusBadge(
     status: String
 ) {
+
     val normalized = status.uppercase()
 
     val badgeColor = when (normalized) {
+
         "PAID" -> ConfirmedGreen
         "FAILED" -> CancelledRed
+
         else -> PendingOrange
     }
 
@@ -919,6 +1020,7 @@ private fun PaymentStatusBadge(
         shape = RoundedCornerShape(50.dp),
         color = badgeColor.copy(alpha = 0.10f)
     ) {
+
         Text(
             text = normalized,
             modifier = Modifier.padding(
@@ -940,12 +1042,15 @@ private fun PaymentStatusBadge(
 private fun BookingStatusBadge(
     status: String
 ) {
+
     val normalized = status.uppercase()
 
     val badgeColor = when (normalized) {
+
         "CONFIRMED" -> ConfirmedGreen
         "CANCELLED" -> CancelledRed
         "COMPLETED" -> ForestGreen
+
         else -> PendingOrange
     }
 
@@ -953,6 +1058,7 @@ private fun BookingStatusBadge(
         shape = RoundedCornerShape(50.dp),
         color = badgeColor.copy(alpha = 0.10f)
     ) {
+
         Text(
             text = normalized,
             modifier = Modifier.padding(
@@ -976,18 +1082,22 @@ private fun BookingInfoRow(
     title: String,
     value: String
 ) {
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         Surface(
             modifier = Modifier.size(35.dp),
             shape = RoundedCornerShape(11.dp),
             color = ForestGreen.copy(alpha = 0.09f)
         ) {
+
             Box(
                 contentAlignment = Alignment.Center
             ) {
+
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
@@ -1000,6 +1110,7 @@ private fun BookingInfoRow(
         Column(
             modifier = Modifier.padding(start = 11.dp)
         ) {
+
             Text(
                 text = title,
                 fontSize = 10.sp,
@@ -1030,12 +1141,14 @@ private fun CancelBookingDialog(
     onDismiss: () -> Unit,
     onConfirm: (String?) -> Unit
 ) {
+
     var reason by remember {
         mutableStateOf("")
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
+
         title = {
             Text(
                 text = "Cancel Booking",
@@ -1043,8 +1156,11 @@ private fun CancelBookingDialog(
                 color = DarkGreen
             )
         },
+
         text = {
+
             Column {
+
                 Text(
                     text = "Are you sure you want to cancel " +
                             "${formatBookingId(booking.id)}?",
@@ -1088,9 +1204,12 @@ private fun CancelBookingDialog(
                 )
             }
         },
+
         confirmButton = {
+
             Button(
                 onClick = {
+
                     onConfirm(
                         reason
                             .trim()
@@ -1104,15 +1223,19 @@ private fun CancelBookingDialog(
                 ),
                 shape = RoundedCornerShape(10.dp)
             ) {
+
                 Text(
                     text = "Cancel Booking"
                 )
             }
         },
+
         dismissButton = {
+
             TextButton(
                 onClick = onDismiss
             ) {
+
                 Text(
                     text = "Keep Booking",
                     color = ForestGreen
@@ -1131,12 +1254,14 @@ private fun BookingErrorState(
     error: String,
     onRetry: () -> Unit
 ) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
         contentAlignment = Alignment.Center
     ) {
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(21.dp),
@@ -1147,20 +1272,24 @@ private fun BookingErrorState(
                 defaultElevation = 1.dp
             )
         ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 Surface(
                     modifier = Modifier.size(70.dp),
                     shape = RoundedCornerShape(22.dp),
                     color = ForestGreen.copy(alpha = 0.09f)
                 ) {
+
                     Box(
                         contentAlignment = Alignment.Center
                     ) {
+
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = null,
@@ -1203,6 +1332,7 @@ private fun BookingErrorState(
                         color = ForestGreen
                     )
                 ) {
+
                     Text(
                         text = "Try Again",
                         color = ForestGreen,
@@ -1223,23 +1353,28 @@ private fun BookingEmptyState(
     searchQuery: String,
     filter: BookingFilter
 ) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Surface(
                 modifier = Modifier.size(82.dp),
                 shape = RoundedCornerShape(25.dp),
                 color = LightGreen.copy(alpha = 0.11f)
             ) {
+
                 Box(
                     contentAlignment = Alignment.Center
                 ) {
+
                     Icon(
                         imageVector = Icons.Default.SportsSoccer,
                         contentDescription = null,
@@ -1254,6 +1389,7 @@ private fun BookingEmptyState(
             )
 
             val title = when {
+
                 searchQuery.isNotBlank() -> {
                     "No Matching Bookings"
                 }
@@ -1314,6 +1450,7 @@ private fun BookingEmptyState(
 private fun isUpcomingBooking(
     booking: Booking
 ): Boolean {
+
     val status = booking.booking_status.uppercase()
 
     if (
@@ -1326,6 +1463,7 @@ private fun isUpcomingBooking(
     val slot = booking.slot ?: return true
 
     return try {
+
         val date = booking.booking_date
             .substringBefore("T")
 
@@ -1341,9 +1479,11 @@ private fun isUpcomingBooking(
         bookingDateTime.isAfter(
             LocalDateTime.now()
         )
+
     } catch (
         e: Exception
     ) {
+
         true
     }
 }
@@ -1355,9 +1495,11 @@ private fun isUpcomingBooking(
 private fun isRefundBooking(
     booking: Booking
 ): Boolean {
+
     return when (
         booking.refund_status?.uppercase()
     ) {
+
         "ELIGIBLE",
         "REQUESTED",
         "PROCESSING",
@@ -1374,7 +1516,9 @@ private fun isRefundBooking(
 private fun formatBookingDate(
     dateString: String
 ): String {
+
     return try {
+
         val date = LocalDate.parse(
             dateString.substringBefore("T")
         )
@@ -1385,9 +1529,11 @@ private fun formatBookingDate(
                 Locale.getDefault()
             )
         )
+
     } catch (
         e: Exception
     ) {
+
         dateString.substringBefore("T")
     }
 }
@@ -1399,7 +1545,9 @@ private fun formatBookingDate(
 private fun formatTime(
     time: String
 ): String {
+
     return try {
+
         val cleanTime = time
             .substringBefore(".")
             .substringBefore("+")
@@ -1412,9 +1560,11 @@ private fun formatTime(
                 Locale.getDefault()
             )
         )
+
     } catch (
         e: Exception
     ) {
+
         time
     }
 }
@@ -1426,6 +1576,7 @@ private fun formatTime(
 private fun formatBookingId(
     id: Int
 ): String {
+
     return "#BK%06d".format(
         Locale.getDefault(),
         id
@@ -1439,11 +1590,15 @@ private fun formatBookingId(
 private fun formatAmount(
     amount: Double
 ): String {
+
     return if (amount % 1.0 == 0.0) {
+
         amount
             .toLong()
             .toString()
+
     } else {
+
         String.format(
             Locale.getDefault(),
             "%.2f",

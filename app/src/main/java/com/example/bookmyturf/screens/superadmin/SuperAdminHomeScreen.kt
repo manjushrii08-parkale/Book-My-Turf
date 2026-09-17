@@ -104,7 +104,8 @@ fun SuperAdminDashboardScreen(
     onAdminsClick: () -> Unit = {},
     onSubscriptionsClick: () -> Unit = {},
     onTurfsClick: () -> Unit = {},
-    onBookingsClick: () -> Unit = {}
+    onBookingsClick: () -> Unit = {},
+    onReportsClick: () -> Unit = {}
 ) {
     val viewModel: SuperAdminViewModel = viewModel()
 
@@ -169,7 +170,7 @@ fun SuperAdminDashboardScreen(
                             when (index) {
                                 1 -> onUsersClick()
                                 2 -> onAdminsClick()
-                                3 -> onSubscriptionsClick()
+                                3 -> onReportsClick()
                             }
                         },
                         icon = {
@@ -247,7 +248,7 @@ fun SuperAdminDashboardScreen(
                             title = "Reports & Analytics",
                             subtitle = "Review revenue, subscriptions and bookings.",
                             icon = Icons.Default.Analytics,
-                            onOpen = onSubscriptionsClick,
+                            onOpen = onReportsClick,
                             innerPadding = innerPadding
                         )
                     }
