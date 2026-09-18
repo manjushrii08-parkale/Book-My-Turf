@@ -9,31 +9,60 @@ class NotificationRepository(
     private val apiService: ApiService
 ) {
 
+    // =========================================================
+    // GET ALL NOTIFICATIONS
+    // =========================================================
+
     suspend fun getNotifications(
         authorization: String
     ): NotificationListResponse {
-        return apiService.getNotifications(authorization)
+
+        return apiService.getNotifications(
+            authorization = authorization
+        )
     }
+
+
+    // =========================================================
+    // GET UNREAD NOTIFICATION COUNT
+    // =========================================================
 
     suspend fun getUnreadNotificationCount(
         authorization: String
     ): UnreadCountResponse {
-        return apiService.getUnreadNotificationCount(authorization)
+
+        return apiService.getUnreadNotificationCount(
+            authorization = authorization
+        )
     }
+
+
+    // =========================================================
+    // MARK SINGLE NOTIFICATION AS READ
+    // =========================================================
 
     suspend fun markNotificationAsRead(
         authorization: String,
         notificationId: String
     ): GenericResponse {
+
         return apiService.markNotificationAsRead(
             authorization = authorization,
             notificationId = notificationId
         )
     }
 
+
+    // =========================================================
+    // MARK ALL NOTIFICATIONS AS READ
+    // =========================================================
+
     suspend fun markAllNotificationsAsRead(
         authorization: String
     ): GenericResponse {
-        return apiService.markAllNotificationsAsRead(authorization)
+
+        return apiService.markAllNotificationsAsRead(
+            authorization = authorization
+        )
     }
 }

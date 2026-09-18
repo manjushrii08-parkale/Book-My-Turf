@@ -41,6 +41,7 @@ import com.example.bookmyturf.ui.theme.UserDarkGreen
 import com.example.bookmyturf.ui.theme.UserLightGreen
 import com.example.bookmyturf.viewmodel.BookingViewModel
 import com.example.bookmyturf.viewmodel.FavoriteViewModel
+import com.example.bookmyturf.viewmodel.NotificationViewModel
 import com.example.bookmyturf.viewmodel.UserProfileViewModel
 import com.example.bookmyturf.viewmodel.UserProfileViewModelFactory
 
@@ -120,6 +121,36 @@ fun UserMainScreen(
         viewModel()
 
     // =====================================================
+    // SHARED NOTIFICATION VIEWMODEL
+    // =====================================================
+
+    val notificationViewModel: NotificationViewModel =
+        viewModel()
+
+    // =====================================================
+    // NOTIFICATION UNREAD COUNT
+    // =====================================================
+
+    val unreadNotificationCount by
+    notificationViewModel.unreadCount.collectAsState()
+
+    // =====================================================
+    // LOAD NOTIFICATION COUNT
+    // =====================================================
+
+    LaunchedEffect(Unit) {
+
+        val token = sessionManager.getToken()
+
+        if (!token.isNullOrBlank()) {
+
+            notificationViewModel.loadUnreadCount(
+                token = token
+            )
+        }
+    }
+
+    // =====================================================
     // PROFILE REPOSITORY
     // =====================================================
 
@@ -150,7 +181,8 @@ fun UserMainScreen(
     // PROFILE STATE
     // =====================================================
 
-    val profile by profileViewModel.profile.collectAsState()
+    val profile by
+    profileViewModel.profile.collectAsState()
 
     // =====================================================
     // LOAD PROFILE WHEN PROFILE TAB OPENS
@@ -159,6 +191,7 @@ fun UserMainScreen(
     LaunchedEffect(selectedItem) {
 
         if (selectedItem == 3) {
+
             profileViewModel.loadProfile()
         }
     }
@@ -219,14 +252,17 @@ fun UserMainScreen(
             },
 
             title = {
+
                 Text(
                     text = "Logout?"
                 )
             },
 
             text = {
+
                 Text(
-                    text = "Are you sure you want to logout from your account?"
+                    text =
+                        "Are you sure you want to logout from your account?"
                 )
             },
 
@@ -237,12 +273,15 @@ fun UserMainScreen(
                     onClick = {
 
                         showLogoutDialog = false
+
                         onLogoutClick()
                     },
 
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = UserDarkGreen
-                    )
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor =
+                                UserDarkGreen
+                        )
                 ) {
 
                     Text(
@@ -266,7 +305,8 @@ fun UserMainScreen(
                 }
             },
 
-            containerColor = Color.White
+            containerColor =
+                Color.White
         )
     }
 
@@ -276,54 +316,72 @@ fun UserMainScreen(
 
     Scaffold(
 
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor =
+            MaterialTheme
+                .colorScheme
+                .background,
 
         bottomBar = {
 
             NavigationBar(
 
-                containerColor = UserDarkGreen,
+                containerColor =
+                    UserDarkGreen,
 
-                tonalElevation = 8.dp
+                tonalElevation =
+                    8.dp
             ) {
 
                 bottomItems.forEachIndexed { index, item ->
 
                     NavigationBarItem(
 
-                        selected = selectedItem == index,
+                        selected =
+                            selectedItem == index,
 
                         onClick = {
+
                             selectedItem = index
                         },
 
                         icon = {
 
                             Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.title
+
+                                imageVector =
+                                    item.icon,
+
+                                contentDescription =
+                                    item.title
                             )
                         },
 
                         label = {
 
                             Text(
-                                text = item.title
+                                text =
+                                    item.title
                             )
                         },
 
-                        colors = NavigationBarItemDefaults.colors(
+                        colors =
+                            NavigationBarItemDefaults.colors(
 
-                            selectedIconColor = UserLightGreen,
+                                selectedIconColor =
+                                    UserLightGreen,
 
-                            selectedTextColor = UserLightGreen,
+                                selectedTextColor =
+                                    UserLightGreen,
 
-                            unselectedIconColor = Color(0xFFB5C2BA),
+                                unselectedIconColor =
+                                    Color(0xFFB5C2BA),
 
-                            unselectedTextColor = Color(0xFFB5C2BA),
+                                unselectedTextColor =
+                                    Color(0xFFB5C2BA),
 
-                            indicatorColor = Color(0xFF24542D)
-                        )
+                                indicatorColor =
+                                    Color(0xFF24542D)
+                            )
                     )
                 }
             }
@@ -337,9 +395,10 @@ fun UserMainScreen(
 
         Box(
 
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
         ) {
 
             when (selectedItem) {
@@ -369,7 +428,11 @@ fun UserMainScreen(
                             selectedItem = 3
                         },
 
-                        favoriteViewModel = favoriteViewModel
+                        favoriteViewModel =
+                            favoriteViewModel,
+
+                        notificationViewModel =
+                            notificationViewModel
                     )
                 }
 
@@ -393,7 +456,8 @@ fun UserMainScreen(
                             )
                         },
 
-                        favoriteViewModel = favoriteViewModel
+                        favoriteViewModel =
+                            favoriteViewModel
                     )
                 }
 
@@ -410,7 +474,9 @@ fun UserMainScreen(
                             selectedItem = 0
                         },
 
-                        onRateReviewClick = { bookingId, turfName ->
+                        onRateReviewClick = {
+                                bookingId,
+                                turfName ->
 
                             onRateReviewClick(
                                 bookingId,
@@ -418,7 +484,8 @@ fun UserMainScreen(
                             )
                         },
 
-                        bookingViewModel = bookingViewModel
+                        bookingViewModel =
+                            bookingViewModel
                     )
                 }
 
@@ -430,24 +497,27 @@ fun UserMainScreen(
 
                     UserProfileScreen(
 
-                        userName = profile?.name
-                            ?.takeIf {
-                                it.isNotBlank()
-                            }
-                            ?: "BookMyTurf User",
+                        userName =
+                            profile?.name
+                                ?.takeIf {
+                                    it.isNotBlank()
+                                }
+                                ?: "BookMyTurf User",
 
-                        email = profile?.email
-                            ?.takeIf {
-                                it.isNotBlank()
-                            }
-                            ?: userEmail
-                            ?: "No email available",
+                        email =
+                            profile?.email
+                                ?.takeIf {
+                                    it.isNotBlank()
+                                }
+                                ?: userEmail
+                                ?: "No email available",
 
-                        phone = profile?.phone
-                            ?.takeIf {
-                                it.isNotBlank()
-                            }
-                            ?: "No phone available",
+                        phone =
+                            profile?.phone
+                                ?.takeIf {
+                                    it.isNotBlank()
+                                }
+                                ?: "No phone available",
 
                         onBackClick = {
 

@@ -767,7 +767,8 @@ private fun BookingCard(
 
             if (
                 booking.booking_status.uppercase() == "COMPLETED" &&
-                booking.payment_status.uppercase() == "PAID"
+                booking.payment_status.uppercase() == "PAID" &&
+                !booking.reviewExists
             ) {
 
                 Spacer(
@@ -1606,3 +1607,4 @@ private fun formatAmount(
         )
     }
 }
+

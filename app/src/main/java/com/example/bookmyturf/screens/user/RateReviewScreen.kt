@@ -11,16 +11,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,17 +44,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bookmyturf.screens.user.components.UserSecondaryTopBar
 import com.example.bookmyturf.viewmodel.ReviewViewModel
-import androidx.compose.foundation.layout.width
+
+// =============================================================
+// COLORS
+// =============================================================
 
 private val DarkGreen = Color(0xFF173D20)
 private val ForestGreen = Color(0xFF2E6B35)
 private val LightGreen = Color(0xFF7DBB4A)
+
 private val White = Color(0xFFFFFFFF)
+private val OffWhite = Color(0xFFF7F9F5)
+
 private val TextGray = Color(0xFF737373)
 private val BorderGray = Color(0xFFE0E0E0)
+
 private val ErrorRed = Color(0xFFB3261E)
+
+// =============================================================
+// RATE & REVIEW SCREEN
+// =============================================================
 
 @Composable
 fun RateReviewScreen(
@@ -60,54 +75,141 @@ fun RateReviewScreen(
     onBackClick: () -> Unit,
     onReviewSubmitted: () -> Unit
 ) {
+
+    // =========================================================
+    // VIEWMODEL STATE
+    // =========================================================
+
     val uiState by reviewViewModel.uiState.collectAsState()
+
+    // =========================================================
+    // RATING STATE
+    // =========================================================
 
     var selectedRating by remember {
         mutableIntStateOf(0)
     }
 
+    // =========================================================
+    // COMMENT STATE
+    // =========================================================
+
     var comment by remember {
         mutableStateOf("")
     }
 
-    // =====================================================
+    // =========================================================
     // HANDLE SUCCESS
-    // =====================================================
+    // =========================================================
 
     LaunchedEffect(uiState.submitSuccess) {
+
         if (uiState.submitSuccess) {
+
             reviewViewModel.clearSubmitSuccess()
+
             onReviewSubmitted()
         }
     }
 
-    // =====================================================
+    // =========================================================
     // SCREEN
-    // =====================================================
+    // =========================================================
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(White)
+            .background(OffWhite)
     ) {
 
-        // =================================================
-        // TOP BAR
-        // =================================================
-
-        UserSecondaryTopBar(
-            title = "Rate & Review",
-            subtitle = "Share your experience",
-            onBackClick = onBackClick
-        )
-
-        // =================================================
-        // CONTENT
-        // =================================================
+        // =====================================================
+        // CUSTOM TOP BAR
+        // =====================================================
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .background(White)
+        ) {
+
+            // Small visual breathing space
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 8.dp,
+                        vertical = 8.dp
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                // -------------------------------------------------
+                // BACK BUTTON
+                // -------------------------------------------------
+
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier.size(46.dp)
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = DarkGreen,
+                        modifier = Modifier.size(23.dp)
+                    )
+                }
+
+                // -------------------------------------------------
+                // TITLE
+                // -------------------------------------------------
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(
+                            start = 4.dp
+                        )
+                ) {
+
+                    Text(
+                        text = "Rate & Review",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = DarkGreen
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(2.dp)
+                    )
+
+                    Text(
+                        text = "Share your experience",
+                        fontSize = 12.sp,
+                        color = TextGray
+                    )
+                }
+            }
+
+            HorizontalDivider(
+                color = BorderGray,
+                thickness = 1.dp
+            )
+        }
+
+        // =====================================================
+        // SCROLLABLE CONTENT
+        // =====================================================
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
                 .verticalScroll(
                     rememberScrollState()
                 )
@@ -119,7 +221,7 @@ fun RateReviewScreen(
         ) {
 
             // =================================================
-            // TITLE
+            // MAIN TITLE
             // =================================================
 
             Text(
@@ -150,6 +252,10 @@ fun RateReviewScreen(
                 modifier = Modifier.height(6.dp)
             )
 
+            // =================================================
+            // DESCRIPTION
+            // =================================================
+
             Text(
                 text = "Your feedback helps other players choose the right turf.",
                 fontSize = 13.sp,
@@ -162,31 +268,33 @@ fun RateReviewScreen(
             )
 
             // =================================================
-            // RATING SECTION
+            // RATING CARD
             // =================================================
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = Color(0xFFF7FAF5),
-                        shape = RoundedCornerShape(18.dp)
+                        color = Color(0xFFF0F7ED),
+                        shape = RoundedCornerShape(20.dp)
                     )
                     .padding(
                         horizontal = 16.dp,
-                        vertical = 22.dp
+                        vertical = 24.dp
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 Text(
                     text = when (selectedRating) {
+
                         0 -> "Tap a star to rate"
                         1 -> "Poor"
                         2 -> "Fair"
                         3 -> "Good"
                         4 -> "Very Good"
                         5 -> "Excellent"
+
                         else -> "Tap a star to rate"
                     },
                     fontSize = 15.sp,
@@ -198,6 +306,10 @@ fun RateReviewScreen(
                     modifier = Modifier.height(14.dp)
                 )
 
+                // =================================================
+                // STARS
+                // =================================================
+
                 Row(
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -205,21 +317,29 @@ fun RateReviewScreen(
                     for (rating in 1..5) {
 
                         Icon(
-                            imageVector = if (rating <= selectedRating) {
-                                Icons.Filled.Star
-                            } else {
-                                Icons.Outlined.StarBorder
-                            },
-                            contentDescription = "$rating star rating",
-                            tint = if (rating <= selectedRating) {
-                                LightGreen
-                            } else {
-                                BorderGray
-                            },
+                            imageVector =
+                                if (rating <= selectedRating) {
+                                    Icons.Filled.Star
+                                } else {
+                                    Icons.Outlined.StarBorder
+                                },
+
+                            contentDescription =
+                                "$rating star rating",
+
+                            tint =
+                                if (rating <= selectedRating) {
+                                    LightGreen
+                                } else {
+                                    BorderGray
+                                },
+
                             modifier = Modifier
                                 .size(48.dp)
                                 .clickable {
+
                                     selectedRating = rating
+
                                     reviewViewModel.clearError()
                                 }
                                 .padding(4.dp)
@@ -237,31 +357,43 @@ fun RateReviewScreen(
             // =================================================
 
             OutlinedTextField(
+
                 value = comment,
+
                 onValueChange = {
+
                     if (it.length <= 1000) {
                         comment = it
                     }
                 },
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp),
+
                 label = {
-                    Text("Write a review")
-                },
-                placeholder = {
                     Text(
-                        "Tell us about the turf, ground quality, cleanliness..."
+                        text = "Write a review"
                     )
                 },
+
+                placeholder = {
+                    Text(
+                        text = "Tell us about the turf, ground quality, cleanliness..."
+                    )
+                },
+
                 supportingText = {
+
                     Text(
                         text = "${comment.length}/1000",
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.End
                     )
                 },
+
                 maxLines = 6,
+
                 shape = RoundedCornerShape(14.dp)
             )
 
@@ -269,7 +401,9 @@ fun RateReviewScreen(
             // ERROR MESSAGE
             // =================================================
 
-            if (!uiState.errorMessage.isNullOrBlank()) {
+            if (
+                !uiState.errorMessage.isNullOrBlank()
+            ) {
 
                 Spacer(
                     modifier = Modifier.height(12.dp)
@@ -293,33 +427,51 @@ fun RateReviewScreen(
             // =================================================
 
             Button(
+
                 onClick = {
 
                     reviewViewModel.submitReview(
+
                         token = token,
+
                         bookingId = bookingId,
+
                         rating = selectedRating,
+
                         comment = comment
                     )
                 },
-                enabled = selectedRating in 1..5 &&
-                        !uiState.isSubmitting,
+
+                enabled =
+                    selectedRating in 1..5 &&
+                            !uiState.isSubmitting,
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp),
+
                 shape = RoundedCornerShape(14.dp),
+
                 colors = ButtonDefaults.buttonColors(
+
                     containerColor = DarkGreen,
-                    disabledContainerColor = Color(0xFFD6D6D6),
-                    disabledContentColor = Color(0xFF8A8A8A)
+
+                    disabledContainerColor =
+                        Color(0xFFD6D6D6),
+
+                    disabledContentColor =
+                        Color(0xFF8A8A8A)
                 )
             ) {
 
                 if (uiState.isSubmitting) {
 
                     CircularProgressIndicator(
+
                         modifier = Modifier.size(22.dp),
+
                         strokeWidth = 2.dp,
+
                         color = White
                     )
 
@@ -350,9 +502,12 @@ fun RateReviewScreen(
             // =================================================
 
             TextButton(
+
                 onClick = onBackClick,
+
                 enabled = !uiState.isSubmitting
             ) {
+
                 Text(
                     text = "Cancel",
                     color = ForestGreen,
@@ -361,9 +516,8 @@ fun RateReviewScreen(
             }
 
             Spacer(
-                modifier = Modifier.height(12.dp)
+                modifier = Modifier.height(16.dp)
             )
         }
     }
 }
-

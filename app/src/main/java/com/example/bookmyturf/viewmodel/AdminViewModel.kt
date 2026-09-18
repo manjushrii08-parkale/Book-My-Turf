@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
 import com.example.bookmyturf.data.model.AdminDashboardResponse
+import com.example.bookmyturf.data.model.AdminProfileResponse
+import com.example.bookmyturf.data.model.AdminProfileUpdateRequest
 import com.example.bookmyturf.data.model.AdminSubscriptionResponse
 
 import com.example.bookmyturf.data.model.slot.CreateSlotRequest
@@ -80,6 +82,17 @@ class AdminViewModel(
 
     val dashboard: StateFlow<AdminDashboardResponse?> =
         _dashboard.asStateFlow()
+
+
+    // =========================================================
+    // ADMIN PROFILE
+    // =========================================================
+
+    private val _adminProfile =
+        MutableStateFlow<AdminProfileResponse?>(null)
+
+    val adminProfile: StateFlow<AdminProfileResponse?> =
+        _adminProfile.asStateFlow()
 
 
     // =========================================================
@@ -216,6 +229,128 @@ class AdminViewModel(
                 _error.value =
                     e.message
                         ?: "Failed to load dashboard."
+
+            } finally {
+
+                _isLoading.value = false
+            }
+        }
+    }
+
+
+    // =========================================================
+    // ADMIN PROFILE
+    // =========================================================
+
+    fun loadAdminProfile(
+        token: String
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoading.value = true
+            _error.value = null
+
+            try {
+
+                val response =
+                    repository.getAdminProfile(token)
+
+                if (response.success) {
+
+                    _adminProfile.value =
+                        response
+
+                } else {
+
+                    _error.value =
+                        response.message.ifBlank {
+                            "Unable to load admin profile."
+                        }
+                }
+
+            } catch (e: HttpException) {
+
+                _error.value =
+                    parseHttpError(e)
+
+            } catch (e: Exception) {
+
+                _error.value =
+                    e.message
+                        ?: "Unable to load admin profile."
+
+            } finally {
+
+                _isLoading.value = false
+            }
+        }
+    }
+
+
+    // =========================================================
+    // UPDATE ADMIN PROFILE
+    // =========================================================
+
+    fun updateAdminProfile(
+        token: String,
+        name: String,
+        phone: String,
+        onSuccess: () -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            _isLoading.value = true
+            _error.value = null
+            _successMessage.value = null
+
+            try {
+
+                val request =
+                    AdminProfileUpdateRequest(
+                        name = name.trim(),
+                        phone = phone
+                            .trim()
+                            .ifBlank {
+                                null
+                            }
+                    )
+
+                val response =
+                    repository.updateAdminProfile(
+                        token = token,
+                        request = request
+                    )
+
+                if (response.success) {
+
+                    _adminProfile.value =
+                        response
+
+                    _successMessage.value =
+                        response.message
+
+                    onSuccess()
+
+                } else {
+
+                    _error.value =
+                        response.message.ifBlank {
+                            "Unable to update admin profile."
+                        }
+                }
+
+            } catch (e: HttpException) {
+
+                _error.value =
+                    parseHttpError(e)
+
+            } catch (e: Exception) {
+
+                _error.value =
+                    e.message
+                        ?: "Unable to update admin profile."
 
             } finally {
 
@@ -449,9 +584,10 @@ class AdminViewModel(
         }
     }
 
-// =========================================================
-// CREATE RAZORPAY SUBSCRIPTION ORDER
-// =========================================================
+
+    // =========================================================
+    // CREATE RAZORPAY SUBSCRIPTION ORDER
+    // =========================================================
 
     fun createSubscriptionOrder(
         token: String,
@@ -558,7 +694,8 @@ class AdminViewModel(
                         "================================"
                     )
 
-                    _razorpayOrder.value = response
+                    _razorpayOrder.value =
+                        response
 
                     onOrderCreated(response)
 
@@ -574,7 +711,8 @@ class AdminViewModel(
                         "SERVER ERROR = $message"
                     )
 
-                    _error.value = message
+                    _error.value =
+                        message
                 }
 
             } catch (e: HttpException) {
@@ -602,7 +740,8 @@ class AdminViewModel(
                     "Parsed Error = $message"
                 )
 
-                _error.value = message
+                _error.value =
+                    message
 
             } catch (e: Exception) {
 
@@ -624,7 +763,9 @@ class AdminViewModel(
 
                 _error.value =
                     e.message
-                        ?.takeIf { it.isNotBlank() }
+                        ?.takeIf {
+                            it.isNotBlank()
+                        }
                         ?: "Unable to create Razorpay order."
 
             } finally {
@@ -633,6 +774,7 @@ class AdminViewModel(
             }
         }
     }
+
 
     // =========================================================
     // VERIFY RAZORPAY SUBSCRIPTION PAYMENT
@@ -1366,16 +1508,21 @@ class AdminViewModel(
         exception: HttpException
     ): String {
 
-        val code = exception.code()
+        val code =
+            exception.code()
 
         val body =
             try {
+
                 exception.response()
                     ?.errorBody()
                     ?.string()
+
             } catch (_: Exception) {
+
                 null
             }
+
 
         Log.e(
             "LARAVEL_API",
@@ -1386,6 +1533,7 @@ class AdminViewModel(
             "LARAVEL_API",
             "Raw response = $body"
         )
+
 
         if (body.isNullOrBlank()) {
 
@@ -1417,10 +1565,12 @@ class AdminViewModel(
             }
         }
 
+
         return try {
 
             val json =
                 JSONObject(body)
+
 
             // =====================================================
             // MAIN MESSAGE
@@ -1432,6 +1582,7 @@ class AdminViewModel(
                     ""
                 )
 
+
             // =====================================================
             // ACTUAL SERVER ERROR
             // =====================================================
@@ -1442,12 +1593,14 @@ class AdminViewModel(
                     ""
                 )
 
+
             // =====================================================
             // VALIDATION ERRORS
             // =====================================================
 
             val errors =
                 json.optJSONObject("errors")
+
 
             if (
                 errors != null &&
@@ -1520,6 +1673,7 @@ class AdminViewModel(
                 }
             }
 
+
             // =====================================================
             // SHOW SERVER ERROR
             // =====================================================
@@ -1532,15 +1686,18 @@ class AdminViewModel(
                 return "$message\n$serverError"
             }
 
+
             if (serverError.isNotBlank()) {
 
                 return serverError
             }
 
+
             if (message.isNotBlank()) {
 
                 return message
             }
+
 
             // =====================================================
             // FALLBACK
@@ -1586,7 +1743,6 @@ class AdminViewModel(
     }
 
 
-
     // =========================================================
     // FORMAT VALIDATION FIELD
     // =========================================================
@@ -1602,4 +1758,3 @@ class AdminViewModel(
             }
     }
 }
-

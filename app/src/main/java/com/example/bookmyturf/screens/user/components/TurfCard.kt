@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.bookmyturf.data.model.turf.Turf
+import java.util.Locale
 
 @Composable
 fun TurfCard(
@@ -42,6 +43,14 @@ fun TurfCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    // =================================================
+    // AVERAGE RATING
+    // =================================================
+
+    val averageRating = turf.rating
+
+    val totalReviews = turf.reviewCount
 
     Card(
         onClick = onClick,
@@ -111,7 +120,7 @@ fun TurfCard(
                 }
 
                 // =================================================
-                // RATING BADGE
+                // AVERAGE RATING BADGE
                 // =================================================
 
                 Surface(
@@ -138,7 +147,7 @@ fun TurfCard(
 
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = null,
+                            contentDescription = "Average rating",
                             modifier = Modifier.size(15.dp),
                             tint = Color(0xFFF59E0B)
                         )
@@ -148,7 +157,11 @@ fun TurfCard(
                         )
 
                         Text(
-                            text = turf.rating.toString(),
+                            text = String.format(
+                                Locale.getDefault(),
+                                "%.1f",
+                                averageRating
+                            ),
                             color = Color(0xFF1F2937),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
@@ -263,7 +276,7 @@ fun TurfCard(
                 )
 
                 // =================================================
-                // PRICE
+                // PRICE + REVIEW COUNT
                 // =================================================
 
                 Row(
@@ -271,6 +284,10 @@ fun TurfCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
+
+                    // =================================================
+                    // PRICE
+                    // =================================================
 
                     Column {
 
@@ -311,32 +328,74 @@ fun TurfCard(
                     }
 
                     // =================================================
-                    // RATING TEXT
+                    // AVERAGE RATING + REVIEW COUNT
                     // =================================================
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    if (totalReviews > 0) {
 
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    MaterialTheme.colorScheme.primary
-                                )
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
 
-                        Spacer(
-                            modifier = Modifier.width(6.dp)
-                        )
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "Average rating",
+                                modifier = Modifier.size(16.dp),
+                                tint = Color(0xFFF59E0B)
+                            )
 
-                        Text(
-                            text = "Top Rated",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                            Spacer(
+                                modifier = Modifier.width(4.dp)
+                            )
+
+                            Text(
+                                text = String.format(
+                                    Locale.getDefault(),
+                                    "%.1f",
+                                    averageRating
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(
+                                modifier = Modifier.width(4.dp)
+                            )
+
+                            Text(
+                                text = "($totalReviews reviews)",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = 11.sp
+                            )
+                        }
+
+                    } else {
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Box(
+                                modifier = Modifier
+                                    .size(7.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        MaterialTheme.colorScheme.outlineVariant
+                                    )
+                            )
+
+                            Spacer(
+                                modifier = Modifier.width(6.dp)
+                            )
+
+                            Text(
+                                text = "No reviews yet",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }

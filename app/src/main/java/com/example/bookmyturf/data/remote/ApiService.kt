@@ -5,22 +5,26 @@ package com.example.bookmyturf.data.remote
 // =========================================================
 
 import com.example.bookmyturf.data.model.AdminDashboardResponse
+import com.example.bookmyturf.data.model.AdminProfileResponse
+import com.example.bookmyturf.data.model.AdminProfileUpdateRequest
 import com.example.bookmyturf.data.model.AdminSubscriptionResponse
 import com.example.bookmyturf.data.model.LoginResponse
 import com.example.bookmyturf.data.model.MeResponse
 import com.example.bookmyturf.data.model.OtpResponse
 import com.example.bookmyturf.data.model.SendOtpRequest
 import com.example.bookmyturf.data.model.SuperAdminDashboardResponse
-import com.example.bookmyturf.data.model.VerifyOtpRequest
 import com.example.bookmyturf.data.model.SuperAdminUsersResponse
-import okhttp3.RequestBody
-import com.example.bookmyturf.data.model.GenericResponse
 import com.example.bookmyturf.data.model.SuperAdminAdminsResponse
 import com.example.bookmyturf.data.model.SuperAdminSubscriptionsResponse
 import com.example.bookmyturf.data.model.SuperAdminSubscriptionDetailsResponse
 import com.example.bookmyturf.data.model.SuperAdminTurfsResponse
 import com.example.bookmyturf.data.model.SuperAdminTurfDetailsResponse
 import com.example.bookmyturf.data.model.SuperAdminBookingsResponse
+import com.example.bookmyturf.data.model.VerifyOtpRequest
+import com.example.bookmyturf.data.model.GenericResponse
+
+import okhttp3.RequestBody
+
 // =========================================================
 // TURF MODELS
 // =========================================================
@@ -40,6 +44,7 @@ import com.example.bookmyturf.data.model.slot.SlotResponse
 import com.example.bookmyturf.data.model.slot.SlotsResponse
 import com.example.bookmyturf.data.model.slot.UpdateSlotRequest
 import com.example.bookmyturf.data.model.slot.UpdateSlotStatusRequest
+
 // =========================================================
 // FAVORITE MODELS
 // =========================================================
@@ -57,11 +62,22 @@ import com.example.bookmyturf.data.model.booking.BookingListResponse
 import com.example.bookmyturf.data.model.booking.BookingResponse
 import com.example.bookmyturf.data.model.booking.CancelBookingRequest
 import com.example.bookmyturf.data.model.booking.CreateBookingRequest
+
+// =========================================================
+// REVIEW MODELS
+// =========================================================
+
 import com.example.bookmyturf.data.model.review.SubmitReviewRequest
-import com.example.bookmyturf.data.model.notification.NotificationListResponse
-import com.example.bookmyturf.data.model.notification.UnreadCountResponse
 import com.example.bookmyturf.data.model.review.ReviewResponse
 import com.example.bookmyturf.data.model.review.SubmitReviewResponse
+
+// =========================================================
+// NOTIFICATION MODELS
+// =========================================================
+
+import com.example.bookmyturf.data.model.notification.NotificationListResponse
+import com.example.bookmyturf.data.model.notification.UnreadCountResponse
+
 // =========================================================
 // RETROFIT
 // =========================================================
@@ -185,11 +201,13 @@ interface ApiService {
         @Header("Authorization") authorization: String
     ): SuperAdminAdminsResponse
 
+
     @PATCH("api/v1/super-admin/admins/{id}/block")
     suspend fun blockSuperAdminAdmin(
         @Path("id") adminId: Int,
         @Header("Authorization") authorization: String
     ): GenericResponse
+
 
     @PATCH("api/v1/super-admin/admins/{id}/activate")
     suspend fun activateSuperAdminAdmin(
@@ -203,6 +221,7 @@ interface ApiService {
         @Header("Authorization") authorization: String
     ): SuperAdminSubscriptionsResponse
 
+
     @GET("api/v1/super-admin/subscriptions/{id}")
     suspend fun getSuperAdminSubscriptionDetails(
         @Path("id") subscriptionId: Int,
@@ -211,8 +230,8 @@ interface ApiService {
 
 
     // =========================================================
-// SUPER ADMIN TURF MANAGEMENT
-// =========================================================
+    // SUPER ADMIN TURF MANAGEMENT
+    // =========================================================
 
     @GET("api/v1/super-admin/turfs")
     suspend fun getSuperAdminTurfs(
@@ -245,7 +264,6 @@ interface ApiService {
     // SUPER ADMIN BOOKINGS MANAGEMENT
     // =========================================================
 
-    // Get all platform bookings
     @GET("api/v1/super-admin/bookings")
     suspend fun getSuperAdminBookings(
         @Header("Authorization") authorization: String
@@ -260,6 +278,25 @@ interface ApiService {
     suspend fun getAdminDashboard(
         @Header("Authorization") authorization: String
     ): AdminDashboardResponse
+
+
+    // =========================================================
+    // ADMIN PROFILE
+    // =========================================================
+
+    // Get logged-in admin profile
+    @GET("api/v1/admin/profile")
+    suspend fun getAdminProfile(
+        @Header("Authorization") authorization: String
+    ): AdminProfileResponse
+
+
+    // Update logged-in admin profile
+    @PUT("api/v1/admin/profile")
+    suspend fun updateAdminProfile(
+        @Header("Authorization") authorization: String,
+        @Body request: AdminProfileUpdateRequest
+    ): AdminProfileResponse
 
 
     // =========================================================
@@ -426,18 +463,20 @@ interface ApiService {
 
 
     // =========================================================
-// USER NOTIFICATIONS
-// =========================================================
+    // USER NOTIFICATIONS
+    // =========================================================
 
     @GET("api/v1/notifications")
     suspend fun getNotifications(
         @Header("Authorization") authorization: String
     ): NotificationListResponse
 
+
     @GET("api/v1/notifications/unread-count")
     suspend fun getUnreadNotificationCount(
         @Header("Authorization") authorization: String
     ): UnreadCountResponse
+
 
     @PATCH("api/v1/notifications/{id}/read")
     suspend fun markNotificationAsRead(
@@ -445,14 +484,16 @@ interface ApiService {
         @Path("id") notificationId: String
     ): GenericResponse
 
+
     @PATCH("api/v1/notifications/read-all")
     suspend fun markAllNotificationsAsRead(
         @Header("Authorization") authorization: String
     ): GenericResponse
 
-// =====================================================
-// USER REVIEWS
-// =====================================================
+
+    // =========================================================
+    // USER REVIEWS
+    // =========================================================
 
     // Submit review for a completed booking
     @POST("api/v1/user/reviews")
@@ -468,51 +509,48 @@ interface ApiService {
         @Header("Authorization") authorization: String,
         @Path("turfId") turfId: Int
     ): ReviewResponse
-
-
 }
 
 
-    /*
+/*
 |--------------------------------------------------------------------------
 | RAZORPAY SUBSCRIPTION REQUEST MODELS
 |--------------------------------------------------------------------------
 */
 
-    data class CreateSubscriptionOrderRequest(
-        val plan: String
-    )
+data class CreateSubscriptionOrderRequest(
+    val plan: String
+)
 
 
-    data class VerifySubscriptionPaymentRequest(
-        val razorpay_order_id: String,
-        val razorpay_payment_id: String,
-        val razorpay_signature: String
-    )
+data class VerifySubscriptionPaymentRequest(
+    val razorpay_order_id: String,
+    val razorpay_payment_id: String,
+    val razorpay_signature: String
+)
 
 
-    /*
+/*
 |--------------------------------------------------------------------------
 | RAZORPAY SUBSCRIPTION ORDER RESPONSE
 |--------------------------------------------------------------------------
 */
 
-    data class RazorpaySubscriptionOrderResponse(
-        val success: Boolean,
-        val message: String,
-        val data: RazorpaySubscriptionOrderData?
-    )
+data class RazorpaySubscriptionOrderResponse(
+    val success: Boolean,
+    val message: String,
+    val data: RazorpaySubscriptionOrderData?
+)
 
 
-    data class RazorpaySubscriptionOrderData(
-        val subscription_id: Int,
-        val order_id: String,
-        val amount: Double,
-        val amount_paise: Int,
-        val currency: String,
-        val plan: String,
-        val days: Int,
-        val razorpay_key: String
-    )
-
+data class RazorpaySubscriptionOrderData(
+    val subscription_id: Int,
+    val order_id: String,
+    val amount: Double,
+    val amount_paise: Int,
+    val currency: String,
+    val plan: String,
+    val days: Int,
+    val razorpay_key: String
+)
 

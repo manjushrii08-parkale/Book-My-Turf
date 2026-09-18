@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.NotificationsNone
@@ -52,6 +54,7 @@ import com.google.android.gms.location.LocationServices
 
 @Composable
 fun UserHomeTopBar(
+    unreadNotificationCount: Int = 0,
     onNotificationClick: () -> Unit = {},
     onProfileClick: () -> Unit = {}
 ) {
@@ -322,28 +325,112 @@ fun UserHomeTopBar(
                 // NOTIFICATION
                 // =============================================
 
-                IconButton(
-
-                    onClick =
-                        onNotificationClick
+                Box(
+                    modifier = Modifier
+                        .size(46.dp)
                 ) {
 
-                    Icon(
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxWidth()
+                            .padding(2.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = UserDarkGreen.copy(
+                            alpha = 0.07f
+                        )
+                    ) {
 
-                        imageVector =
-                            Icons.Default.NotificationsNone,
+                        Box(
+                            contentAlignment =
+                                Alignment.Center
+                        ) {
 
-                        contentDescription =
-                            "Notifications",
+                            IconButton(
+                                onClick =
+                                    onNotificationClick,
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                            ) {
 
-                        modifier =
-                            Modifier.size(23.dp),
+                                Icon(
 
-                        tint =
-                            MaterialTheme
-                                .colorScheme
-                                .onSurface
-                    )
+                                    imageVector =
+                                        Icons.Default.NotificationsNone,
+
+                                    contentDescription =
+                                        "Notifications",
+
+                                    modifier =
+                                        Modifier.size(23.dp),
+
+                                    tint =
+                                        UserDarkGreen
+                                )
+                            }
+                        }
+                    }
+
+                    // =========================================
+                    // UNREAD COUNT BADGE
+                    // =========================================
+
+                    if (unreadNotificationCount > 0) {
+
+                        Surface(
+
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .size(19.dp),
+
+                            shape =
+                                CircleShape,
+
+                            color =
+                                UserDarkGreen,
+
+                            shadowElevation =
+                                2.dp,
+
+                            border =
+                                BorderStroke(
+                                    width = 2.dp,
+                                    color = Color.White
+                                )
+                        ) {
+
+                            Box(
+
+                                contentAlignment =
+                                    Alignment.Center
+                            ) {
+
+                                Text(
+
+                                    text =
+                                        if (
+                                            unreadNotificationCount > 9
+                                        ) {
+                                            "9+"
+                                        } else {
+                                            unreadNotificationCount
+                                                .toString()
+                                        },
+
+                                    color =
+                                        Color.White,
+
+                                    fontSize =
+                                        8.sp,
+
+                                    fontWeight =
+                                        FontWeight.Bold,
+
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
                 }
 
                 // =============================================

@@ -1,8 +1,10 @@
 package com.example.bookmyturf.data.model.booking
 
+import com.example.bookmyturf.data.model.User
 import com.example.bookmyturf.data.model.slot.Slot
 import com.example.bookmyturf.data.model.turf.Turf
-import com.example.bookmyturf.data.model.User
+import com.google.gson.annotations.SerializedName
+
 // =========================================================
 // CREATE BOOKING RESPONSE
 // =========================================================
@@ -42,6 +44,13 @@ data class Booking(
     val booking_status: String,
 
     // -----------------------------------------------------
+    // REVIEW
+    // -----------------------------------------------------
+
+    @SerializedName("review_exists")
+    val reviewExists: Boolean = false,
+
+    // -----------------------------------------------------
     // CANCELLATION
     // -----------------------------------------------------
 
@@ -68,8 +77,8 @@ data class Booking(
     val updated_at: String?,
 
     // -----------------------------------------------------
-// RELATIONSHIPS
-// -----------------------------------------------------
+    // RELATIONSHIPS
+    // -----------------------------------------------------
 
     val user: User?,
 

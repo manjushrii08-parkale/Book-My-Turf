@@ -1,7 +1,8 @@
-
 package com.example.bookmyturf.data.repository
 
 import com.example.bookmyturf.data.model.AdminDashboardResponse
+import com.example.bookmyturf.data.model.AdminProfileResponse
+import com.example.bookmyturf.data.model.AdminProfileUpdateRequest
 import com.example.bookmyturf.data.model.AdminSubscriptionResponse
 import com.example.bookmyturf.data.model.slot.CreateSlotRequest
 import com.example.bookmyturf.data.model.slot.SlotResponse
@@ -36,6 +37,34 @@ class AdminRepository(
 
         return api.getAdminDashboard(
             authorization = "Bearer $token"
+        )
+    }
+
+
+    // =========================================================
+    // ADMIN PROFILE
+    // =========================================================
+
+    // Get logged-in admin profile
+    suspend fun getAdminProfile(
+        token: String
+    ): AdminProfileResponse {
+
+        return api.getAdminProfile(
+            authorization = "Bearer $token"
+        )
+    }
+
+
+    // Update logged-in admin profile
+    suspend fun updateAdminProfile(
+        token: String,
+        request: AdminProfileUpdateRequest
+    ): AdminProfileResponse {
+
+        return api.updateAdminProfile(
+            authorization = "Bearer $token",
+            request = request
         )
     }
 

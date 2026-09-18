@@ -1,5 +1,5 @@
-
 package com.example.bookmyturf.screens.user
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +39,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
+
 import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.screens.user.components.SportFilterRow
 import com.example.bookmyturf.screens.user.components.TurfHomeCard
@@ -46,10 +48,8 @@ import com.example.bookmyturf.screens.user.components.TurfSearchBar
 import com.example.bookmyturf.screens.user.components.UserHomeTopBar
 import com.example.bookmyturf.screens.user.components.UserWelcomeSection
 import com.example.bookmyturf.viewmodel.FavoriteViewModel
+import com.example.bookmyturf.viewmodel.NotificationViewModel
 import com.example.bookmyturf.viewmodel.UserHomeViewModel
-import androidx.compose.ui.platform.LocalContext
-
-
 
 // ============================================================
 // PREMIUM COLORS
@@ -64,7 +64,6 @@ private val White = Color(0xFFFFFFFF)
 
 private val Charcoal = Color(0xFF1C1C1C)
 private val Gray = Color(0xFF737373)
-
 
 // ============================================================
 // USER HOME SCREEN
@@ -81,8 +80,11 @@ fun UserHomeScreen(
 
     viewModel: UserHomeViewModel = viewModel(),
 
-    favoriteViewModel: FavoriteViewModel = viewModel()
-){
+    favoriteViewModel: FavoriteViewModel = viewModel(),
+
+    notificationViewModel: NotificationViewModel = viewModel()
+
+) {
 
     // =========================================================
     // TURF STATE
@@ -94,7 +96,6 @@ fun UserHomeScreen(
 
     val error by viewModel.error.collectAsState()
 
-
     // =========================================================
     // FAVORITE STATE
     // =========================================================
@@ -105,11 +106,16 @@ fun UserHomeScreen(
     val favoriteError by
     favoriteViewModel.error.collectAsState()
 
+    // =========================================================
+    // NOTIFICATION STATE
+    // =========================================================
 
+    val unreadNotificationCount by
+    notificationViewModel.unreadCount.collectAsState()
 
-// =========================================================
-// SESSION
-// =========================================================
+    // =========================================================
+    // SESSION
+    // =========================================================
 
     val context = LocalContext.current
 
@@ -121,11 +127,6 @@ fun UserHomeScreen(
         sessionManager.getToken()
     }
 
-
-
-
-
-
     // =========================================================
     // SEARCH
     // =========================================================
@@ -133,7 +134,6 @@ fun UserHomeScreen(
     var searchQuery by remember {
         mutableStateOf("")
     }
-
 
     // =========================================================
     // SELECTED SPORT
@@ -143,9 +143,8 @@ fun UserHomeScreen(
         mutableStateOf("All")
     }
 
-
     // =========================================================
-    // LOAD TURFS + FAVORITES
+    // LOAD TURFS + FAVORITES + NOTIFICATION COUNT
     // =========================================================
 
     LaunchedEffect(token) {
@@ -157,9 +156,12 @@ fun UserHomeScreen(
             favoriteViewModel.loadFavorites(
                 token = token
             )
+
+            notificationViewModel.loadUnreadCount(
+                token = token
+            )
         }
     }
-
 
     // =========================================================
     // FILTER TURFS
@@ -170,7 +172,6 @@ fun UserHomeScreen(
 
             val searchText =
                 searchQuery.trim()
-
 
             val matchesSearch =
 
@@ -191,7 +192,6 @@ fun UserHomeScreen(
                             ignoreCase = true
                         )
 
-
             val matchesSport =
 
                 selectedSport == "All" ||
@@ -204,10 +204,8 @@ fun UserHomeScreen(
                             )
                         }
 
-
             matchesSearch && matchesSport
         }
-
 
     // =========================================================
     // MAIN SCREEN
@@ -220,12 +218,14 @@ fun UserHomeScreen(
             .background(OffWhite)
     ) {
 
-
         // =====================================================
         // TOP BAR
         // =====================================================
 
         UserHomeTopBar(
+
+            unreadNotificationCount =
+                unreadNotificationCount,
 
             onNotificationClick = {
                 onNotificationsClick()
@@ -235,7 +235,6 @@ fun UserHomeScreen(
                 onProfileClick()
             }
         )
-
 
         // =====================================================
         // SCROLLABLE CONTENT
@@ -256,7 +255,6 @@ fun UserHomeScreen(
                 Arrangement.spacedBy(4.dp)
         ) {
 
-
             // =================================================
             // WELCOME
             // =================================================
@@ -265,7 +263,6 @@ fun UserHomeScreen(
 
                 UserWelcomeSection()
             }
-
 
             // =================================================
             // SEARCH
@@ -282,7 +279,6 @@ fun UserHomeScreen(
                     }
                 )
             }
-
 
             // =================================================
             // SPORT TITLE
@@ -329,7 +325,6 @@ fun UserHomeScreen(
                 }
             }
 
-
             // =================================================
             // SPORT FILTER
             // =================================================
@@ -347,7 +342,6 @@ fun UserHomeScreen(
                     }
                 )
             }
-
 
             // =================================================
             // TURF HEADER
@@ -404,7 +398,6 @@ fun UserHomeScreen(
                 }
             }
 
-
             // =================================================
             // LOADING
             // =================================================
@@ -450,7 +443,6 @@ fun UserHomeScreen(
                     }
                 }
             }
-
 
             // =================================================
             // ERROR
@@ -575,7 +567,6 @@ fun UserHomeScreen(
                 }
             }
 
-
             // =================================================
             // EMPTY
             // =================================================
@@ -694,7 +685,6 @@ fun UserHomeScreen(
                 }
             }
 
-
             // =================================================
             // TURF LIST
             // =================================================
@@ -731,10 +721,8 @@ fun UserHomeScreen(
                                 return@TurfHomeCard
                             }
 
-
                             val currentlyFavorite =
                                 favoriteStatus[turf.id] == true
-
 
                             if (currentlyFavorite) {
 
@@ -762,7 +750,6 @@ fun UserHomeScreen(
                     )
                 }
             }
-
 
             // =================================================
             // FAVORITE ERROR
@@ -793,7 +780,6 @@ fun UserHomeScreen(
                 }
             }
 
-
             // =================================================
             // BOTTOM SPACE
             // =================================================
@@ -808,4 +794,3 @@ fun UserHomeScreen(
         }
     }
 }
-

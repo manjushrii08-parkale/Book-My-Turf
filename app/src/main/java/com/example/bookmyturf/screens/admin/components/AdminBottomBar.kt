@@ -2,6 +2,7 @@ package com.example.bookmyturf.screens.admin.components
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.SportsSoccer
@@ -13,13 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.MaterialTheme
 import com.example.bookmyturf.ui.theme.AdminDarkGreen
 import com.example.bookmyturf.ui.theme.AdminGray
 import com.example.bookmyturf.ui.theme.AdminLightGreen
 import com.example.bookmyturf.ui.theme.AdminWhite
-import androidx.compose.ui.unit.dp
+
+
 @Composable
 fun AdminBottomBar(
     selectedTab: Int,
@@ -27,9 +29,12 @@ fun AdminBottomBar(
 ) {
 
     NavigationBar(
-        containerColor = AdminWhite,
 
-        tonalElevation = 4.dp
+        containerColor =
+            AdminWhite,
+
+        tonalElevation =
+            4.dp
     ) {
 
         // =====================================================
@@ -38,7 +43,8 @@ fun AdminBottomBar(
 
         NavigationBarItem(
 
-            selected = selectedTab == 0,
+            selected =
+                selectedTab == 0,
 
             onClick = {
                 onTabSelected(0)
@@ -47,20 +53,25 @@ fun AdminBottomBar(
             icon = {
 
                 Icon(
-                    imageVector = Icons.Default.Dashboard,
+                    imageVector =
+                        Icons.Default.Dashboard,
 
-                    contentDescription = "Dashboard",
+                    contentDescription =
+                        "Dashboard",
 
-                    modifier = Modifier.size(22.dp)
+                    modifier =
+                        Modifier.size(22.dp)
                 )
             },
 
             label = {
 
                 Text(
-                    text = "Dashboard",
+                    text =
+                        "Dashboard",
 
-                    fontSize = 11.sp,
+                    fontSize =
+                        11.sp,
 
                     fontWeight =
                         if (selectedTab == 0) {
@@ -71,7 +82,8 @@ fun AdminBottomBar(
                 )
             },
 
-            alwaysShowLabel = true,
+            alwaysShowLabel =
+                true,
 
             colors =
                 NavigationBarItemDefaults.colors(
@@ -102,7 +114,8 @@ fun AdminBottomBar(
 
         NavigationBarItem(
 
-            selected = selectedTab == 1,
+            selected =
+                selectedTab == 1,
 
             onClick = {
                 onTabSelected(1)
@@ -125,9 +138,11 @@ fun AdminBottomBar(
             label = {
 
                 Text(
-                    text = "Turfs",
+                    text =
+                        "Turfs",
 
-                    fontSize = 11.sp,
+                    fontSize =
+                        11.sp,
 
                     fontWeight =
                         if (selectedTab == 1) {
@@ -138,7 +153,8 @@ fun AdminBottomBar(
                 )
             },
 
-            alwaysShowLabel = true,
+            alwaysShowLabel =
+                true,
 
             colors =
                 NavigationBarItemDefaults.colors(
@@ -169,7 +185,8 @@ fun AdminBottomBar(
 
         NavigationBarItem(
 
-            selected = selectedTab == 2,
+            selected =
+                selectedTab == 2,
 
             onClick = {
                 onTabSelected(2)
@@ -192,9 +209,11 @@ fun AdminBottomBar(
             label = {
 
                 Text(
-                    text = "Bookings",
+                    text =
+                        "Bookings",
 
-                    fontSize = 11.sp,
+                    fontSize =
+                        11.sp,
 
                     fontWeight =
                         if (selectedTab == 2) {
@@ -205,7 +224,79 @@ fun AdminBottomBar(
                 )
             },
 
-            alwaysShowLabel = true,
+            alwaysShowLabel =
+                true,
+
+            colors =
+                NavigationBarItemDefaults.colors(
+
+                    selectedIconColor =
+                        AdminDarkGreen,
+
+                    selectedTextColor =
+                        AdminDarkGreen,
+
+                    unselectedIconColor =
+                        AdminGray,
+
+                    unselectedTextColor =
+                        AdminGray,
+
+                    indicatorColor =
+                        AdminLightGreen.copy(
+                            alpha = 0.20f
+                        )
+                )
+        )
+
+
+        // =====================================================
+        // PROFILE
+        // =====================================================
+
+        NavigationBarItem(
+
+            selected =
+                selectedTab == 3,
+
+            onClick = {
+                onTabSelected(3)
+            },
+
+            icon = {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.AccountCircle,
+
+                    contentDescription =
+                        "Profile",
+
+                    modifier =
+                        Modifier.size(22.dp)
+                )
+            },
+
+            label = {
+
+                Text(
+                    text =
+                        "Profile",
+
+                    fontSize =
+                        11.sp,
+
+                    fontWeight =
+                        if (selectedTab == 3) {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Medium
+                        }
+                )
+            },
+
+            alwaysShowLabel =
+                true,
 
             colors =
                 NavigationBarItemDefaults.colors(
@@ -230,4 +321,3 @@ fun AdminBottomBar(
         )
     }
 }
-
