@@ -22,8 +22,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -39,14 +42,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -84,7 +89,10 @@ private val ActiveText = Color(0xFF2E7D32)
 @Composable
 fun SuperAdminUsersScreen(
     onBackClick: () -> Unit,
-    onUserClick: (Int) -> Unit
+    onUserClick: (Int) -> Unit,
+    onDashboardClick: () -> Unit,
+    onAdminsClick: () -> Unit,
+    onReportsClick: () -> Unit
 ) {
     val viewModel: SuperAdminUsersViewModel = viewModel()
 
@@ -117,7 +125,10 @@ fun SuperAdminUsersScreen(
                     other = searchQuery,
                     ignoreCase = true
                 ) ||
-                user.id.toString().contains(searchQuery)
+                user.id.toString().contains(
+                    other = searchQuery,
+                    ignoreCase = true
+                )
     }
 
     Scaffold(
@@ -129,6 +140,91 @@ fun SuperAdminUsersScreen(
                 }
             )
         },
+
+        bottomBar = {
+            NavigationBar(
+                containerColor = Color.White,
+                tonalElevation = 5.dp
+            ) {
+
+                // Dashboard
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onDashboardClick()
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Dashboard,
+                            contentDescription = "Dashboard"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Dashboard"
+                        )
+                    }
+                )
+
+                // Users
+                NavigationBarItem(
+                    selected = true,
+                    onClick = {
+                        // Already on Users screen
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Users"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Users"
+                        )
+                    }
+                )
+
+                // Admins
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onAdminsClick()
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.AdminPanelSettings,
+                            contentDescription = "Admins"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Admins"
+                        )
+                    }
+                )
+
+                // Reports
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onReportsClick()
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Analytics,
+                            contentDescription = "Reports"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Reports"
+                        )
+                    }
+                )
+            }
+        },
+
         containerColor = ScreenBackground
     ) { innerPadding ->
 
@@ -138,6 +234,7 @@ fun SuperAdminUsersScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
+
             Spacer(
                 modifier = Modifier.height(20.dp)
             )
@@ -181,6 +278,7 @@ fun SuperAdminUsersScreen(
             )
 
             when {
+
                 isLoading -> {
                     LoadingState()
                 }
@@ -207,6 +305,7 @@ fun SuperAdminUsersScreen(
                         ),
                         verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
+
                         items(
                             items = filteredUsers,
                             key = { user ->
@@ -216,12 +315,15 @@ fun SuperAdminUsersScreen(
 
                             UserCard(
                                 user = user,
+
                                 onClick = {
                                     onUserClick(user.id)
                                 },
+
                                 onBlockClick = {
                                     viewModel.blockUser(user.id)
                                 },
+
                                 onActivateClick = {
                                     viewModel.activateUser(user.id)
                                 }
@@ -249,6 +351,7 @@ private fun SuperAdminTopBar(
                 style = MaterialTheme.typography.titleLarge
             )
         },
+
         navigationIcon = {
             IconButton(
                 onClick = onBackClick
@@ -260,6 +363,7 @@ private fun SuperAdminTopBar(
                 )
             }
         },
+
         actions = {
             IconButton(
                 onClick = onRefreshClick
@@ -271,6 +375,7 @@ private fun SuperAdminTopBar(
                 )
             }
         },
+
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.White,
             titleContentColor = DarkGreen,
@@ -306,10 +411,12 @@ private fun UserCard(
             defaultElevation = 1.dp
         )
     ) {
+
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -318,6 +425,7 @@ private fun UserCard(
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Box(
                     modifier = Modifier
                         .size(54.dp)
@@ -331,6 +439,7 @@ private fun UserCard(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
+
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "User",
@@ -350,6 +459,7 @@ private fun UserCard(
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
+
                     Text(
                         text = user.name,
                         color = DarkGreen,
@@ -382,10 +492,12 @@ private fun UserCard(
                     color = BorderGreen
                 )
             ) {
+
                 Column(
                     modifier = Modifier.padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+
                     UserInfoRow(
                         icon = Icons.Default.Email,
                         label = "Email",
@@ -424,6 +536,7 @@ private fun UserCard(
                     contentColor = ForestGreen
                 )
             ) {
+
                 Icon(
                     imageVector = Icons.Default.Visibility,
                     contentDescription = null,
@@ -441,6 +554,7 @@ private fun UserCard(
             }
 
             if (isActive) {
+
                 Button(
                     onClick = onBlockClick,
                     modifier = Modifier.fillMaxWidth(),
@@ -453,6 +567,7 @@ private fun UserCard(
                         defaultElevation = 2.dp
                     )
                 ) {
+
                     Icon(
                         imageVector = Icons.Default.Block,
                         contentDescription = null,
@@ -468,7 +583,9 @@ private fun UserCard(
                         fontWeight = FontWeight.Bold
                     )
                 }
+
             } else {
+
                 Button(
                     onClick = onActivateClick,
                     modifier = Modifier.fillMaxWidth(),
@@ -481,6 +598,7 @@ private fun UserCard(
                         defaultElevation = 2.dp
                     )
                 ) {
+
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = null,
@@ -511,6 +629,7 @@ private fun UserInfoRow(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
     ) {
+
         Icon(
             imageVector = icon,
             contentDescription = null,
@@ -528,6 +647,7 @@ private fun UserInfoRow(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
+
             Text(
                 text = label,
                 color = TextGray,
@@ -570,6 +690,7 @@ private fun StatusBadge(
         color = badgeColor,
         shape = RoundedCornerShape(50.dp)
     ) {
+
         Row(
             modifier = Modifier.padding(
                 horizontal = 10.dp,
@@ -577,6 +698,7 @@ private fun StatusBadge(
             ),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Box(
                 modifier = Modifier
                     .size(7.dp)
@@ -604,6 +726,7 @@ private fun LoadingState() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+
         CircularProgressIndicator(
             color = ForestGreen
         )
@@ -619,10 +742,12 @@ private fun ErrorState(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+
             Text(
                 text = message,
                 color = MaterialTheme.colorScheme.error,
@@ -636,6 +761,7 @@ private fun ErrorState(
                 ),
                 shape = RoundedCornerShape(14.dp)
             ) {
+
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null
@@ -660,10 +786,12 @@ private fun EmptyUsersState() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = null,

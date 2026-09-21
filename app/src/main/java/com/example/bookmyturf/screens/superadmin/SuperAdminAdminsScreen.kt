@@ -21,16 +21,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -40,6 +43,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -86,7 +91,10 @@ private val ActiveText = Color(0xFF2E7D32)
 @Composable
 fun SuperAdminAdminsScreen(
     onBackClick: () -> Unit,
-    onAdminClick: (Int) -> Unit
+    onAdminClick: (Int) -> Unit,
+    onDashboardClick: () -> Unit,
+    onUsersClick: () -> Unit,
+    onReportsClick: () -> Unit
 ) {
     val viewModel: SuperAdminAdminsViewModel = viewModel()
 
@@ -136,6 +144,87 @@ fun SuperAdminAdminsScreen(
                 }
             )
         },
+
+        bottomBar = {
+            NavigationBar(
+                containerColor = Color.White,
+                tonalElevation = 5.dp
+            ) {
+
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onDashboardClick()
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Dashboard,
+                            contentDescription = "Dashboard"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Dashboard"
+                        )
+                    }
+                )
+
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onUsersClick()
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.People,
+                            contentDescription = "Users"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Users"
+                        )
+                    }
+                )
+
+                NavigationBarItem(
+                    selected = true,
+                    onClick = {
+                        // Already on Admins screen
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.AdminPanelSettings,
+                            contentDescription = "Admins"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Admins"
+                        )
+                    }
+                )
+
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onReportsClick()
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Analytics,
+                            contentDescription = "Reports"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Reports"
+                        )
+                    }
+                )
+            }
+        },
+
         containerColor = ScreenBackground
     ) { innerPadding ->
 
@@ -145,6 +234,7 @@ fun SuperAdminAdminsScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
+
             Spacer(
                 modifier = Modifier.height(20.dp)
             )
@@ -188,6 +278,7 @@ fun SuperAdminAdminsScreen(
             )
 
             when {
+
                 isLoading -> {
                     LoadingAdminsState()
                 }
@@ -214,6 +305,7 @@ fun SuperAdminAdminsScreen(
                         ),
                         verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
+
                         items(
                             items = filteredAdmins,
                             key = { admin ->
@@ -223,12 +315,15 @@ fun SuperAdminAdminsScreen(
 
                             AdminCard(
                                 admin = admin,
+
                                 onClick = {
                                     onAdminClick(admin.id)
                                 },
+
                                 onBlockClick = {
                                     viewModel.blockAdmin(admin.id)
                                 },
+
                                 onActivateClick = {
                                     viewModel.activateAdmin(admin.id)
                                 }
@@ -256,6 +351,7 @@ private fun SuperAdminAdminsTopBar(
                 style = MaterialTheme.typography.titleLarge
             )
         },
+
         navigationIcon = {
             IconButton(
                 onClick = onBackClick
@@ -267,6 +363,7 @@ private fun SuperAdminAdminsTopBar(
                 )
             }
         },
+
         actions = {
             IconButton(
                 onClick = onRefreshClick
@@ -278,6 +375,7 @@ private fun SuperAdminAdminsTopBar(
                 )
             }
         },
+
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.White,
             titleContentColor = DarkGreen,
@@ -313,10 +411,12 @@ private fun AdminCard(
             defaultElevation = 1.dp
         )
     ) {
+
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -325,6 +425,7 @@ private fun AdminCard(
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Box(
                     modifier = Modifier
                         .size(54.dp)
@@ -338,6 +439,7 @@ private fun AdminCard(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
+
                     Icon(
                         imageVector = Icons.Default.AdminPanelSettings,
                         contentDescription = "Admin",
@@ -357,10 +459,13 @@ private fun AdminCard(
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
+
                     Text(
                         text = admin.name
                             .orEmpty()
-                            .ifBlank { "Admin" },
+                            .ifBlank {
+                                "Admin"
+                            },
                         color = DarkGreen,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleMedium,
@@ -393,16 +498,20 @@ private fun AdminCard(
                     color = BorderGreen
                 )
             ) {
+
                 Column(
                     modifier = Modifier.padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+
                     AdminInfoRow(
                         icon = Icons.Default.Email,
                         label = "Email",
                         value = admin.email
                             .orEmpty()
-                            .ifBlank { "Not available" }
+                            .ifBlank {
+                                "Not available"
+                            }
                     )
 
                     AdminInfoRow(
@@ -410,7 +519,9 @@ private fun AdminCard(
                         label = "Phone",
                         value = admin.phone
                             .orEmpty()
-                            .ifBlank { "Not available" }
+                            .ifBlank {
+                                "Not available"
+                            }
                     )
 
                     AdminInfoRow(
@@ -418,7 +529,9 @@ private fun AdminCard(
                         label = "Created",
                         value = admin.created_at
                             .orEmpty()
-                            .ifBlank { "Not available" }
+                            .ifBlank {
+                                "Not available"
+                            }
                     )
                 }
             }
@@ -435,6 +548,7 @@ private fun AdminCard(
                     contentColor = ForestGreen
                 )
             ) {
+
                 Icon(
                     imageVector = Icons.Default.Visibility,
                     contentDescription = null,
@@ -452,6 +566,7 @@ private fun AdminCard(
             }
 
             if (isActive) {
+
                 Button(
                     onClick = onBlockClick,
                     modifier = Modifier.fillMaxWidth(),
@@ -464,6 +579,7 @@ private fun AdminCard(
                         defaultElevation = 2.dp
                     )
                 ) {
+
                     Icon(
                         imageVector = Icons.Default.Block,
                         contentDescription = null,
@@ -479,7 +595,9 @@ private fun AdminCard(
                         fontWeight = FontWeight.Bold
                     )
                 }
+
             } else {
+
                 Button(
                     onClick = onActivateClick,
                     modifier = Modifier.fillMaxWidth(),
@@ -492,6 +610,7 @@ private fun AdminCard(
                         defaultElevation = 2.dp
                     )
                 ) {
+
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = null,
@@ -522,6 +641,7 @@ private fun AdminInfoRow(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
     ) {
+
         Icon(
             imageVector = icon,
             contentDescription = null,
@@ -539,6 +659,7 @@ private fun AdminInfoRow(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
+
             Text(
                 text = label,
                 color = TextGray,
@@ -581,6 +702,7 @@ private fun StatusBadge(
         color = badgeColor,
         shape = RoundedCornerShape(50.dp)
     ) {
+
         Row(
             modifier = Modifier.padding(
                 horizontal = 10.dp,
@@ -588,6 +710,7 @@ private fun StatusBadge(
             ),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Box(
                 modifier = Modifier
                     .size(7.dp)
@@ -600,7 +723,9 @@ private fun StatusBadge(
             )
 
             Text(
-                text = status.ifBlank { "UNKNOWN" },
+                text = status.ifBlank {
+                    "UNKNOWN"
+                },
                 color = textColor,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.labelMedium
@@ -615,6 +740,7 @@ private fun LoadingAdminsState() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+
         CircularProgressIndicator(
             color = ForestGreen
         )
@@ -630,10 +756,12 @@ private fun ErrorAdminsState(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+
             Text(
                 text = message,
                 color = MaterialTheme.colorScheme.error,
@@ -647,6 +775,7 @@ private fun ErrorAdminsState(
                 ),
                 shape = RoundedCornerShape(14.dp)
             ) {
+
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null
@@ -671,10 +800,12 @@ private fun EmptyAdminsState() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
             Icon(
                 imageVector = Icons.Default.AdminPanelSettings,
                 contentDescription = null,

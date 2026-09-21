@@ -1311,23 +1311,78 @@ fun AppNavigation(
                 role == "SUPER_ADMIN"
             ) {
 
+                // Load bookings for reports
                 LaunchedEffect(token) {
-                    superAdminBookingsViewModel.loadBookings(token)
+
+                    superAdminBookingsViewModel.loadBookings(
+                        token
+                    )
                 }
 
                 if (dashboardData != null) {
 
                     SuperAdminReportsScreen(
+
                         data = dashboardData!!,
+
                         bookings = superAdminBookings,
+
+                        // -----------------------------------------
+                        // Back button
+                        // -----------------------------------------
+
                         onBackClick = {
+
                             navController.popBackStack()
+                        },
+
+                        // -----------------------------------------
+                        // Bottom Navigation - Dashboard
+                        // -----------------------------------------
+
+                        onDashboardClick = {
+
+                            navController.navigate(
+                                Routes.SUPER_ADMIN_HOME
+                            ) {
+
+                                launchSingleTop = true
+                            }
+                        },
+
+                        // -----------------------------------------
+                        // Bottom Navigation - Users
+                        // -----------------------------------------
+
+                        onUsersClick = {
+
+                            navController.navigate(
+                                Routes.SUPER_ADMIN_USERS
+                            ) {
+
+                                launchSingleTop = true
+                            }
+                        },
+
+                        // -----------------------------------------
+                        // Bottom Navigation - Admins
+                        // -----------------------------------------
+
+                        onAdminsClick = {
+
+                            navController.navigate(
+                                Routes.SUPER_ADMIN_ADMINS
+                            ) {
+
+                                launchSingleTop = true
+                            }
                         }
                     )
 
                 } else {
 
                     LaunchedEffect(Unit) {
+
                         superAdminViewModel.loadDashboard()
                     }
 
@@ -1352,10 +1407,6 @@ fun AppNavigation(
 
 
 
-
-
-
-
             // =====================================================
         // SUPER ADMIN USERS
         // =====================================================
@@ -1363,7 +1414,6 @@ fun AppNavigation(
         composable(
             route = Routes.SUPER_ADMIN_USERS
         ) {
-
             SuperAdminUsersScreen(
 
                 onBackClick = {
@@ -1371,10 +1421,33 @@ fun AppNavigation(
                 },
 
                 onUserClick = { userId ->
-
                     navController.navigate(
                         Routes.superAdminUserDetails(userId)
                     )
+                },
+
+                onDashboardClick = {
+                    navController.navigate(
+                        Routes.SUPER_ADMIN_HOME
+                    ) {
+                        launchSingleTop = true
+                    }
+                },
+
+                onAdminsClick = {
+                    navController.navigate(
+                        Routes.SUPER_ADMIN_ADMINS
+                    ) {
+                        launchSingleTop = true
+                    }
+                },
+
+                onReportsClick = {
+                    navController.navigate(
+                        Routes.SUPER_ADMIN_REPORTS
+                    ) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -1449,6 +1522,30 @@ fun AppNavigation(
                     navController.navigate(
                         Routes.superAdminAdminDetails(adminId)
                     )
+                },
+
+                onDashboardClick = {
+                    navController.navigate(
+                        Routes.SUPER_ADMIN_HOME
+                    ) {
+                        launchSingleTop = true
+                    }
+                },
+
+                onUsersClick = {
+                    navController.navigate(
+                        Routes.SUPER_ADMIN_USERS
+                    ) {
+                        launchSingleTop = true
+                    }
+                },
+
+                onReportsClick = {
+                    navController.navigate(
+                        Routes.SUPER_ADMIN_REPORTS
+                    ) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
