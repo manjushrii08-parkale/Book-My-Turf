@@ -2,31 +2,36 @@ package com.example.bookmyturf.screens.user.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import com.example.bookmyturf.R
 
 // ============================================================
-// BOOKMYTURF PREMIUM WELCOME SECTION
+// BOOKMYTURF HORIZONTAL HERO SECTION
 // ============================================================
 
 @Composable
@@ -38,77 +43,151 @@ fun UserWelcomeSection(
     // COLORS
     // =========================================================
 
-    val darkGreen = Color(0xFF173D20)
-    val forestGreen = Color(0xFF2E6B35)
+    val darkGreen = Color(0xFF06130F)
+    val forestGreen = Color(0xFF123D24)
     val lightGreen = Color(0xFF7DBB4A)
 
-    val offWhite = Color(0xFFF8F8F5)
-    val white = Color(0xFFFFFFFF)
+    val white = Color.White
+    val secondaryWhite = Color(0xFFD9E3DD)
 
-    val charcoal = Color(0xFF1C1C1C)
-    val gray = Color(0xFF737373)
-
+    val inactiveIndicator = Color(0xFF294238)
 
     // =========================================================
-    // MAIN CONTENT
+    // PAGER
+    // =========================================================
+
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { 3 }
+    )
+
+    // =========================================================
+    // MAIN
     // =========================================================
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                horizontal = 18.dp,
-                vertical = 12.dp
+                top = 8.dp,
+                bottom = 6.dp
             )
     ) {
 
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
+        // =====================================================
+        // HORIZONTAL HERO
+        // =====================================================
 
-            shape =
-                RoundedCornerShape(22.dp),
+        HorizontalPager(
+            state = pagerState,
 
-            color = white,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(165.dp),
 
-            tonalElevation = 2.dp
-        ) {
+            contentPadding = PaddingValues(
+                horizontal = 8.dp
+            ),
 
-            Column(
+            pageSpacing = 10.dp
+        ) { page ->
+
+            // =================================================
+            // HERO CARD
+            // =================================================
+
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 18.dp,
-                        vertical = 18.dp
+                    .fillMaxSize()
+                    .clip(
+                        RoundedCornerShape(20.dp)
                     )
             ) {
 
                 // =================================================
-                // TOP ROW
+                // IMAGE
                 // =================================================
 
-                Row(
-                    modifier =
-                        Modifier.fillMaxWidth(),
+                androidx.compose.foundation.Image(
+                    painter = painterResource(
+                        id = R.drawable.bookmyturf_hero
+                    ),
 
-                    verticalAlignment =
-                        Alignment.CenterVertically,
+                    contentDescription = null,
 
-                    horizontalArrangement =
-                        Arrangement.SpaceBetween
+                    modifier = Modifier.fillMaxSize(),
+
+                    contentScale = ContentScale.Crop
+                )
+
+                // =================================================
+                // LEFT OVERLAY
+                // =================================================
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(
+                                    darkGreen.copy(
+                                        alpha = 0.94f
+                                    ),
+
+                                    forestGreen.copy(
+                                        alpha = 0.72f
+                                    ),
+
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
+
+                // =================================================
+                // BOTTOM OVERLAY
+                // =================================================
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    darkGreen.copy(
+                                        alpha = 0.68f
+                                    )
+                                )
+                            )
+                        )
+                )
+
+                // =================================================
+                // CONTENT
+                // =================================================
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 14.dp
+                        )
                 ) {
+
+                    // =================================================
+                    // LABEL
+                    // =================================================
 
                     Row(
                         verticalAlignment =
                             Alignment.CenterVertically
                     ) {
 
-                        // -----------------------------------------
-                        // ACCENT DOT
-                        // -----------------------------------------
-
-                        androidx.compose.foundation.layout.Box(
+                        Box(
                             modifier = Modifier
-                                .size(9.dp)
+                                .size(6.dp)
                                 .background(
                                     lightGreen,
                                     CircleShape
@@ -116,146 +195,131 @@ fun UserWelcomeSection(
                         )
 
                         Spacer(
-                            modifier =
-                                Modifier.size(8.dp)
+                            modifier = Modifier.size(6.dp)
                         )
 
                         Text(
-                            text = "READY TO PLAY?",
+                            text = when (page) {
+                                0 -> "READY TO PLAY?"
+                                1 -> "DISCOVER YOUR GAME"
+                                else -> "BOOK YOUR SLOT"
+                            },
 
-                            fontSize = 11.sp,
+                            fontSize = 9.sp,
 
                             fontWeight =
                                 FontWeight.Bold,
 
-                            letterSpacing = 1.3.sp,
+                            letterSpacing = 1.1.sp,
 
-                            color = forestGreen
+                            color = lightGreen
                         )
                     }
 
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
 
-                    // -----------------------------------------
-                    // SPORT ICON
-                    // -----------------------------------------
-
-                    Surface(
-                        shape = CircleShape,
-
-                        color =
-                            darkGreen.copy(
-                                alpha = 0.08f
-                            )
-                    ) {
-
-                        Text(
-                            text = "⚽",
-
-                            modifier =
-                                Modifier.padding(
-                                    8.dp
-                                ),
-
-                            fontSize = 18.sp
-                        )
-                    }
-                }
-
-
-                Spacer(
-                    modifier =
-                        Modifier.height(12.dp)
-                )
-
-
-                // =================================================
-                // MAIN TITLE
-                // =================================================
-
-                Text(
-                    text = "Find your perfect turf.",
-
-                    fontSize = 26.sp,
-
-                    lineHeight = 31.sp,
-
-                    fontWeight =
-                        FontWeight.ExtraBold,
-
-                    color = charcoal
-                )
-
-
-                Spacer(
-                    modifier =
-                        Modifier.height(6.dp)
-                )
-
-
-                // =================================================
-                // DESCRIPTION
-                // =================================================
-
-                Text(
-                    text =
-                        "Choose a turf, pick your slot, and get ready to play.",
-
-                    fontSize = 13.sp,
-
-                    lineHeight = 19.sp,
-
-                    fontWeight =
-                        FontWeight.Normal,
-
-                    color = gray
-                )
-
-
-                Spacer(
-                    modifier =
-                        Modifier.height(15.dp)
-                )
-
-
-                // =================================================
-                // BOTTOM ACCENT
-                // =================================================
-
-                Row(
-                    verticalAlignment =
-                        Alignment.CenterVertically
-                ) {
+                    // =================================================
+                    // TITLE
+                    // =================================================
 
                     Text(
-                        text = "Your game starts here",
+                        text = when (page) {
+                            0 -> "Book Your\nPerfect Turf"
+                            1 -> "Find Your\nPerfect Turf"
+                            else -> "Play More.\nWorry Less."
+                        },
 
-                        fontSize = 12.sp,
+                        fontSize = 22.sp,
+
+                        lineHeight = 24.sp,
 
                         fontWeight =
-                            FontWeight.Bold,
+                            FontWeight.ExtraBold,
 
-                        color = darkGreen
+                        color = white
                     )
 
                     Spacer(
-                        modifier =
-                            Modifier.size(5.dp)
+                        modifier = Modifier.height(5.dp)
                     )
 
-                    Icon(
-                        imageVector =
-                            Icons.Default.ArrowForward,
+                    // =================================================
+                    // DESCRIPTION
+                    // =================================================
 
-                        contentDescription = null,
+                    Text(
+                        text = when (page) {
+                            0 ->
+                                "Find your game. Pick your slot.\nGet ready to play."
 
-                        modifier =
-                            Modifier.size(15.dp),
+                            1 ->
+                                "Explore turfs near you.\nChoose the perfect place to play."
 
-                        tint = lightGreen
+                            else ->
+                                "Select your preferred time.\nConfirm your booking instantly."
+                        },
+
+                        fontSize = 10.sp,
+
+                        lineHeight = 14.sp,
+
+                        color = secondaryWhite
                     )
                 }
             }
         }
+
+        // =====================================================
+        // PAGE INDICATORS
+        // =====================================================
+
+        Spacer(
+            modifier = Modifier.height(7.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+
+            horizontalArrangement =
+                Arrangement.Center,
+
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+
+            repeat(3) { index ->
+
+                Box(
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 3.dp
+                        )
+                        .size(
+                            width =
+                                if (
+                                    pagerState.currentPage == index
+                                ) {
+                                    18.dp
+                                } else {
+                                    6.dp
+                                },
+
+                            height = 6.dp
+                        )
+                        .clip(CircleShape)
+                        .background(
+                            if (
+                                pagerState.currentPage == index
+                            ) {
+                                lightGreen
+                            } else {
+                                inactiveIndicator
+                            }
+                        )
+                )
+            }
+        }
     }
 }
-

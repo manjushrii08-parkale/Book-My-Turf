@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,12 +44,35 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
 
-import com.example.bookmyturf.ui.theme.UserDarkGreen
-import com.example.bookmyturf.ui.theme.UserLightGreen
 import com.example.bookmyturf.util.LocationHelper
 
 import com.google.android.gms.location.LocationServices
 
+
+// ============================================================
+// BOOK MY TURF - PREMIUM HOME COLORS
+// ============================================================
+
+private val Background = Color(0xFF020C09)
+
+private val CardBackground = Color(0xFF071713)
+
+private val SecondarySurface = Color(0xFF102A1F)
+
+private val PrimaryGreen = Color(0xFF7DBB4A)
+
+private val LightGreen = Color(0xFFA8D86E)
+
+private val White = Color(0xFFF5F8F6)
+
+private val SecondaryText = Color(0xFF9EAEA6)
+
+private val BorderColor = Color(0xFF1B3028)
+
+
+// ============================================================
+// USER HOME TOP BAR
+// ============================================================
 
 @Composable
 fun UserHomeTopBar(
@@ -65,6 +87,7 @@ fun UserHomeTopBar(
 
     val context = LocalContext.current
 
+
     // =========================================================
     // LOCATION CLIENT
     // =========================================================
@@ -74,6 +97,7 @@ fun UserHomeTopBar(
             LocationServices
                 .getFusedLocationProviderClient(context)
         }
+
 
     // =========================================================
     // LOCATION STATE
@@ -86,6 +110,7 @@ fun UserHomeTopBar(
     var locationLoading by remember {
         mutableStateOf(true)
     }
+
 
     // =========================================================
     // LOAD LOCATION
@@ -101,9 +126,11 @@ fun UserHomeTopBar(
         ) { result ->
 
             locationText = result
+
             locationLoading = false
         }
     }
+
 
     // =========================================================
     // LOCATION PERMISSION
@@ -136,8 +163,9 @@ fun UserHomeTopBar(
             }
         }
 
+
     // =========================================================
-    // CHECK PERMISSION
+    // CHECK LOCATION PERMISSION
     // =========================================================
 
     LaunchedEffect(Unit) {
@@ -172,8 +200,9 @@ fun UserHomeTopBar(
         }
     }
 
+
     // =========================================================
-    // PREMIUM HEADER
+    // PREMIUM DARK HEADER
     // =========================================================
 
     Surface(
@@ -182,11 +211,9 @@ fun UserHomeTopBar(
             Modifier.fillMaxWidth(),
 
         color =
-            MaterialTheme
-                .colorScheme
-                .surface,
+            Background,
 
-        tonalElevation = 3.dp
+        tonalElevation = 0.dp
     ) {
 
         Row(
@@ -194,8 +221,8 @@ fun UserHomeTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = 18.dp,
-                    vertical = 13.dp
+                    horizontal = 14.dp,
+                    vertical = 11.dp
                 ),
 
             horizontalArrangement =
@@ -205,56 +232,76 @@ fun UserHomeTopBar(
                 Alignment.CenterVertically
         ) {
 
+
             // =================================================
-            // LOCATION
+            // LOCATION SECTION
             // =================================================
 
             Row(
 
                 modifier = Modifier
                     .weight(1f)
+                    .clip(
+                        RoundedCornerShape(16.dp)
+                    )
                     .clickable {
                         loadLocation()
-                    },
+                    }
+                    .padding(
+                        horizontal = 4.dp,
+                        vertical = 3.dp
+                    ),
 
                 verticalAlignment =
                     Alignment.CenterVertically
             ) {
 
+
                 // =============================================
-                // LOCATION ICON
+                // LOCATION ICON CONTAINER
                 // =============================================
 
-                Box(
+                Surface(
 
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .background(
-                            UserDarkGreen.copy(
-                                alpha = 0.10f
-                            )
-                        ),
+                    modifier =
+                        Modifier.size(43.dp),
 
-                    contentAlignment =
-                        Alignment.Center
+                    shape =
+                        RoundedCornerShape(14.dp),
+
+                    color =
+                        SecondarySurface,
+
+                    border =
+                        BorderStroke(
+                            width = 1.dp,
+                            color = BorderColor
+                        )
                 ) {
 
-                    Icon(
+                    Box(
 
-                        imageVector =
-                            Icons.Default.LocationOn,
+                        contentAlignment =
+                            Alignment.Center
+                    ) {
 
-                        contentDescription =
-                            "Current location",
+                        Icon(
 
-                        modifier =
-                            Modifier.size(22.dp),
+                            imageVector =
+                                Icons.Default.LocationOn,
 
-                        tint =
-                            UserDarkGreen
-                    )
+                            contentDescription =
+                                "Current location",
+
+                            modifier =
+                                Modifier.size(21.dp),
+
+                            tint =
+                                PrimaryGreen
+                        )
+                    }
                 }
+
 
                 // =============================================
                 // LOCATION TEXT
@@ -263,9 +310,11 @@ fun UserHomeTopBar(
                 Column(
 
                     modifier =
-                        Modifier.padding(
-                            start = 11.dp
-                        )
+                        Modifier
+                            .weight(1f)
+                            .padding(
+                                start = 10.dp
+                            )
                 ) {
 
                     Text(
@@ -277,16 +326,15 @@ fun UserHomeTopBar(
                                 "Playing near"
                             },
 
-                        fontSize = 11.sp,
+                        fontSize = 10.sp,
 
                         fontWeight =
                             FontWeight.Medium,
 
                         color =
-                            MaterialTheme
-                                .colorScheme
-                                .onSurfaceVariant
+                            SecondaryText
                     )
+
 
                     Text(
 
@@ -298,57 +346,74 @@ fun UserHomeTopBar(
                                 top = 2.dp
                             ),
 
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
 
                         fontWeight =
                             FontWeight.Bold,
 
                         color =
-                            UserDarkGreen,
+                            White,
 
                         maxLines = 1
                     )
                 }
             }
 
+
             // =================================================
-            // ACTIONS
+            // ACTION BUTTONS
             // =================================================
 
             Row(
 
+                horizontalArrangement =
+                    Arrangement.spacedBy(7.dp),
+
                 verticalAlignment =
                     Alignment.CenterVertically
             ) {
+
 
                 // =============================================
                 // NOTIFICATION
                 // =============================================
 
                 Box(
-                    modifier = Modifier
-                        .size(46.dp)
+                    modifier =
+                        Modifier.size(42.dp)
                 ) {
 
                     Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxWidth()
-                            .padding(2.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        color = UserDarkGreen.copy(
-                            alpha = 0.07f
-                        )
+
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(1.dp),
+
+                        shape =
+                            RoundedCornerShape(13.dp),
+
+                        color =
+                            CardBackground,
+
+                        border =
+                            BorderStroke(
+                                width = 1.dp,
+                                color = BorderColor
+                            )
                     ) {
 
                         Box(
+
                             contentAlignment =
                                 Alignment.Center
                         ) {
 
                             IconButton(
+
                                 onClick =
                                     onNotificationClick,
+
                                 modifier =
                                     Modifier.fillMaxWidth()
                             ) {
@@ -362,32 +427,38 @@ fun UserHomeTopBar(
                                         "Notifications",
 
                                     modifier =
-                                        Modifier.size(23.dp),
+                                        Modifier.size(22.dp),
 
                                     tint =
-                                        UserDarkGreen
+                                        White
                                 )
                             }
                         }
                     }
 
+
                     // =========================================
-                    // UNREAD COUNT BADGE
+                    // UNREAD BADGE
                     // =========================================
 
-                    if (unreadNotificationCount > 0) {
+                    if (
+                        unreadNotificationCount > 0
+                    ) {
 
                         Surface(
 
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .size(19.dp),
+                            modifier =
+                                Modifier
+                                    .align(
+                                        Alignment.TopEnd
+                                    )
+                                    .size(18.dp),
 
                             shape =
                                 CircleShape,
 
                             color =
-                                UserDarkGreen,
+                                PrimaryGreen,
 
                             shadowElevation =
                                 2.dp,
@@ -395,7 +466,7 @@ fun UserHomeTopBar(
                             border =
                                 BorderStroke(
                                     width = 2.dp,
-                                    color = Color.White
+                                    color = Background
                                 )
                         ) {
 
@@ -418,13 +489,12 @@ fun UserHomeTopBar(
                                         },
 
                                     color =
-                                        Color.White,
+                                        Background,
 
-                                    fontSize =
-                                        8.sp,
+                                    fontSize = 7.sp,
 
                                     fontWeight =
-                                        FontWeight.Bold,
+                                        FontWeight.ExtraBold,
 
                                     maxLines = 1
                                 )
@@ -433,27 +503,40 @@ fun UserHomeTopBar(
                     }
                 }
 
+
                 // =============================================
                 // PROFILE
                 // =============================================
 
-                IconButton(
+                Surface(
 
-                    onClick =
-                        onProfileClick
+                    modifier =
+                        Modifier.size(42.dp),
+
+                    shape =
+                        CircleShape,
+
+                    color =
+                        PrimaryGreen,
+
+                    border =
+                        BorderStroke(
+                            width = 2.dp,
+
+                            color =
+                                LightGreen.copy(
+                                    alpha = 0.35f
+                                )
+                        )
                 ) {
 
-                    Box(
+                    IconButton(
 
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(
-                                UserLightGreen
-                            ),
+                        onClick =
+                            onProfileClick,
 
-                        contentAlignment =
-                            Alignment.Center
+                        modifier =
+                            Modifier.fillMaxWidth()
                     ) {
 
                         Icon(
@@ -468,7 +551,7 @@ fun UserHomeTopBar(
                                 Modifier.size(21.dp),
 
                             tint =
-                                Color.White
+                                Background
                         )
                     }
                 }

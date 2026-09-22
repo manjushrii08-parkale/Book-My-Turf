@@ -2,9 +2,9 @@ package com.example.bookmyturf.screens.user
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
-
+import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,15 +16,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
@@ -35,9 +41,8 @@ import androidx.compose.material.icons.filled.LocalParking
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Sports
-import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.Wc
 import androidx.compose.material.icons.filled.Wifi
@@ -47,33 +52,42 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import androidx.core.net.toUri
+
 import androidx.lifecycle.viewmodel.compose.viewModel
 
+import coil.compose.AsyncImage
+
+import com.example.bookmyturf.R
 import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.data.model.review.Review
+import com.example.bookmyturf.data.model.turf.Turf
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.ReviewRepository
 import com.example.bookmyturf.data.repository.TurfRepository
@@ -84,31 +98,32 @@ import com.example.bookmyturf.viewmodel.TurfDetailsViewModelFactory
 
 import java.util.Locale
 
+
 // ============================================================
-// SAME USER THEME
+// PREMIUM BOOKMYTURF COLORS
 // ============================================================
 
-private val DarkGreen = Color(0xFF173D20)
-private val ForestGreen = Color(0xFF2E6B35)
-private val LightGreen = Color(0xFF7DBB4A)
+private val Background = Color(0xFF020C09)
+private val CardBackground = Color(0xFF071713)
+private val SecondarySurface = Color(0xFF102A1F)
 
-private val OffWhite = Color(0xFFF8F8F5)
-private val White = Color(0xFFFFFFFF)
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+private val BrightGreen = Color(0xFFB7E77A)
 
-private val Charcoal = Color(0xFF1C1C1C)
-private val Gray = Color(0xFF737373)
-private val SoftGray = Color(0xFFA0A0A0)
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFF9EAEA6)
+private val MutedText = Color(0xFF718079)
 
-private val BorderGray = Color(0xFFE5E5E0)
+private val BorderColor = Color(0xFF1B3028)
+private val StarColor = Color(0xFFFFC857)
+private val ErrorRed = Color(0xFFFF6B6B)
 
-private val SoftGreen = Color(0xFFF1F7ED)
-private val LightGreenBackground = Color(0xFFEAF4E5)
 
 // ============================================================
 // TURF DETAILS SCREEN
 // ============================================================
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TurfDetailsScreen(
     turfId: Int,
@@ -116,15 +131,11 @@ fun TurfDetailsScreen(
     onBookNowClick: (Int) -> Unit
 ) {
 
-    // =========================================================
-    // CONTEXT
-    // =========================================================
-
     val context = LocalContext.current
 
-    // =========================================================
+    // ========================================================
     // TURF VIEW MODEL
-    // =========================================================
+    // ========================================================
 
     val turfRepository = remember {
         TurfRepository()
@@ -140,9 +151,9 @@ fun TurfDetailsScreen(
         factory = turfFactory
     )
 
-    // =========================================================
+    // ========================================================
     // REVIEW VIEW MODEL
-    // =========================================================
+    // ========================================================
 
     val reviewRepository = remember {
         ReviewRepository(
@@ -160,9 +171,9 @@ fun TurfDetailsScreen(
         factory = reviewFactory
     )
 
-    // =========================================================
+    // ========================================================
     // SESSION
-    // =========================================================
+    // ========================================================
 
     val sessionManager = remember(context) {
         SessionManager(context)
@@ -172,9 +183,9 @@ fun TurfDetailsScreen(
         sessionManager.getToken()
     }
 
-    // =========================================================
-    // TURF STATE
-    // =========================================================
+    // ========================================================
+    // STATES
+    // ========================================================
 
     val turf by turfViewModel.turf.collectAsState()
 
@@ -182,15 +193,11 @@ fun TurfDetailsScreen(
 
     val error by turfViewModel.error.collectAsState()
 
-    // =========================================================
-    // REVIEW STATE
-    // =========================================================
-
     val reviewUiState by reviewViewModel.uiState.collectAsState()
 
-    // =========================================================
+    // ========================================================
     // LOAD TURF
-    // =========================================================
+    // ========================================================
 
     LaunchedEffect(turfId) {
 
@@ -199,9 +206,9 @@ fun TurfDetailsScreen(
         )
     }
 
-    // =========================================================
+    // ========================================================
     // LOAD REVIEWS
-    // =========================================================
+    // ========================================================
 
     LaunchedEffect(
         turfId,
@@ -220,197 +227,35 @@ fun TurfDetailsScreen(
         }
     }
 
-    // =========================================================
-    // MAIN
-    // =========================================================
+    // ========================================================
+    // SCREEN
+    // ========================================================
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(OffWhite)
+            .background(Background)
     ) {
 
         when {
 
-            // =====================================================
-            // LOADING
-            // =====================================================
-
             isLoading -> {
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally,
-
-                    verticalArrangement =
-                        Arrangement.Center
-                ) {
-
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(58.dp)
-                                .background(
-                                    color =
-                                        LightGreenBackground,
-                                    shape =
-                                        CircleShape
-                                ),
-
-                        contentAlignment =
-                            Alignment.Center
-                    ) {
-
-                        CircularProgressIndicator(
-                            modifier =
-                                Modifier.size(28.dp),
-
-                            color =
-                                ForestGreen,
-
-                            strokeWidth =
-                                3.dp
-                        )
-                    }
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(14.dp)
-                    )
-
-                    Text(
-                        text =
-                            "Loading turf details...",
-
-                        fontSize =
-                            14.sp,
-
-                        fontWeight =
-                            FontWeight.Medium,
-
-                        color =
-                            Charcoal
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(4.dp)
-                    )
-
-                    Text(
-                        text =
-                            "Please wait a moment",
-
-                        fontSize =
-                            12.sp,
-
-                        color =
-                            Gray
-                    )
-                }
+                PremiumLoadingState()
             }
-
-            // =====================================================
-            // ERROR
-            // =====================================================
 
             error != null -> {
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally,
-
-                    verticalArrangement =
-                        Arrangement.Center
-                ) {
-
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(58.dp)
-                                .background(
-                                    color =
-                                        Color(0xFFFFF2F2),
-                                    shape =
-                                        CircleShape
-                                ),
-
-                        contentAlignment =
-                            Alignment.Center
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.Default.Cancel,
-
-                            contentDescription =
-                                null,
-
-                            tint =
-                                Color(0xFFB3261E),
-
-                            modifier =
-                                Modifier.size(27.dp)
-                        )
-                    }
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(14.dp)
-                    )
-
-                    Text(
-                        text =
-                            "Unable to load turf",
-
-                        fontSize =
-                            18.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        color =
-                            Charcoal
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(8.dp)
-                    )
-
-                    Text(
-                        text =
-                            error
-                                ?: "Something went wrong.",
-
-                        fontSize =
-                            13.sp,
-
-                        color =
-                            Gray
-                    )
-                }
+                PremiumErrorState(
+                    error = error
+                        ?: "Something went wrong.",
+                    onBackClick = onBackClick
+                )
             }
-
-            // =====================================================
-            // TURF DATA
-            // =====================================================
 
             turf != null -> {
 
                 val currentTurf = turf!!
-
-                // =================================================
-                // RATING
-                // =================================================
 
                 val displayRating =
                     if (
@@ -430,1196 +275,1107 @@ fun TurfDetailsScreen(
                         currentTurf.reviewCount
                     }
 
-                // =================================================
-                // FULL LOCATION TEXT
-                // =================================================
-
                 val locationText =
-                    buildString {
+                    buildLocationText(
+                        currentTurf
+                    )
 
-                        append(
-                            currentTurf.name
-                        )
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
 
-                        if (
-                            currentTurf.address
-                                ?.isNotBlank() == true
-                        ) {
-
-                            append(
-                                ", ${currentTurf.address}"
-                            )
-                        }
-
-                        if (
-                            currentTurf.location.isNotBlank()
-                        ) {
-
-                            append(
-                                ", ${currentTurf.location}"
-                            )
-                        }
-
-                        if (
-                            currentTurf.city.isNotBlank()
-                        ) {
-
-                            append(
-                                ", ${currentTurf.city}"
-                            )
-                        }
-                    }
-
-                Scaffold(
-
-                    containerColor =
-                        OffWhite,
-
-                    // =================================================
-                    // TOP APP BAR
-                    // =================================================
-
-                    topBar = {
-
-                        TopAppBar(
-
-                            title = {
-
-                                Text(
-                                    text =
-                                        currentTurf.name,
-
-                                    fontSize =
-                                        18.sp,
-
-                                    fontWeight =
-                                        FontWeight.Bold,
-
-                                    color =
-                                        Charcoal
-                                )
-                            },
-
-                            navigationIcon = {
-
-                                IconButton(
-                                    onClick =
-                                        onBackClick
-                                ) {
-
-                                    Icon(
-                                        imageVector =
-                                            Icons.AutoMirrored.Filled.ArrowBack,
-
-                                        contentDescription =
-                                            "Back",
-
-                                        tint =
-                                            Charcoal
-                                    )
-                                }
-                            },
-
-                            colors =
-                                TopAppBarDefaults
-                                    .topAppBarColors(
-                                        containerColor =
-                                            White,
-
-                                        titleContentColor =
-                                            Charcoal,
-
-                                        navigationIconContentColor =
-                                            Charcoal
-                                    )
-                        )
-                    }
-
-                ) { innerPadding ->
+                    // ====================================================
+                    // SCROLLABLE CONTENT
+                    // ====================================================
 
                     Column(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .padding(
-                                    innerPadding
-                                )
-                                .verticalScroll(
-                                    rememberScrollState()
-                                )
-                                .padding(
-                                    horizontal =
-                                        18.dp,
-
-                                    vertical =
-                                        18.dp
-                                )
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .verticalScroll(
+                                rememberScrollState()
+                            )
                     ) {
 
                         // =================================================
-                        // TURF HEADER
+                        // HERO
                         // =================================================
 
-                        Text(
-                            text =
-                                currentTurf.name,
-
-                            fontSize =
-                                28.sp,
-
-                            fontWeight =
-                                FontWeight.ExtraBold,
-
-                            color =
-                                Charcoal,
-
-                            lineHeight =
-                                33.sp
+                        PremiumTurfHero(
+                            currentTurf = currentTurf,
+                            onBackClick = onBackClick
                         )
 
                         Spacer(
-                            modifier =
-                                Modifier.height(8.dp)
+                            modifier = Modifier.height(22.dp)
                         )
 
-                        Row(
-                            verticalAlignment =
-                                Alignment.CenterVertically
-                        ) {
-
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .size(28.dp)
-                                        .background(
-                                            color =
-                                                LightGreenBackground,
-                                            shape =
-                                                CircleShape
-                                        ),
-
-                                contentAlignment =
-                                    Alignment.Center
-                            ) {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.LocationOn,
-
-                                    contentDescription =
-                                        "Location",
-
-                                    modifier =
-                                        Modifier.size(
-                                            16.dp
-                                        ),
-
-                                    tint =
-                                        ForestGreen
-                                )
-                            }
-
-                            Spacer(
-                                modifier =
-                                    Modifier.width(8.dp)
-                            )
-
-                            Text(
-                                text =
-                                    "${currentTurf.location}, ${currentTurf.city}",
-
-                                fontSize =
-                                    13.sp,
-
-                                color =
-                                    Gray
-                            )
-                        }
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(14.dp)
-                        )
-
-                        // =================================================
-                        // RATING SUMMARY
-                        // =================================================
-
-                        Card(
-                            modifier =
-                                Modifier.fillMaxWidth(),
-
-                            shape =
-                                RoundedCornerShape(
-                                    16.dp
-                                ),
-
-                            colors =
-                                CardDefaults.cardColors(
-                                    containerColor =
-                                        White
-                                ),
-
-                            border =
-                                BorderStroke(
-                                    1.dp,
-                                    BorderGray
-                                ),
-
-                            elevation =
-                                CardDefaults.cardElevation(
-                                    defaultElevation =
-                                        0.dp
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    horizontal = 18.dp
                                 )
                         ) {
 
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            16.dp
-                                        ),
+                            // =============================================
+                            // ABOUT TURF
+                            // =============================================
 
-                                verticalAlignment =
-                                    Alignment.CenterVertically
-                            ) {
-
-                                Box(
-                                    modifier =
-                                        Modifier
-                                            .size(48.dp)
-                                            .background(
-                                                color =
-                                                    LightGreenBackground,
-                                                shape =
-                                                    RoundedCornerShape(
-                                                        14.dp
-                                                    )
-                                            ),
-
-                                    contentAlignment =
-                                        Alignment.Center
-                                ) {
-
-                                    Icon(
-                                        imageVector =
-                                            Icons.Default.Star,
-
-                                        contentDescription =
-                                            "Rating",
-
-                                        modifier =
-                                            Modifier.size(
-                                                24.dp
-                                            ),
-
-                                        tint =
-                                            LightGreen
-                                    )
-                                }
-
-                                Spacer(
-                                    modifier =
-                                        Modifier.width(12.dp)
-                                )
-
-                                Column(
-                                    modifier =
-                                        Modifier.weight(
-                                            1f
-                                        )
-                                ) {
-
-                                    Text(
-                                        text =
-                                            if (
-                                                displayReviewCount > 0
-                                            ) {
-
-                                                String.format(
-                                                    Locale.getDefault(),
-                                                    "%.1f",
-                                                    displayRating
-                                                )
-
-                                            } else {
-
-                                                "No rating"
-                                            },
-
-                                        fontSize =
-                                            18.sp,
-
-                                        fontWeight =
-                                            FontWeight.ExtraBold,
-
-                                        color =
-                                            Charcoal
-                                    )
-
-                                    Spacer(
-                                        modifier =
-                                            Modifier.height(2.dp)
-                                    )
-
-                                    Text(
-                                        text =
-                                            when {
-
-                                                reviewUiState.isLoading ->
-                                                    "Loading reviews..."
-
-                                                displayReviewCount == 0 ->
-                                                    "Be the first to review"
-
-                                                displayReviewCount == 1 ->
-                                                    "1 customer review"
-
-                                                else ->
-                                                    "$displayReviewCount customer reviews"
-                                            },
-
-                                        fontSize =
-                                            12.sp,
-
-                                        color =
-                                            Gray
-                                    )
-                                }
-
-                                if (
-                                    displayReviewCount > 0 &&
-                                    !reviewUiState.isLoading
-                                ) {
-
-                                    StarRating(
-                                        rating =
-                                            displayRating.toInt()
-                                    )
-                                }
-                            }
-                        }
-
-                        // =================================================
-                        // CUSTOMER REVIEWS
-                        // =================================================
-
-                        if (
-                            reviewUiState.totalReviews > 0
-                        ) {
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(24.dp)
-                            )
-
-                            SectionTitle(
-                                icon = {
-
-                                    Icon(
-                                        imageVector =
-                                            Icons.Default.Star,
-
-                                        contentDescription =
-                                            null,
-
-                                        modifier =
-                                            Modifier.size(
-                                                19.dp
-                                            ),
-
-                                        tint =
-                                            ForestGreen
-                                    )
-                                },
-
-                                title =
-                                    "Customer Reviews",
-
-                                subtitle =
-                                    "What customers say about this turf"
+                            PremiumSectionTitle(
+                                eyebrow = "THE VENUE",
+                                title = "About this turf",
+                                subtitle = "Everything you need to know"
                             )
 
                             Spacer(
-                                modifier =
-                                    Modifier.height(12.dp)
+                                modifier = Modifier.height(12.dp)
                             )
 
-                            if (
-                                reviewUiState.isLoading
-                            ) {
+                            PremiumAboutCard(
+                                turfName = currentTurf.name,
+                                description =
+                                    currentTurf.description
+                                        ?.trim()
+                                        ?.ifEmpty {
+                                            "No description available."
+                                        }
+                                        ?: "No description available."
+                            )
 
-                                ReviewsLoadingCard()
+                            // =============================================
+                            // AMENITIES
+                            // =============================================
 
-                            } else if (
-                                reviewUiState.reviews.isNotEmpty()
-                            ) {
+                            Spacer(
+                                modifier = Modifier.height(30.dp)
+                            )
 
-                                Column(
-                                    verticalArrangement =
-                                        Arrangement.spacedBy(
-                                            12.dp
-                                        )
-                                ) {
+                            PremiumSectionTitle(
+                                eyebrow = "PREMIUM FACILITIES",
+                                title = "Amenities",
+                                subtitle = "Everything you need for a comfortable game"
+                            )
 
-                                    reviewUiState
-                                        .reviews
-                                        .forEach { review ->
+                            Spacer(
+                                modifier = Modifier.height(14.dp)
+                            )
 
-                                            ReviewCard(
-                                                review =
-                                                    review
+                            if (currentTurf.amenities.isEmpty()) {
+
+                                PremiumInfoCard {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        PremiumIconBox {
+                                            Icon(
+                                                imageVector = Icons.Default.CheckCircle,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp),
+                                                tint = PrimaryGreen
                                             )
                                         }
+
+                                        Spacer(modifier = Modifier.width(12.dp))
+
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "Amenities not listed",
+                                                color = PrimaryText,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Spacer(modifier = Modifier.height(3.dp))
+                                            Text(
+                                                text = "Please check with the venue before booking.",
+                                                color = SecondaryText,
+                                                fontSize = 10.sp
+                                            )
+                                        }
+                                    }
                                 }
 
                             } else {
 
-                                EmptyReviewsCard()
-                            }
-                        }
-
-                        // =================================================
-                        // ABOUT TURF
-                        // =================================================
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(28.dp)
-                        )
-
-                        SectionTitle(
-                            title =
-                                "About Turf",
-
-                            subtitle =
-                                "Everything you need to know"
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(10.dp)
-                        )
-
-                        Text(
-                            text =
-                                currentTurf.description
-                                    ?: "No description available.",
-
-                            fontSize =
-                                14.sp,
-
-                            lineHeight =
-                                22.sp,
-
-                            color =
-                                Gray
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(26.dp)
-                        )
-
-                        // =================================================
-                        // SPORTS
-                        // =================================================
-
-                        SectionTitle(
-                            icon = {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.SportsSoccer,
-
-                                    contentDescription =
-                                        null,
-
-                                    modifier =
-                                        Modifier.size(
-                                            19.dp
-                                        ),
-
-                                    tint =
-                                        ForestGreen
-                                )
-                            },
-
-                            title =
-                                "Sports",
-
-                            subtitle =
-                                "Sports available at this turf"
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(10.dp)
-                        )
-
-                        InfoCard {
-
-                            Text(
-                                text =
-                                    currentTurf.sportsTypes
-                                        .joinToString(
-                                            " • "
-                                        ),
-
-                                fontSize =
-                                    14.sp,
-
-                                color =
-                                    Charcoal,
-
-                                lineHeight =
-                                    22.sp
-                            )
-                        }
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(26.dp)
-                        )
-
-                        // =================================================
-                        // AMENITIES
-                        // =================================================
-
-                        SectionTitle(
-                            icon = {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.Sports,
-
-                                    contentDescription =
-                                        null,
-
-                                    modifier =
-                                        Modifier.size(
-                                            19.dp
-                                        ),
-
-                                    tint =
-                                        ForestGreen
-                                )
-                            },
-
-                            title =
-                                "Amenities",
-
-                            subtitle =
-                                "Everything available for players"
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(12.dp)
-                        )
-
-                        if (
-                            currentTurf.amenities.isEmpty()
-                        ) {
-
-                            InfoCard {
-
-                                Row(
-                                    verticalAlignment =
-                                        Alignment.CenterVertically
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-
-                                    Icon(
-                                        imageVector =
-                                            Icons.Default.CheckCircle,
-
-                                        contentDescription =
-                                            null,
-
-                                        modifier =
-                                            Modifier.size(
-                                                20.dp
-                                            ),
-
-                                        tint =
-                                            SoftGray
-                                    )
-
-                                    Spacer(
-                                        modifier =
-                                            Modifier.width(
-                                                10.dp
-                                            )
-                                    )
-
-                                    Text(
-                                        text =
-                                            "No amenities available",
-
-                                        fontSize =
-                                            13.sp,
-
-                                        color =
-                                            Gray
-                                    )
-                                }
-                            }
-
-                        } else {
-
-                            Column(
-                                verticalArrangement =
-                                    Arrangement.spacedBy(
-                                        10.dp
-                                    )
-                            ) {
-
-                                currentTurf.amenities
-                                    .chunked(2)
-                                    .forEach { rowAmenities ->
-
-                                        Row(
-                                            modifier =
-                                                Modifier.fillMaxWidth(),
-
-                                            horizontalArrangement =
-                                                Arrangement.spacedBy(
-                                                    10.dp
-                                                )
-                                        ) {
-
-                                            rowAmenities
-                                                .forEach { amenity ->
-
-                                                    AmenityTile(
-                                                        modifier =
-                                                            Modifier.weight(
-                                                                1f
-                                                            ),
-
-                                                        amenity =
-                                                            amenity
+                                    currentTurf.amenities
+                                        .chunked(2)
+                                        .forEachIndexed { rowIndex, rowAmenities ->
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy(22.dp)
+                                            ) {
+                                                rowAmenities.forEach { amenity ->
+                                                    PremiumAmenityItem(
+                                                        modifier = Modifier.weight(1f),
+                                                        amenity = amenity
                                                     )
                                                 }
 
-                                            if (
-                                                rowAmenities.size == 1
-                                            ) {
+                                                if (rowAmenities.size == 1) {
+                                                    Spacer(modifier = Modifier.weight(1f))
+                                                }
+                                            }
 
-                                                Spacer(
-                                                    modifier =
-                                                        Modifier.weight(
-                                                            1f
-                                                        )
+                                            if (rowIndex < (currentTurf.amenities.size + 1) / 2 - 1) {
+                                                HorizontalDivider(
+                                                    modifier = Modifier.padding(vertical = 3.dp),
+                                                    color = BorderColor.copy(alpha = 0.65f),
+                                                    thickness = 1.dp
                                                 )
                                             }
                                         }
+                                }
+                            }
+
+                            // =============================================
+                            // SPORTS AVAILABLE
+                            // =============================================
+
+                            Spacer(
+                                modifier = Modifier.height(30.dp)
+                            )
+
+                            PremiumSectionTitle(
+                                eyebrow = "PLAY YOUR GAME",
+                                title = "Sports Available",
+                                subtitle = "Choose from the sports offered at this venue"
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(14.dp)
+                            )
+
+                            if (currentTurf.sportsTypes.isEmpty()) {
+
+                                PremiumInfoCard {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        PremiumIconBox {
+                                            Icon(
+                                                imageVector = Icons.Default.SportsSoccer,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(21.dp),
+                                                tint = LightGreen
+                                            )
+                                        }
+
+                                        Spacer(modifier = Modifier.width(12.dp))
+
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "Sports not listed",
+                                                color = PrimaryText,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Spacer(modifier = Modifier.height(3.dp))
+                                            Text(
+                                                text = "Contact the venue for available sports.",
+                                                color = SecondaryText,
+                                                fontSize = 10.sp
+                                            )
+                                        }
                                     }
-                            }
-                        }
+                                }
 
-                        // =================================================
-                        // LOCATION
-                        // =================================================
+                            } else {
 
-                        Spacer(
-                            modifier =
-                                Modifier.height(28.dp)
-                        )
-
-                        SectionTitle(
-                            icon = {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.LocationOn,
-
-                                    contentDescription =
-                                        null,
-
-                                    modifier =
-                                        Modifier.size(
-                                            19.dp
-                                        ),
-
-                                    tint =
-                                        ForestGreen
-                                )
-                            },
-
-                            title =
-                                "Location",
-
-                            subtitle =
-                                "Find this turf easily"
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(12.dp)
-                        )
-
-                        LocationCard(
-                            address =
-                                currentTurf.address,
-
-                            location =
-                                currentTurf.location,
-
-                            city =
-                                currentTurf.city,
-
-                            onOpenMaps = {
-
-                                openGoogleMaps(
-                                    context = context,
-
-                                    query =
-                                        locationText
-                                )
-                            }
-                        )
-
-                        // =================================================
-                        // CANCELLATION POLICY
-                        // =================================================
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(28.dp)
-                        )
-
-                        SectionTitle(
-                            icon = {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.Cancel,
-
-                                    contentDescription =
-                                        null,
-
-                                    modifier =
-                                        Modifier.size(
-                                            19.dp
-                                        ),
-
-                                    tint =
-                                        ForestGreen
-                                )
-                            },
-
-                            title =
-                                "Cancellation Policy",
-
-                            subtitle =
-                                "Please review before booking"
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(10.dp)
-                        )
-
-                        InfoCard {
-
-                            Column {
-
-                                Text(
-                                    text =
-                                        "Free cancellation up to 24 hours before the booking.",
-
-                                    fontSize =
-                                        14.sp,
-
-                                    fontWeight =
-                                        FontWeight.Medium,
-
-                                    color =
-                                        Charcoal,
-
-                                    lineHeight =
-                                        21.sp
-                                )
-
-                                Spacer(
-                                    modifier =
-                                        Modifier.height(8.dp)
-                                )
-
-                                Text(
-                                    text =
-                                        "Cancellations within 24 hours may not be eligible for a refund.",
-
-                                    fontSize =
-                                        13.sp,
-
-                                    color =
-                                        Gray,
-
-                                    lineHeight =
-                                        20.sp
-                                )
-                            }
-                        }
-
-                        // =================================================
-                        // BOOK NOW — FINAL ACTION
-                        // =================================================
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(32.dp)
-                        )
-
-                        Card(
-                            modifier =
-                                Modifier.fillMaxWidth(),
-
-                            shape =
-                                RoundedCornerShape(
-                                    20.dp
-                                ),
-
-                            colors =
-                                CardDefaults.cardColors(
-                                    containerColor =
-                                        White
-                                ),
-
-                            border =
-                                BorderStroke(
-                                    1.dp,
-                                    BorderGray
-                                ),
-
-                            elevation =
-                                CardDefaults.cardElevation(
-                                    defaultElevation =
-                                        2.dp
-                                )
-                        ) {
-
-                            Column(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            18.dp
-                                        )
-                            ) {
-
-                                Row(
-                                    verticalAlignment =
-                                        Alignment.CenterVertically
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
+                                    currentTurf.sportsTypes
+                                        .chunked(2)
+                                        .forEachIndexed { rowIndex, rowSports ->
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy(22.dp)
+                                            ) {
+                                                rowSports.forEach { sport ->
+                                                    PremiumSportItem(
+                                                        modifier = Modifier.weight(1f),
+                                                        sport = sport
+                                                    )
+                                                }
 
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .size(46.dp)
-                                                .background(
-                                                    color =
-                                                        LightGreenBackground,
-                                                    shape =
-                                                        RoundedCornerShape(
-                                                            13.dp
-                                                        )
-                                                ),
+                                                if (rowSports.size == 1) {
+                                                    Spacer(modifier = Modifier.weight(1f))
+                                                }
+                                            }
 
-                                        contentAlignment =
-                                            Alignment.Center
-                                    ) {
-
-                                        Icon(
-                                            imageVector =
-                                                Icons.Default.AccessTime,
-
-                                            contentDescription =
-                                                null,
-
-                                            modifier =
-                                                Modifier.size(
-                                                    23.dp
-                                                ),
-
-                                            tint =
-                                                ForestGreen
-                                        )
-                                    }
-
-                                    Spacer(
-                                        modifier =
-                                            Modifier.width(
-                                                12.dp
-                                            )
-                                    )
-
-                                    Column(
-                                        modifier =
-                                            Modifier.weight(
-                                                1f
-                                            )
-                                    ) {
-
-                                        Text(
-                                            text =
-                                                "Ready to play?",
-
-                                            fontSize =
-                                                17.sp,
-
-                                            fontWeight =
-                                                FontWeight.ExtraBold,
-
-                                            color =
-                                                Charcoal
-                                        )
-
-                                        Spacer(
-                                            modifier =
-                                                Modifier.height(
-                                                    3.dp
+                                            if (rowIndex < (currentTurf.sportsTypes.size + 1) / 2 - 1) {
+                                                HorizontalDivider(
+                                                    modifier = Modifier.padding(vertical = 3.dp),
+                                                    color = BorderColor.copy(alpha = 0.65f),
+                                                    thickness = 1.dp
                                                 )
-                                        )
-
-                                        Text(
-                                            text =
-                                                "Select your date and time slot",
-
-                                            fontSize =
-                                                11.sp,
-
-                                            color =
-                                                Gray
-                                        )
-                                    }
-
-                                    Column(
-                                        horizontalAlignment =
-                                            Alignment.End
-                                    ) {
-
-                                        Text(
-                                            text =
-                                                "Starting from",
-
-                                            fontSize =
-                                                10.sp,
-
-                                            color =
-                                                SoftGray
-                                        )
-
-                                        Text(
-                                            text =
-                                                "₹${currentTurf.price.toInt()}",
-
-                                            fontSize =
-                                                18.sp,
-
-                                            fontWeight =
-                                                FontWeight.ExtraBold,
-
-                                            color =
-                                                DarkGreen
-                                        )
-                                    }
-                                }
-
-                                Spacer(
-                                    modifier =
-                                        Modifier.height(
-                                            16.dp
-                                        )
-                                )
-
-                                Button(
-                                    onClick = {
-
-                                        onBookNowClick(
-                                            currentTurf.id
-                                        )
-                                    },
-
-                                    modifier =
-                                        Modifier.fillMaxWidth(),
-
-                                    shape =
-                                        RoundedCornerShape(
-                                            14.dp
-                                        ),
-
-                                    colors =
-                                        ButtonDefaults.buttonColors(
-                                            containerColor =
-                                                DarkGreen
-                                        ),
-
-                                    contentPadding =
-                                        PaddingValues(
-                                            vertical =
-                                                15.dp
-                                        )
-                                ) {
-
-                                    Text(
-                                        text =
-                                            "Book Now",
-
-                                        fontSize =
-                                            15.sp,
-
-                                        fontWeight =
-                                            FontWeight.Bold
-                                    )
+                                            }
+                                        }
                                 }
                             }
+
+                            // =============================================
+                            // LOCATION
+                            // =============================================
+
+                            Spacer(
+                                modifier = Modifier.height(30.dp)
+                            )
+
+                            PremiumSectionTitle(
+                                eyebrow = "FIND THE VENUE",
+                                title = "Location",
+                                subtitle = "Find this turf easily"
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(12.dp)
+                            )
+
+                            PremiumLocationCard(
+                                address =
+                                    currentTurf.address,
+                                location =
+                                    currentTurf.location,
+                                city =
+                                    currentTurf.city,
+                                onDirectionsClick = {
+
+                                    openGoogleMaps(
+                                        context = context,
+                                        query = locationText
+                                    )
+                                }
+                            )
+
+                            // =============================================
+                            // REVIEWS
+                            // =============================================
+
+                            Spacer(
+                                modifier = Modifier.height(30.dp)
+                            )
+
+                            PremiumSectionTitle(
+                                eyebrow = "PLAYER EXPERIENCES",
+                                title = "Customer reviews",
+                                subtitle =
+                                    if (
+                                        displayReviewCount > 0
+                                    ) {
+                                        "$displayReviewCount customer reviews"
+                                    } else {
+                                        "What customers say about this turf"
+                                    }
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(12.dp)
+                            )
+
+                            PremiumRatingSummary(
+                                rating = displayRating,
+                                reviewCount = displayReviewCount,
+                                isLoading =
+                                    reviewUiState.isLoading
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(12.dp)
+                            )
+
+                            when {
+
+                                reviewUiState.isLoading -> {
+
+                                    PremiumReviewsLoadingCard()
+                                }
+
+                                reviewUiState.reviews.isNotEmpty() -> {
+
+                                    Column(
+                                        verticalArrangement =
+                                            Arrangement.spacedBy(
+                                                10.dp
+                                            )
+                                    ) {
+
+                                        reviewUiState
+                                            .reviews
+                                            .forEach { review ->
+
+                                                PremiumReviewCard(
+                                                    review = review
+                                                )
+                                            }
+                                    }
+                                }
+
+                                else -> {
+
+                                    PremiumEmptyReviewsCard()
+                                }
+                            }
+
+                            // =============================================
+                            // CANCELLATION
+                            // =============================================
+
+                            Spacer(
+                                modifier = Modifier.height(30.dp)
+                            )
+
+                            PremiumSectionTitle(
+                                eyebrow = "BOOK WITH CONFIDENCE",
+                                title = "Cancellation policy",
+                                subtitle = "Please review before booking"
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(12.dp)
+                            )
+
+                            PremiumCancellationCard()
+
+                            // =============================================
+                            // BOTTOM SPACE
+                            // =============================================
+
+                            Spacer(
+                                modifier = Modifier.height(125.dp)
+                            )
                         }
-
-                        // =================================================
-                        // BOTTOM SPACE
-                        // =================================================
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(
-                                    32.dp
-                                )
-                        )
                     }
+
+                    // ====================================================
+                    // STICKY BOOKING BAR
+                    // ====================================================
+
+                    PremiumBookingBar(
+                        price = currentTurf.price,
+                        onBookNowClick = {
+                            onBookNowClick(
+                                currentTurf.id
+                            )
+                        }
+                    )
                 }
             }
         }
     }
 }
 
+
 // ============================================================
-// AMENITY TILE
+// HERO
 // ============================================================
 
 @Composable
-private fun AmenityTile(
-    modifier: Modifier = Modifier,
-    amenity: String
+private fun PremiumTurfHero(
+    currentTurf: Turf,
+    onBackClick: () -> Unit
 ) {
 
-    val icon =
-        amenityIcon(
-            amenity
-        )
+    val images = currentTurf.imageUrls
 
-    Card(
-        modifier =
-            modifier,
+    val safeImages =
+        if (images.isEmpty()) {
+            listOf("")
+        } else {
+            images
+        }
 
-        shape =
-            RoundedCornerShape(
-                16.dp
-            ),
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = {
+            safeImages.size
+        }
+    )
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    White
-            ),
-
-        border =
-            BorderStroke(
-                1.dp,
-                BorderGray
-            ),
-
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    0.dp
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(315.dp)
+            .clip(
+                RoundedCornerShape(
+                    bottomStart = 30.dp,
+                    bottomEnd = 30.dp
+                )
             )
     ) {
 
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal =
-                            13.dp,
+        // ========================================================
+        // IMAGE PAGER
+        // ========================================================
 
-                        vertical =
-                            13.dp
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+
+            val imageUrl = safeImages[page]
+
+            if (
+                imageUrl.isBlank()
+            ) {
+
+                Image(
+                    painter = painterResource(
+                        id = R.drawable.bookmyturf_hero
                     ),
+                    contentDescription =
+                        currentTurf.name,
+                    modifier =
+                        Modifier.fillMaxSize(),
+                    contentScale =
+                        ContentScale.Crop
+                )
 
-            verticalAlignment =
-                Alignment.CenterVertically
+            } else {
+
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription =
+                        currentTurf.name,
+                    modifier =
+                        Modifier.fillMaxSize(),
+                    contentScale =
+                        ContentScale.Crop,
+                    placeholder =
+                        painterResource(
+                            id = R.drawable.bookmyturf_hero
+                        ),
+                    error =
+                        painterResource(
+                            id = R.drawable.bookmyturf_hero
+                        )
+                )
+            }
+        }
+
+        // ========================================================
+        // HERO GRADIENT
+        // ========================================================
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Black.copy(
+                                alpha = 0.48f
+                            ),
+                            Color.Transparent,
+                            Background.copy(
+                                alpha = 0.98f
+                            )
+                        )
+                    )
+                )
+        )
+
+        // ========================================================
+        // BACK BUTTON
+        // ========================================================
+
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(
+                    start = 12.dp,
+                    top = 8.dp
+                )
+                .size(44.dp)
+                .background(
+                    Color.Black.copy(
+                        alpha = 0.45f
+                    ),
+                    CircleShape
+                )
+        ) {
+
+            Icon(
+                imageVector =
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription =
+                    "Back",
+                tint =
+                    PrimaryText
+            )
+        }
+
+        // ========================================================
+        // IMAGE COUNTER
+        // ========================================================
+
+        if (
+            safeImages.size > 1
         ) {
 
             Box(
-                modifier =
-                    Modifier
-                        .size(38.dp)
-                        .background(
-                            color =
-                                LightGreenBackground,
-
-                            shape =
-                                RoundedCornerShape(
-                                    12.dp
-                                )
+                modifier = Modifier
+                    .statusBarsPadding()
+                    .align(
+                        Alignment.TopEnd
+                    )
+                    .padding(
+                        top = 15.dp,
+                        end = 15.dp
+                    )
+                    .background(
+                        Color.Black.copy(
+                            alpha = 0.50f
                         ),
-
-                contentAlignment =
-                    Alignment.Center
+                        RoundedCornerShape(12.dp)
+                    )
+                    .padding(
+                        horizontal = 10.dp,
+                        vertical = 6.dp
+                    )
             ) {
 
-                Icon(
-                    imageVector =
-                        icon,
+                Text(
+                    text =
+                        "${pagerState.currentPage + 1}/${safeImages.size}",
+                    color =
+                        PrimaryText,
+                    fontSize =
+                        10.sp,
+                    fontWeight =
+                        FontWeight.Bold
+                )
+            }
+        }
 
-                    contentDescription =
-                        amenity,
+        // ========================================================
+        // PAGE INDICATORS
+        // ========================================================
 
-                    modifier =
-                        Modifier.size(
-                            20.dp
+        if (
+            safeImages.size > 1
+        ) {
+
+            Row(
+                modifier = Modifier
+                    .align(
+                        Alignment.BottomCenter
+                    )
+                    .padding(
+                        bottom = 91.dp
+                    ),
+                horizontalArrangement =
+                    Arrangement.spacedBy(5.dp)
+            ) {
+
+                safeImages.indices.forEach { index ->
+
+                    Box(
+                        modifier = Modifier
+                            .height(4.dp)
+                            .width(
+                                if (
+                                    index ==
+                                    pagerState.currentPage
+                                ) {
+                                    20.dp
+                                } else {
+                                    5.dp
+                                }
+                            )
+                            .clip(
+                                CircleShape
+                            )
+                            .background(
+                                if (
+                                    index ==
+                                    pagerState.currentPage
+                                ) {
+                                    BrightGreen
+                                } else {
+                                    Color.White.copy(
+                                        alpha = 0.45f
+                                    )
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        // ========================================================
+        // HERO DETAILS
+        // ========================================================
+
+        Column(
+            modifier = Modifier
+                .align(
+                    Alignment.BottomStart
+                )
+                .fillMaxWidth()
+                .padding(
+                    start = 18.dp,
+                    end = 18.dp,
+                    bottom = 19.dp
+                )
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .background(
+                        PrimaryGreen.copy(
+                            alpha = 0.18f
                         ),
+                        RoundedCornerShape(8.dp)
+                    )
+                    .padding(
+                        horizontal = 9.dp,
+                        vertical = 5.dp
+                    )
+            ) {
 
-                    tint =
-                        ForestGreen
+                Text(
+                    text = "TURF DETAILS",
+                    color = BrightGreen,
+                    fontSize = 8.sp,
+                    fontWeight =
+                        FontWeight.ExtraBold,
+                    letterSpacing = 1.2.sp
                 )
             }
 
             Spacer(
-                modifier =
-                    Modifier.width(
-                        10.dp
-                    )
+                modifier = Modifier.height(7.dp)
             )
 
             Text(
-                text =
-                    amenity.trim(),
-
-                modifier =
-                    Modifier.weight(
-                        1f
-                    ),
-
-                fontSize =
-                    13.sp,
-
+                text = currentTurf.name,
+                color = PrimaryText,
+                fontSize = 27.sp,
+                lineHeight = 31.sp,
                 fontWeight =
-                    FontWeight.SemiBold,
+                    FontWeight.ExtraBold,
+                maxLines = 2,
+                overflow =
+                    TextOverflow.Ellipsis
+            )
 
-                color =
-                    Charcoal,
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
-                maxLines =
-                    2
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.LocationOn,
+                    contentDescription = null,
+                    modifier =
+                        Modifier.size(16.dp),
+                    tint =
+                        LightGreen
+                )
+
+                Spacer(
+                    modifier = Modifier.width(5.dp)
+                )
+
+                Text(
+                    text =
+                        "${currentTurf.location}, ${currentTurf.city}",
+                    color =
+                        SecondaryText,
+                    fontSize =
+                        11.sp,
+                    maxLines = 1,
+                    overflow =
+                        TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+
+// ============================================================
+// SECTION TITLE
+// ============================================================
+
+@Composable
+private fun PremiumSectionTitle(
+    eyebrow: String,
+    title: String,
+    subtitle: String? = null
+) {
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Text(
+            text = eyebrow,
+            color = LightGreen,
+            fontSize = 8.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.5.sp
+        )
+
+        Spacer(
+            modifier = Modifier.height(4.dp)
+        )
+
+        Text(
+            text = title,
+            color = PrimaryText,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+
+        if (
+            subtitle != null
+        ) {
+
+            Spacer(
+                modifier = Modifier.height(3.dp)
+            )
+
+            Text(
+                text = subtitle,
+                color = MutedText,
+                fontSize = 10.sp
             )
         }
     }
 }
+
+
+// ============================================================
+// PREMIUM ABOUT TURF
+// ============================================================
+
+@Composable
+private fun PremiumAboutCard(
+    turfName: String,
+    description: String
+) {
+
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+
+    val shouldExpand =
+        description.length > 220
+
+    val visibleDescription =
+        if (
+            expanded ||
+            !shouldExpand
+        ) {
+            description
+        } else {
+            description
+                .take(220)
+                .trimEnd()
+                .plus("...")
+        }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(
+                RoundedCornerShape(24.dp)
+            )
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF0B2118),
+                        CardBackground,
+                        Color(0xFF06120E)
+                    )
+                )
+            )
+            .border(
+                width = 1.dp,
+                color = BorderColor,
+                shape =
+                    RoundedCornerShape(24.dp)
+            )
+    ) {
+
+        // Subtle decorative glow
+
+        Box(
+            modifier = Modifier
+                .align(
+                    Alignment.TopEnd
+                )
+                .size(115.dp)
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            PrimaryGreen.copy(
+                                alpha = 0.12f
+                            ),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+
+        Column(
+            modifier = Modifier.padding(19.dp)
+        ) {
+
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .width(4.dp)
+                        .height(44.dp)
+                        .clip(
+                            RoundedCornerShape(
+                                50.dp
+                            )
+                        )
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    BrightGreen,
+                                    PrimaryGreen
+                                )
+                            )
+                        )
+                )
+
+                Spacer(
+                    modifier = Modifier.width(12.dp)
+                )
+
+                Column {
+
+                    Text(
+                        text = "VENUE OVERVIEW",
+                        color = LightGreen,
+                        fontSize = 8.sp,
+                        fontWeight =
+                            FontWeight.Bold,
+                        letterSpacing = 1.3.sp
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(4.dp)
+                    )
+
+                    Text(
+                        text = turfName,
+                        color = PrimaryText,
+                        fontSize = 17.sp,
+                        fontWeight =
+                            FontWeight.ExtraBold,
+                        maxLines = 1,
+                        overflow =
+                            TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(17.dp)
+            )
+
+            HorizontalDivider(
+                color = BorderColor
+            )
+
+            Spacer(
+                modifier = Modifier.height(14.dp)
+            )
+
+            Text(
+                text = visibleDescription,
+                color = SecondaryText,
+                fontSize = 12.sp,
+                lineHeight = 20.sp
+            )
+
+            if (
+                shouldExpand
+            ) {
+
+                Spacer(
+                    modifier = Modifier.height(13.dp)
+                )
+
+                Row(
+                    modifier = Modifier.clickable {
+                        expanded = !expanded
+                    },
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        text =
+                            if (expanded) {
+                                "Show less"
+                            } else {
+                                "Read more"
+                            },
+                        color =
+                            BrightGreen,
+                        fontSize =
+                            10.sp,
+                        fontWeight =
+                            FontWeight.Bold
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(5.dp)
+                    )
+
+                    Text(
+                        text =
+                            if (expanded) {
+                                "↑"
+                            } else {
+                                "→"
+                            },
+                        color =
+                            BrightGreen,
+                        fontSize =
+                            12.sp,
+                        fontWeight =
+                            FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+// ============================================================
+// PREMIUM AMENITY TILE
+// ============================================================
+
+@Composable
+private fun PremiumAmenityItem(
+    modifier: Modifier,
+    amenity: String
+) {
+    val icon = amenityIcon(amenity)
+
+    Row(
+        modifier = modifier
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(SecondarySurface.copy(alpha = 0.75f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = amenity,
+                modifier = Modifier.size(19.dp),
+                tint = LightGreen
+            )
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = amenity.trim(),
+                color = PrimaryText,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                lineHeight = 16.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = "Available",
+                color = MutedText,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
+private fun PremiumSportItem(
+    modifier: Modifier,
+    sport: String
+) {
+    val icon = Icons.Default.SportsSoccer
+    val displayName = sport.trim().replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+    }
+
+    Row(
+        modifier = modifier
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(PrimaryGreen.copy(alpha = 0.13f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = sport,
+                modifier = Modifier.size(22.dp),
+                tint = BrightGreen
+            )
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = displayName,
+                color = PrimaryText,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = "Available for booking",
+                color = MutedText,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
 
 // ============================================================
 // AMENITY ICON
@@ -1713,53 +1469,44 @@ private fun amenityIcon(
         Icons.Default.CheckCircle
 }
 
+
 // ============================================================
 // LOCATION CARD
 // ============================================================
 
 @Composable
-private fun LocationCard(
+private fun PremiumLocationCard(
     address: String?,
     location: String,
     city: String,
-    onOpenMaps: () -> Unit
+    onDirectionsClick: () -> Unit
 ) {
 
     Card(
         modifier =
             Modifier.fillMaxWidth(),
-
         shape =
-            RoundedCornerShape(
-                18.dp
-            ),
-
+            RoundedCornerShape(23.dp),
         colors =
             CardDefaults.cardColors(
                 containerColor =
-                    White
+                    CardBackground
             ),
-
         border =
             BorderStroke(
                 1.dp,
-                BorderGray
+                BorderColor
             ),
-
         elevation =
             CardDefaults.cardElevation(
-                defaultElevation =
-                    0.dp
+                defaultElevation = 0.dp
             )
     ) {
 
         Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        16.dp
-                    )
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
 
             Row(
@@ -1767,74 +1514,44 @@ private fun LocationCard(
                     Alignment.Top
             ) {
 
-                Box(
-                    modifier =
-                        Modifier
-                            .size(44.dp)
-                            .background(
-                                color =
-                                    LightGreenBackground,
-
-                                shape =
-                                    RoundedCornerShape(
-                                        13.dp
-                                    )
-                            ),
-
-                    contentAlignment =
-                        Alignment.Center
-                ) {
+                PremiumIconBox {
 
                     Icon(
                         imageVector =
                             Icons.Default.LocationOn,
-
                         contentDescription =
                             "Location",
-
                         modifier =
-                            Modifier.size(
-                                23.dp
-                            ),
-
+                            Modifier.size(21.dp),
                         tint =
-                            ForestGreen
+                            LightGreen
                     )
                 }
 
                 Spacer(
                     modifier =
-                        Modifier.width(
-                            12.dp
-                        )
+                        Modifier.width(12.dp)
                 )
 
                 Column(
                     modifier =
-                        Modifier.weight(
-                            1f
-                        )
+                        Modifier.weight(1f)
                 ) {
 
                     Text(
                         text =
                             "Turf Location",
-
-                        fontSize =
-                            15.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
                         color =
-                            Charcoal
+                            PrimaryText,
+                        fontSize =
+                            14.sp,
+                        fontWeight =
+                            FontWeight.Bold
                     )
 
                     Spacer(
                         modifier =
-                            Modifier.height(
-                                4.dp
-                            )
+                            Modifier.height(5.dp)
                     )
 
                     if (
@@ -1844,97 +1561,71 @@ private fun LocationCard(
                         Text(
                             text =
                                 address,
-
+                            color =
+                                SecondaryText,
                             fontSize =
-                                13.sp,
-
+                                11.sp,
                             lineHeight =
-                                19.sp,
-
-                            color =
-                                Gray
+                                18.sp
                         )
                     }
 
-                    if (
-                        location.isNotBlank() ||
-                        city.isNotBlank()
-                    ) {
+                    Spacer(
+                        modifier =
+                            Modifier.height(3.dp)
+                    )
 
-                        Spacer(
-                            modifier =
-                                Modifier.height(
-                                    3.dp
-                                )
-                        )
-
-                        Text(
-                            text =
-                                listOf(
-                                    location,
-                                    city
-                                )
-                                    .filter {
-                                        it.isNotBlank()
-                                    }
-                                    .joinToString(
-                                        ", "
-                                    ),
-
-                            fontSize =
-                                12.sp,
-
-                            color =
-                                SoftGray
-                        )
-                    }
+                    Text(
+                        text =
+                            listOf(
+                                location,
+                                city
+                            )
+                                .filter {
+                                    it.isNotBlank()
+                                }
+                                .joinToString(
+                                    ", "
+                                ),
+                        color =
+                            MutedText,
+                        fontSize =
+                            10.sp
+                    )
                 }
             }
 
             Spacer(
                 modifier =
-                    Modifier.height(
-                        14.dp
-                    )
+                    Modifier.height(15.dp)
             )
 
             HorizontalDivider(
-                color =
-                    BorderGray
+                color = BorderColor
             )
 
             Spacer(
                 modifier =
-                    Modifier.height(
-                        13.dp
-                    )
+                    Modifier.height(13.dp)
             )
 
             Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable(
-                            onClick =
-                                onOpenMaps
-                        )
-                        .background(
-                            color =
-                                DarkGreen,
-
-                            shape =
-                                RoundedCornerShape(
-                                    12.dp
-                                )
-                        )
-                        .padding(
-                            horizontal =
-                                14.dp,
-
-                            vertical =
-                                12.dp
-                        ),
-
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(
+                        RoundedCornerShape(14.dp)
+                    )
+                    .background(
+                        PrimaryGreen
+                    )
+                    .clickable(
+                        onClick =
+                            onDirectionsClick
+                    )
+                    .padding(
+                        horizontal = 14.dp,
+                        vertical = 11.dp
+                    ),
                 verticalAlignment =
                     Alignment.CenterVertically
             ) {
@@ -1942,121 +1633,192 @@ private fun LocationCard(
                 Icon(
                     imageVector =
                         Icons.Default.Directions,
-
                     contentDescription =
-                        "Open Google Maps",
-
+                        "Get directions",
                     modifier =
-                        Modifier.size(
-                            20.dp
-                        ),
-
+                        Modifier.size(18.dp),
                     tint =
-                        White
+                        Background
                 )
 
                 Spacer(
                     modifier =
-                        Modifier.width(
-                            9.dp
-                        )
+                        Modifier.width(8.dp)
                 )
 
                 Text(
                     text =
-                        "Open in Google Maps",
-
+                        "Get Directions",
                     modifier =
-                        Modifier.weight(
-                            1f
-                        ),
-
-                    fontSize =
-                        13.sp,
-
-                    fontWeight =
-                        FontWeight.Bold,
-
+                        Modifier.weight(1f),
                     color =
-                        White
+                        Background,
+                    fontSize =
+                        12.sp,
+                    fontWeight =
+                        FontWeight.ExtraBold
                 )
 
-                Text(
-                    text =
-                        "›",
-
-                    fontSize =
-                        23.sp,
-
-                    color =
-                        White,
-
-                    fontWeight =
-                        FontWeight.Light
+                Icon(
+                    imageVector =
+                        Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    modifier =
+                        Modifier.size(17.dp),
+                    tint =
+                        Background
                 )
             }
         }
     }
 }
 
-// ============================================================
-// OPEN GOOGLE MAPS
-// ============================================================
-
-private fun openGoogleMaps(
-    context: android.content.Context,
-    query: String
-) {
-
-    try {
-
-        val mapsIntent =
-            Intent(
-                Intent.ACTION_VIEW,
-
-                Uri.parse(
-                    "geo:0,0?q=${Uri.encode(query)}"
-                )
-            ).apply {
-
-                setPackage(
-                    "com.google.android.apps.maps"
-                )
-            }
-
-        context.startActivity(
-            mapsIntent
-        )
-
-    } catch (
-        _: ActivityNotFoundException
-    ) {
-
-        val browserIntent =
-            Intent(
-                Intent.ACTION_VIEW,
-
-                Uri.parse(
-                    "https://www.google.com/maps/search/?api=1&query=${
-                        Uri.encode(
-                            query
-                        )
-                    }"
-                )
-            )
-
-        context.startActivity(
-            browserIntent
-        )
-    }
-}
 
 // ============================================================
-// CUSTOMER REVIEW CARD
+// RATING SUMMARY
 // ============================================================
 
 @Composable
-private fun ReviewCard(
+private fun PremiumRatingSummary(
+    rating: Double,
+    reviewCount: Int,
+    isLoading: Boolean
+) {
+
+    Card(
+        modifier =
+            Modifier.fillMaxWidth(),
+        shape =
+            RoundedCornerShape(20.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    CardBackground
+            ),
+        border =
+            BorderStroke(
+                1.dp,
+                BorderColor
+            ),
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = 0.dp
+            )
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(
+                        RoundedCornerShape(15.dp)
+                    )
+                    .background(
+                        SecondarySurface
+                    ),
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.Star,
+                    contentDescription =
+                        "Rating",
+                    modifier =
+                        Modifier.size(25.dp),
+                    tint =
+                        StarColor
+                )
+            }
+
+            Spacer(
+                modifier =
+                    Modifier.width(13.dp)
+            )
+
+            Column(
+                modifier =
+                    Modifier.weight(1f)
+            ) {
+
+                Text(
+                    text =
+                        if (
+                            reviewCount > 0
+                        ) {
+                            String.format(
+                                Locale.getDefault(),
+                                "%.1f",
+                                rating
+                            )
+                        } else {
+                            "No rating"
+                        },
+                    color =
+                        PrimaryText,
+                    fontSize =
+                        20.sp,
+                    fontWeight =
+                        FontWeight.ExtraBold
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.height(2.dp)
+                )
+
+                Text(
+                    text =
+                        when {
+
+                            isLoading ->
+                                "Loading reviews..."
+
+                            reviewCount == 0 ->
+                                "Be the first to review"
+
+                            reviewCount == 1 ->
+                                "1 customer review"
+
+                            else ->
+                                "$reviewCount customer reviews"
+                        },
+                    color =
+                        SecondaryText,
+                    fontSize =
+                        10.sp
+                )
+            }
+
+            if (
+                reviewCount > 0 &&
+                !isLoading
+            ) {
+
+                StarRating(
+                    rating =
+                        rating.toInt()
+                )
+            }
+        }
+    }
+}
+
+
+// ============================================================
+// REVIEW CARD
+// ============================================================
+
+@Composable
+private fun PremiumReviewCard(
     review: Review
 ) {
 
@@ -2084,28 +1846,21 @@ private fun ReviewCard(
     Card(
         modifier =
             Modifier.fillMaxWidth(),
-
         shape =
-            RoundedCornerShape(
-                16.dp
-            ),
-
+            RoundedCornerShape(19.dp),
         colors =
             CardDefaults.cardColors(
                 containerColor =
-                    White
+                    CardBackground
             ),
-
         border =
             BorderStroke(
                 1.dp,
-                BorderGray
+                BorderColor
             ),
-
         elevation =
             CardDefaults.cardElevation(
-                defaultElevation =
-                    0.dp
+                defaultElevation = 0.dp
             )
     ) {
 
@@ -2113,9 +1868,7 @@ private fun ReviewCard(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(
-                        16.dp
-                    )
+                    .padding(15.dp)
         ) {
 
             Row(
@@ -2124,17 +1877,12 @@ private fun ReviewCard(
             ) {
 
                 Box(
-                    modifier =
-                        Modifier
-                            .size(42.dp)
-                            .background(
-                                color =
-                                    LightGreenBackground,
-
-                                shape =
-                                    CircleShape
-                            ),
-
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(
+                            SecondarySurface
+                        ),
                     contentAlignment =
                         Alignment.Center
                 ) {
@@ -2142,51 +1890,39 @@ private fun ReviewCard(
                     Text(
                         text =
                             reviewerInitial,
-
-                        fontSize =
-                            16.sp,
-
-                        fontWeight =
-                            FontWeight.ExtraBold,
-
                         color =
-                            DarkGreen
+                            LightGreen,
+                        fontSize =
+                            15.sp,
+                        fontWeight =
+                            FontWeight.ExtraBold
                     )
                 }
 
                 Spacer(
                     modifier =
-                        Modifier.width(
-                            11.dp
-                        )
+                        Modifier.width(11.dp)
                 )
 
                 Column(
                     modifier =
-                        Modifier.weight(
-                            1f
-                        )
+                        Modifier.weight(1f)
                 ) {
 
                     Text(
                         text =
                             reviewerName,
-
-                        fontSize =
-                            14.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
                         color =
-                            Charcoal
+                            PrimaryText,
+                        fontSize =
+                            13.sp,
+                        fontWeight =
+                            FontWeight.Bold
                     )
 
                     Spacer(
                         modifier =
-                            Modifier.height(
-                                3.dp
-                            )
+                            Modifier.height(4.dp)
                     )
 
                     Row(
@@ -2205,20 +1941,16 @@ private fun ReviewCard(
 
                             Spacer(
                                 modifier =
-                                    Modifier.width(
-                                        8.dp
-                                    )
+                                    Modifier.width(8.dp)
                             )
 
                             Text(
                                 text =
                                     formattedDate,
-
-                                fontSize =
-                                    11.sp,
-
                                 color =
-                                    SoftGray
+                                    MutedText,
+                                fontSize =
+                                    9.sp
                             )
                         }
                     }
@@ -2226,49 +1958,35 @@ private fun ReviewCard(
             }
 
             if (
-                !review.comment
-                    .isNullOrBlank()
+                !review.comment.isNullOrBlank()
             ) {
 
                 Spacer(
                     modifier =
-                        Modifier.height(
-                            13.dp
-                        )
+                        Modifier.height(12.dp)
                 )
 
                 Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color =
-                                    SoftGreen,
-
-                                shape =
-                                    RoundedCornerShape(
-                                        12.dp
-                                    )
-                            )
-                            .padding(
-                                13.dp
-                            )
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(
+                            RoundedCornerShape(12.dp)
+                        )
+                        .background(
+                            SecondarySurface
+                        )
+                        .padding(12.dp)
                 ) {
 
                     Text(
                         text =
-                            review.comment
-                                ?.trim()
-                                ?: "",
-
-                        fontSize =
-                            13.sp,
-
-                        lineHeight =
-                            20.sp,
-
+                            review.comment.trim(),
                         color =
-                            Charcoal
+                            SecondaryText,
+                        fontSize =
+                            11.sp,
+                        lineHeight =
+                            18.sp
                     )
                 }
 
@@ -2276,25 +1994,22 @@ private fun ReviewCard(
 
                 Spacer(
                     modifier =
-                        Modifier.height(
-                            10.dp
-                        )
+                        Modifier.height(9.dp)
                 )
 
                 Text(
                     text =
                         "Customer left a rating without a comment.",
-
-                    fontSize =
-                        12.sp,
-
                     color =
-                        SoftGray
+                        MutedText,
+                    fontSize =
+                        10.sp
                 )
             }
         }
     }
 }
+
 
 // ============================================================
 // STAR RATING
@@ -2307,10 +2022,7 @@ private fun StarRating(
 
     Row(
         horizontalArrangement =
-            Arrangement.spacedBy(
-                2.dp
-            ),
-
+            Arrangement.spacedBy(2.dp),
         verticalAlignment =
             Alignment.CenterVertically
     ) {
@@ -2320,168 +2032,88 @@ private fun StarRating(
             Icon(
                 imageVector =
                     Icons.Default.Star,
-
                 contentDescription =
                     null,
-
                 modifier =
-                    Modifier.size(
-                        15.dp
-                    ),
-
+                    Modifier.size(13.dp),
                 tint =
                     if (
                         index < rating
                     ) {
-                        LightGreen
+                        StarColor
                     } else {
-                        BorderGray
+                        BorderColor
                     }
             )
         }
     }
 }
 
+
 // ============================================================
 // REVIEWS LOADING
 // ============================================================
 
 @Composable
-private fun ReviewsLoadingCard() {
+private fun PremiumReviewsLoadingCard() {
 
-    Card(
-        modifier =
-            Modifier.fillMaxWidth(),
-
-        shape =
-            RoundedCornerShape(
-                16.dp
-            ),
-
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    White
-            ),
-
-        border =
-            BorderStroke(
-                1.dp,
-                BorderGray
-            ),
-
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    0.dp
-            )
-    ) {
+    PremiumInfoCard {
 
         Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        18.dp
-                    ),
-
             verticalAlignment =
                 Alignment.CenterVertically
         ) {
 
             CircularProgressIndicator(
                 modifier =
-                    Modifier.size(
-                        22.dp
-                    ),
-
+                    Modifier.size(22.dp),
                 color =
-                    ForestGreen,
-
+                    PrimaryGreen,
                 strokeWidth =
                     2.5.dp
             )
 
             Spacer(
                 modifier =
-                    Modifier.width(
-                        12.dp
-                    )
+                    Modifier.width(12.dp)
             )
 
             Text(
                 text =
                     "Loading customer reviews...",
-
-                fontSize =
-                    13.sp,
-
                 color =
-                    Gray
+                    SecondaryText,
+                fontSize =
+                    11.sp
             )
         }
     }
 }
+
 
 // ============================================================
 // EMPTY REVIEWS
 // ============================================================
 
 @Composable
-private fun EmptyReviewsCard() {
+private fun PremiumEmptyReviewsCard() {
 
-    Card(
-        modifier =
-            Modifier.fillMaxWidth(),
-
-        shape =
-            RoundedCornerShape(
-                16.dp
-            ),
-
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    White
-            ),
-
-        border =
-            BorderStroke(
-                1.dp,
-                BorderGray
-            ),
-
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    0.dp
-            )
-    ) {
+    PremiumInfoCard {
 
         Column(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        20.dp
-                    ),
-
+                Modifier.fillMaxWidth(),
             horizontalAlignment =
                 Alignment.CenterHorizontally
         ) {
 
             Box(
-                modifier =
-                    Modifier
-                        .size(46.dp)
-                        .background(
-                            color =
-                                LightGreenBackground,
-
-                            shape =
-                                CircleShape
-                        ),
-
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(
+                        SecondarySurface
+                    ),
                 contentAlignment =
                     Alignment.Center
             ) {
@@ -2489,80 +2121,650 @@ private fun EmptyReviewsCard() {
                 Icon(
                     imageVector =
                         Icons.Default.Star,
-
                     contentDescription =
                         null,
-
                     modifier =
-                        Modifier.size(
-                            22.dp
-                        ),
-
+                        Modifier.size(23.dp),
                     tint =
-                        LightGreen
+                        StarColor
                 )
             }
 
             Spacer(
                 modifier =
-                    Modifier.height(
-                        10.dp
-                    )
+                    Modifier.height(10.dp)
             )
 
             Text(
                 text =
                     "No customer reviews yet",
-
-                fontSize =
-                    14.sp,
-
-                fontWeight =
-                    FontWeight.Bold,
-
                 color =
-                    Charcoal
+                    PrimaryText,
+                fontSize =
+                    13.sp,
+                fontWeight =
+                    FontWeight.Bold
             )
 
             Spacer(
                 modifier =
-                    Modifier.height(
-                        4.dp
-                    )
+                    Modifier.height(4.dp)
             )
 
             Text(
                 text =
                     "Customer experiences will appear here.",
-
-                fontSize =
-                    12.sp,
-
                 color =
-                    Gray
+                    MutedText,
+                fontSize =
+                    10.sp
             )
         }
     }
 }
 
+
 // ============================================================
-// DATE FORMATTER
+// CANCELLATION CARD
+// ============================================================
+
+@Composable
+private fun PremiumCancellationCard() {
+
+    PremiumInfoCard {
+
+        Column {
+
+            Row(
+                verticalAlignment =
+                    Alignment.Top
+            ) {
+
+                PremiumIconBox {
+
+                    Icon(
+                        imageVector =
+                            Icons.Default.AccessTime,
+                        contentDescription =
+                            null,
+                        modifier =
+                            Modifier.size(20.dp),
+                        tint =
+                            LightGreen
+                    )
+                }
+
+                Spacer(
+                    modifier =
+                        Modifier.width(12.dp)
+                )
+
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
+
+                    Text(
+                        text =
+                            "Free cancellation up to 24 hours",
+                        color =
+                            PrimaryText,
+                        fontSize =
+                            13.sp,
+                        fontWeight =
+                            FontWeight.Bold
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(6.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Cancellations within 24 hours may not be eligible for a refund.",
+                        color =
+                            SecondaryText,
+                        fontSize =
+                            11.sp,
+                        lineHeight =
+                            18.sp
+                    )
+                }
+            }
+
+            Spacer(
+                modifier =
+                    Modifier.height(14.dp)
+            )
+
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(
+                            RoundedCornerShape(11.dp)
+                        )
+                        .background(
+                            SecondarySurface
+                        )
+                        .padding(11.dp),
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.CheckCircle,
+                    contentDescription =
+                        null,
+                    modifier =
+                        Modifier.size(15.dp),
+                    tint =
+                        PrimaryGreen
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.width(7.dp)
+                )
+
+                Text(
+                    text =
+                        "Please review the cancellation terms before confirming your booking.",
+                    color =
+                        SecondaryText,
+                    fontSize =
+                        9.sp,
+                    lineHeight =
+                        14.sp
+                )
+            }
+        }
+    }
+}
+
+
+// ============================================================
+// PREMIUM BOOKING BAR
+// ============================================================
+
+@Composable
+private fun PremiumBookingBar(
+    price: Double,
+    onBookNowClick: () -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(
+                start = 20.dp,
+                top = 16.dp,
+                end = 20.dp,
+                bottom = 24.dp
+            )
+    ) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(
+                    RoundedCornerShape(24.dp)
+                )
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(0xFF0A1E17),
+                            CardBackground,
+                            Color(0xFF0B2118)
+                        )
+                    )
+                )
+                .border(
+                    width = 1.dp,
+                    color = BorderColor,
+                    shape =
+                        RoundedCornerShape(24.dp)
+                )
+        ) {
+
+            // Subtle CTA glow
+
+            Box(
+                modifier = Modifier
+                    .align(
+                        Alignment.CenterEnd
+                    )
+                    .size(100.dp)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                PrimaryGreen.copy(
+                                    alpha = 0.10f
+                                ),
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 16.dp,
+                        top = 10.dp,
+                        end = 10.dp,
+                        bottom = 10.dp
+                    ),
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                // Price section
+
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
+
+                    Text(
+                        text =
+                            "STARTING FROM",
+                        color =
+                            MutedText,
+                        fontSize =
+                            7.sp,
+                        fontWeight =
+                            FontWeight.Bold,
+                        letterSpacing =
+                            1.2.sp
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(2.dp)
+                    )
+
+                    Row(
+                        verticalAlignment =
+                            Alignment.Bottom
+                    ) {
+
+                        Text(
+                            text =
+                                "₹${price.toInt()}",
+                            color =
+                                PrimaryText,
+                            fontSize =
+                                21.sp,
+                            fontWeight =
+                                FontWeight.ExtraBold
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(4.dp)
+                        )
+
+                        Text(
+                            text =
+                                "/ slot",
+                            color =
+                                SecondaryText,
+                            fontSize =
+                                9.sp
+                        )
+                    }
+                }
+
+                // Booking button
+
+                Button(
+                    onClick =
+                        onBookNowClick,
+                    modifier =
+                        Modifier.height(49.dp),
+                    shape =
+                        RoundedCornerShape(15.dp),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor =
+                                PrimaryGreen,
+                            contentColor =
+                                Background
+                        ),
+                    contentPadding =
+                        PaddingValues(
+                            horizontal = 17.dp
+                        )
+                ) {
+
+                    Text(
+                        text =
+                            "BOOK NOW",
+                        fontSize =
+                            10.sp,
+                        fontWeight =
+                            FontWeight.ExtraBold,
+                        letterSpacing =
+                            0.7.sp
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(5.dp)
+                    )
+
+                    Icon(
+                        imageVector =
+                            Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription =
+                            null,
+                        modifier =
+                            Modifier.size(16.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+// ============================================================
+// PREMIUM ICON BOX
+// ============================================================
+
+@Composable
+private fun PremiumIconBox(
+    content: @Composable () -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .size(42.dp)
+            .clip(
+                RoundedCornerShape(13.dp)
+            )
+            .background(
+                SecondarySurface
+            ),
+        contentAlignment =
+            Alignment.Center
+    ) {
+
+        content()
+    }
+}
+
+
+// ============================================================
+// INFO CARD
+// ============================================================
+
+@Composable
+private fun PremiumInfoCard(
+    content: @Composable () -> Unit
+) {
+
+    Card(
+        modifier =
+            Modifier.fillMaxWidth(),
+        shape =
+            RoundedCornerShape(19.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    CardBackground
+            ),
+        border =
+            BorderStroke(
+                1.dp,
+                BorderColor
+            ),
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = 0.dp
+            )
+    ) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(15.dp)
+        ) {
+
+            content()
+        }
+    }
+}
+
+
+// ============================================================
+// BUILD LOCATION
+// ============================================================
+
+private fun buildLocationText(
+    turf: Turf
+): String {
+
+    return listOf(
+        turf.name,
+        turf.address,
+        turf.location,
+        turf.city
+    )
+        .filter {
+            !it.isNullOrBlank()
+        }
+        .joinToString(", ")
+}
+
+
+// ============================================================
+// LOADING STATE
+// ============================================================
+
+@Composable
+private fun PremiumLoadingState() {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Background
+            ),
+        horizontalAlignment =
+            Alignment.CenterHorizontally,
+        verticalArrangement =
+            Arrangement.Center
+    ) {
+
+        Box(
+            modifier = Modifier
+                .size(62.dp)
+                .clip(CircleShape)
+                .background(
+                    SecondarySurface
+                ),
+            contentAlignment =
+                Alignment.Center
+        ) {
+
+            CircularProgressIndicator(
+                modifier =
+                    Modifier.size(30.dp),
+                color =
+                    PrimaryGreen,
+                strokeWidth =
+                    3.dp
+            )
+        }
+
+        Spacer(
+            modifier =
+                Modifier.height(15.dp)
+        )
+
+        Text(
+            text =
+                "Loading turf details...",
+            color =
+                PrimaryText,
+            fontSize =
+                14.sp,
+            fontWeight =
+                FontWeight.Medium
+        )
+
+        Spacer(
+            modifier =
+                Modifier.height(5.dp)
+        )
+
+        Text(
+            text =
+                "Please wait a moment",
+            color =
+                SecondaryText,
+            fontSize =
+                11.sp
+        )
+    }
+}
+
+
+// ============================================================
+// ERROR STATE
+// ============================================================
+
+@Composable
+private fun PremiumErrorState(
+    error: String,
+    onBackClick: () -> Unit
+) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Background
+            )
+            .padding(24.dp),
+        horizontalAlignment =
+            Alignment.CenterHorizontally,
+        verticalArrangement =
+            Arrangement.Center
+    ) {
+
+        Box(
+            modifier = Modifier
+                .size(62.dp)
+                .clip(CircleShape)
+                .background(
+                    ErrorRed.copy(
+                        alpha = 0.12f
+                    )
+                ),
+            contentAlignment =
+                Alignment.Center
+        ) {
+
+            Icon(
+                imageVector =
+                    Icons.Default.Cancel,
+                contentDescription =
+                    null,
+                modifier =
+                    Modifier.size(28.dp),
+                tint =
+                    ErrorRed
+            )
+        }
+
+        Spacer(
+            modifier =
+                Modifier.height(15.dp)
+        )
+
+        Text(
+            text =
+                "Unable to load turf",
+            color =
+                PrimaryText,
+            fontSize =
+                19.sp,
+            fontWeight =
+                FontWeight.Bold
+        )
+
+        Spacer(
+            modifier =
+                Modifier.height(8.dp)
+        )
+
+        Text(
+            text =
+                error,
+            color =
+                SecondaryText,
+            fontSize =
+                12.sp
+        )
+
+        Spacer(
+            modifier =
+                Modifier.height(20.dp)
+        )
+
+        Button(
+            onClick =
+                onBackClick,
+            shape =
+                RoundedCornerShape(12.dp),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor =
+                        PrimaryGreen,
+                    contentColor =
+                        Background
+                )
+        ) {
+
+            Text(
+                text =
+                    "GO BACK",
+                fontSize =
+                    11.sp,
+                fontWeight =
+                    FontWeight.Bold
+            )
+        }
+    }
+}
+
+
+// ============================================================
+// FORMAT REVIEW DATE
 // ============================================================
 
 private fun formatReviewDate(
     createdAt: String?
 ): String {
 
-    if (
-        createdAt.isNullOrBlank()
-    ) {
-        return ""
-    }
+    val rawDate =
+        createdAt
+            ?.takeIf {
+                it.isNotBlank()
+            }
+            ?: return ""
 
     return try {
 
         val date =
-            createdAt.substringBefore(
+            rawDate.substringBefore(
                 "T"
             )
 
@@ -2570,50 +2772,44 @@ private fun formatReviewDate(
             date.split("-")
 
         if (
-            parts.size == 3
+            parts.size != 3
         ) {
+            return date
+        }
 
-            val year =
-                parts[0]
+        val year =
+            parts[0]
 
-            val month =
-                parts[1].toInt()
+        val month =
+            parts[1].toInt()
 
-            val day =
-                parts[2]
+        val day =
+            parts[2]
 
-            val monthName =
-                when (month) {
+        val monthName =
+            when (month) {
 
-                    1 -> "Jan"
-                    2 -> "Feb"
-                    3 -> "Mar"
-                    4 -> "Apr"
-                    5 -> "May"
-                    6 -> "Jun"
-                    7 -> "Jul"
-                    8 -> "Aug"
-                    9 -> "Sep"
-                    10 -> "Oct"
-                    11 -> "Nov"
-                    12 -> "Dec"
+                1 -> "Jan"
+                2 -> "Feb"
+                3 -> "Mar"
+                4 -> "Apr"
+                5 -> "May"
+                6 -> "Jun"
+                7 -> "Jul"
+                8 -> "Aug"
+                9 -> "Sep"
+                10 -> "Oct"
+                11 -> "Nov"
+                12 -> "Dec"
 
-                    else -> ""
-                }
-
-            if (
-                monthName.isNotBlank()
-            ) {
-
-                "$day $monthName $year"
-
-            } else {
-
-                date
+                else -> ""
             }
 
+        if (
+            monthName.isNotBlank()
+        ) {
+            "$day $monthName $year"
         } else {
-
             date
         }
 
@@ -2621,134 +2817,65 @@ private fun formatReviewDate(
         _: Exception
     ) {
 
-        createdAt.substringBefore(
+        rawDate.substringBefore(
             "T"
         )
     }
 }
 
+
 // ============================================================
-// SECTION TITLE
+// GOOGLE MAPS
 // ============================================================
 
-@Composable
-private fun SectionTitle(
-    title: String,
-    subtitle: String? = null,
-    icon: (@Composable () -> Unit)? = null
+private fun openGoogleMaps(
+    context: android.content.Context,
+    query: String
 ) {
 
-    Column(
-        modifier =
-            Modifier.fillMaxWidth()
-    ) {
+    val encodedQuery =
+        android.net.Uri.encode(
+            query
+        )
 
-        Row(
-            verticalAlignment =
-                Alignment.CenterVertically
-        ) {
+    try {
 
-            icon?.invoke()
+        val mapsIntent =
+            Intent(
+                Intent.ACTION_VIEW,
+                "geo:0,0?q=$encodedQuery".toUri()
+            ).apply {
 
-            if (
-                icon != null
-            ) {
-
-                Spacer(
-                    modifier =
-                        Modifier.width(
-                            8.dp
-                        )
+                setPackage(
+                    "com.google.android.apps.maps"
                 )
             }
 
-            Text(
-                text =
-                    title,
+        context.startActivity(
+            mapsIntent
+        )
 
-                fontSize =
-                    18.sp,
-
-                fontWeight =
-                    FontWeight.ExtraBold,
-
-                color =
-                    Charcoal
-            )
-        }
-
-        if (
-            subtitle != null
-        ) {
-
-            Spacer(
-                modifier =
-                    Modifier.height(
-                        3.dp
-                    )
-            )
-
-            Text(
-                text =
-                    subtitle,
-
-                fontSize =
-                    11.sp,
-
-                color =
-                    Gray
-            )
-        }
-    }
-}
-
-// ============================================================
-// INFO CARD
-// ============================================================
-
-@Composable
-private fun InfoCard(
-    content: @Composable () -> Unit
-) {
-
-    Card(
-        modifier =
-            Modifier.fillMaxWidth(),
-
-        shape =
-            RoundedCornerShape(
-                14.dp
-            ),
-
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    White
-            ),
-
-        border =
-            BorderStroke(
-                1.dp,
-                BorderGray
-            ),
-
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    0.dp
-            )
+    } catch (
+        _: ActivityNotFoundException
     ) {
 
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        15.dp
-                    )
-        ) {
+        val browserIntent =
+            Intent(
+                Intent.ACTION_VIEW,
+                "https://www.google.com/maps/search/?api=1&query=$encodedQuery"
+                    .toUri()
+            )
 
-            content()
+        try {
+
+            context.startActivity(
+                browserIntent
+            )
+
+        } catch (
+            _: ActivityNotFoundException
+        ) {
+            // No Maps or browser application available.
         }
     }
 }

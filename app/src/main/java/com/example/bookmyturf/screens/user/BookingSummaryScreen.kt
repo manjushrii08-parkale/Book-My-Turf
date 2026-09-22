@@ -1,6 +1,7 @@
 package com.example.bookmyturf.screens.user
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,23 +10,22 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,9 +42,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,24 +59,25 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 // ============================================================
-// SAME THEME AS USER HOME
+// PREMIUM BOOKMYTURF COLORS
 // ============================================================
 
-private val DarkGreen = Color(0xFF173D20)
-private val ForestGreen = Color(0xFF2E6B35)
-private val LightGreen = Color(0xFF7DBB4A)
+private val Background = Color(0xFF020C09)
+private val Surface = Color(0xFF071713)
+private val SurfaceLight = Color(0xFF102A1F)
 
-private val OffWhite = Color(0xFFF8F8F5)
-private val White = Color(0xFFFFFFFF)
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val BrightGreen = Color(0xFFB7E77A)
 
-private val Charcoal = Color(0xFF1C1C1C)
-private val Gray = Color(0xFF737373)
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFF9EAEA6)
+private val MutedText = Color(0xFF718079)
 
-private val DividerColor = Color(0xFFE5E5E0)
-private val ErrorRed = Color(0xFFD32F2F)
+private val BorderColor = Color(0xFF1B3028)
+private val ErrorRed = Color(0xFFFF6B6F)
 
 // ============================================================
-// BOOKING SUMMARY SCREEN
+// BOOKING SUMMARY
 // ============================================================
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,9 +94,9 @@ fun BookingSummaryScreen(
     ) -> Unit
 ) {
 
-    // =========================================================
+    // --------------------------------------------------------
     // VIEW MODEL
-    // =========================================================
+    // --------------------------------------------------------
 
     val repository = remember {
         TurfRepository()
@@ -105,29 +109,24 @@ fun BookingSummaryScreen(
     }
 
     val viewModel: TurfDetailsViewModel =
-        viewModel(
-            factory = factory
-        )
+        viewModel(factory = factory)
 
-    // =========================================================
+    // --------------------------------------------------------
     // STATE
-    // =========================================================
+    // --------------------------------------------------------
 
     val turf by viewModel.turf.collectAsState()
-
     val slots by viewModel.slots.collectAsState()
 
     val isLoading by viewModel.isLoading.collectAsState()
-
     val isLoadingSlots by viewModel.isLoadingSlots.collectAsState()
 
     val error by viewModel.error.collectAsState()
-
     val slotError by viewModel.slotError.collectAsState()
 
-    // =========================================================
-    // LOAD TURF + DATE-WISE SLOTS
-    // =========================================================
+    // --------------------------------------------------------
+    // LOAD TURF + SLOTS
+    // --------------------------------------------------------
 
     LaunchedEffect(
         turfId,
@@ -144,22 +143,22 @@ fun BookingSummaryScreen(
         )
     }
 
-    // =========================================================
+    // --------------------------------------------------------
     // SELECTED SLOT
-    // =========================================================
+    // --------------------------------------------------------
 
     val selectedSlot =
         slots.firstOrNull {
             it.id == slotId
         }
 
-    // =========================================================
-    // MAIN UI
-    // =========================================================
+    // --------------------------------------------------------
+    // SCREEN
+    // --------------------------------------------------------
 
     Scaffold(
 
-        containerColor = OffWhite,
+        containerColor = Background,
 
         topBar = {
 
@@ -167,21 +166,12 @@ fun BookingSummaryScreen(
 
                 title = {
 
-                    Column {
-
-                        Text(
-                            text = "Booking Summary",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Charcoal
-                        )
-
-                        Text(
-                            text = "Review your booking details",
-                            fontSize = 11.sp,
-                            color = Gray
-                        )
-                    }
+                    Text(
+                        text = "Booking Summary",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = PrimaryText
+                    )
                 },
 
                 navigationIcon = {
@@ -193,37 +183,40 @@ fun BookingSummaryScreen(
                         Icon(
                             imageVector =
                                 Icons.AutoMirrored.Filled.ArrowBack,
+
                             contentDescription =
                                 "Back",
-                            tint = Charcoal
+
+                            tint =
+                                PrimaryText
                         )
                     }
                 },
 
                 colors =
                     TopAppBarDefaults.topAppBarColors(
-                        containerColor = White,
-                        titleContentColor = Charcoal,
-                        navigationIconContentColor = Charcoal
+                        containerColor = Background,
+                        titleContentColor = PrimaryText,
+                        navigationIconContentColor = PrimaryText
                     )
             )
         }
 
-    ) { innerPadding ->
+    ) { paddingValues ->
 
         Column(
 
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(paddingValues)
                     .verticalScroll(
                         rememberScrollState()
                     )
                     .padding(
-                        horizontal = 18.dp,
-                        vertical = 18.dp
+                        horizontal = 18.dp
                     )
+                    .navigationBarsPadding()
         ) {
 
             // =================================================
@@ -235,38 +228,7 @@ fun BookingSummaryScreen(
                 isLoadingSlots
             ) {
 
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(300.dp),
-
-                    contentAlignment =
-                        Alignment.Center
-                ) {
-
-                    Column(
-                        horizontalAlignment =
-                            Alignment.CenterHorizontally
-                    ) {
-
-                        CircularProgressIndicator(
-                            color = ForestGreen
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(10.dp)
-                        )
-
-                        Text(
-                            text =
-                                "Preparing booking summary...",
-                            fontSize = 13.sp,
-                            color = Gray
-                        )
-                    }
-                }
+                LoadingState()
 
                 return@Column
             }
@@ -277,37 +239,31 @@ fun BookingSummaryScreen(
 
             if (error != null) {
 
-                SummaryMessageCard(
+                ErrorState(
                     message =
-                        error
-                            ?: "Unable to load turf details."
+                        error ?: "Unable to load turf."
                 )
 
                 return@Column
             }
-
-            // =================================================
-            // SLOT ERROR
-            // =================================================
 
             if (slotError != null) {
 
-                SummaryMessageCard(
+                ErrorState(
                     message =
-                        slotError
-                            ?: "Unable to load slot details."
+                        slotError ?: "Unable to load slot."
                 )
 
                 return@Column
             }
 
             // =================================================
-            // SLOT NOT FOUND
+            // SLOT NOT AVAILABLE
             // =================================================
 
             if (selectedSlot == null) {
 
-                SummaryMessageCard(
+                ErrorState(
                     message =
                         "Selected slot is no longer available."
                 )
@@ -316,531 +272,20 @@ fun BookingSummaryScreen(
             }
 
             // =================================================
-            // REVIEW HEADER
+            // HERO IMAGE
             // =================================================
 
-            Card(
+            TurfHero(
+                imageUrl =
+                    turf?.imageUrls?.firstOrNull(),
 
-                modifier =
-                    Modifier.fillMaxWidth(),
+                turfName =
+                    turf?.name ?: "Turf",
 
-                shape =
-                    RoundedCornerShape(20.dp),
-
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            White
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation = 2.dp
-                    )
-            ) {
-
-                Column(
-
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally
-                ) {
-
-                    Box(
-
-                        modifier =
-                            Modifier
-                                .size(56.dp)
-                                .background(
-                                    LightGreen.copy(
-                                        alpha = 0.15f
-                                    ),
-                                    RoundedCornerShape(16.dp)
-                                ),
-
-                        contentAlignment =
-                            Alignment.Center
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.Default.CheckCircle,
-
-                            contentDescription =
-                                null,
-
-                            modifier =
-                                Modifier.size(30.dp),
-
-                            tint =
-                                ForestGreen
-                        )
-                    }
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(12.dp)
-                    )
-
-                    Text(
-                        text =
-                            "Review Your Booking",
-
-                        fontSize = 20.sp,
-
-                        fontWeight =
-                            FontWeight.ExtraBold,
-
-                        color =
-                            Charcoal
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(5.dp)
-                    )
-
-                    Text(
-                        text =
-                            "Make sure everything looks correct before confirming.",
-
-                        fontSize = 11.sp,
-
-                        color =
-                            Gray
-                    )
-                }
-            }
-
-            Spacer(
-                modifier =
-                    Modifier.height(22.dp)
+                location =
+                    turf?.location
+                        ?: "Location unavailable"
             )
-
-            // =================================================
-            // TURF DETAILS TITLE
-            // =================================================
-
-            Text(
-                text =
-                    "Turf Details",
-
-                fontSize = 18.sp,
-
-                fontWeight =
-                    FontWeight.ExtraBold,
-
-                color =
-                    Charcoal
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(10.dp)
-            )
-
-            // =================================================
-            // TURF CARD
-            // =================================================
-
-            Card(
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                shape =
-                    RoundedCornerShape(18.dp),
-
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            White
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation = 2.dp
-                    )
-            ) {
-
-                Column(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                ) {
-
-                    // =================================================
-                    // TURF IMAGE
-                    // =================================================
-
-                    val turfImage =
-                        turf?.imageUrls?.firstOrNull()
-
-                    if (!turfImage.isNullOrBlank()) {
-
-                        AsyncImage(
-
-                            model =
-                                turfImage,
-
-                            contentDescription =
-                                turf?.name
-                                    ?: "Turf Image",
-
-                            contentScale =
-                                ContentScale.Crop,
-
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(190.dp)
-                                    .clip(
-                                        RoundedCornerShape(
-                                            topStart = 18.dp,
-                                            topEnd = 18.dp
-                                        )
-                                    )
-                        )
-
-                    } else {
-
-                        Box(
-
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(190.dp)
-                                    .background(
-                                        LightGreen.copy(
-                                            alpha = 0.12f
-                                        )
-                                    ),
-
-                            contentAlignment =
-                                Alignment.Center
-                        ) {
-
-                            Icon(
-                                imageVector =
-                                    Icons.Default.SportsSoccer,
-
-                                contentDescription =
-                                    "Turf",
-
-                                modifier =
-                                    Modifier.size(55.dp),
-
-                                tint =
-                                    ForestGreen
-                            )
-                        }
-                    }
-
-                    // =================================================
-                    // TURF INFORMATION
-                    // =================================================
-
-                    Column(
-
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(17.dp)
-                    ) {
-
-                        Text(
-                            text =
-                                turf?.name
-                                    ?: "Turf",
-
-                            fontSize = 19.sp,
-
-                            fontWeight =
-                                FontWeight.ExtraBold,
-
-                            color =
-                                Charcoal
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(7.dp)
-                        )
-
-                        Row(
-                            verticalAlignment =
-                                Alignment.CenterVertically
-                        ) {
-
-                            Icon(
-                                imageVector =
-                                    Icons.Default.LocationOn,
-
-                                contentDescription =
-                                    null,
-
-                                modifier =
-                                    Modifier.size(17.dp),
-
-                                tint =
-                                    ForestGreen
-                            )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.width(5.dp)
-                            )
-
-                            Text(
-                                text =
-                                    turf?.location
-                                        ?: "Location unavailable",
-
-                                fontSize = 12.sp,
-
-                                color =
-                                    Gray
-                            )
-                        }
-                    }
-                }
-            }
-
-            Spacer(
-                modifier =
-                    Modifier.height(22.dp)
-            )
-
-            // =================================================
-            // BOOKING DETAILS
-            // =================================================
-
-            Text(
-                text =
-                    "Booking Details",
-
-                fontSize = 18.sp,
-
-                fontWeight =
-                    FontWeight.ExtraBold,
-
-                color =
-                    Charcoal
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(10.dp)
-            )
-
-            Card(
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                shape =
-                    RoundedCornerShape(18.dp),
-
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            White
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation = 1.dp
-                    )
-            ) {
-
-                Column {
-
-                    SummaryDetailRow(
-                        icon =
-                            Icons.Default.CalendarMonth,
-
-                        title =
-                            "Booking Date",
-
-                        value =
-                            formatBookingDate(
-                                bookingDate
-                            )
-                    )
-
-                    SummaryDivider()
-
-                    SummaryDetailRow(
-                        icon =
-                            Icons.Default.AccessTime,
-
-                        title =
-                            "Time Slot",
-
-                        value =
-                            "${formatTime(
-                                selectedSlot.startTime
-                            )} - ${
-                                formatTime(
-                                    selectedSlot.endTime
-                                )
-                            }"
-                    )
-
-                    SummaryDivider()
-
-                    SummaryDetailRow(
-                        icon =
-                            Icons.Default.SportsSoccer,
-
-                        title =
-                            "Booking Type",
-
-                        value =
-                            "Turf Booking"
-                    )
-                }
-            }
-
-            Spacer(
-                modifier =
-                    Modifier.height(22.dp)
-            )
-
-            // =================================================
-            // PRICE SUMMARY
-            // =================================================
-
-            Text(
-                text =
-                    "Price Summary",
-
-                fontSize = 18.sp,
-
-                fontWeight =
-                    FontWeight.ExtraBold,
-
-                color =
-                    Charcoal
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(10.dp)
-            )
-
-            Card(
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                shape =
-                    RoundedCornerShape(18.dp),
-
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            White
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation = 1.dp
-                    )
-            ) {
-
-                Column(
-
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(18.dp)
-                ) {
-
-                    SummaryPriceRow(
-                        title =
-                            "Slot Price",
-
-                        amount =
-                            selectedSlot.price
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(10.dp)
-                    )
-
-                    SummaryPriceRow(
-                        title =
-                            "Booking Fee",
-
-                        amount =
-                            0.0
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(14.dp)
-                    )
-
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(
-                                    DividerColor
-                                )
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(14.dp)
-                    )
-
-                    Row(
-
-                        modifier =
-                            Modifier.fillMaxWidth(),
-
-                        horizontalArrangement =
-                            Arrangement.SpaceBetween,
-
-                        verticalAlignment =
-                            Alignment.CenterVertically
-                    ) {
-
-                        Text(
-                            text =
-                                "Total Amount",
-
-                            fontSize = 16.sp,
-
-                            fontWeight =
-                                FontWeight.ExtraBold,
-
-                            color =
-                                Charcoal
-                        )
-
-                        Text(
-                            text =
-                                "₹${selectedSlot.price.toInt()}",
-
-                            fontSize = 20.sp,
-
-                            fontWeight =
-                                FontWeight.ExtraBold,
-
-                            color =
-                                DarkGreen
-                        )
-                    }
-                }
-            }
 
             Spacer(
                 modifier =
@@ -848,7 +293,58 @@ fun BookingSummaryScreen(
             )
 
             // =================================================
-            // CONFIRM BOOKING BUTTON
+            // BOOKING DETAILS TITLE
+            // =================================================
+
+            Text(
+                text = "YOUR BOOKING",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.6.sp,
+                color = MutedText
+            )
+
+            Spacer(
+                modifier =
+                    Modifier.height(12.dp)
+            )
+
+            // =================================================
+            // BOOKING INFORMATION
+            // =================================================
+
+            BookingInformation(
+                bookingDate =
+                    bookingDate,
+
+                startTime =
+                    selectedSlot.startTime,
+
+                endTime =
+                    selectedSlot.endTime
+            )
+
+            Spacer(
+                modifier =
+                    Modifier.height(28.dp)
+            )
+
+            // =================================================
+            // PRICE
+            // =================================================
+
+            PriceSection(
+                price =
+                    selectedSlot.price.toInt()
+            )
+
+            Spacer(
+                modifier =
+                    Modifier.height(22.dp)
+            )
+
+            // =================================================
+            // CONFIRM BUTTON
             // =================================================
 
             Button(
@@ -863,52 +359,35 @@ fun BookingSummaryScreen(
                 },
 
                 modifier =
-                    Modifier.fillMaxWidth(),
+                    Modifier
+                        .fillMaxWidth()
+                        .height(58.dp),
 
                 shape =
-                    RoundedCornerShape(14.dp),
+                    RoundedCornerShape(18.dp),
 
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
-                            DarkGreen
+                            PrimaryGreen,
+
+                        contentColor =
+                            Background
+                    ),
+
+                elevation =
+                    ButtonDefaults.buttonElevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp
                     )
             ) {
 
                 Text(
-                    text =
-                        "Confirm Booking",
-
-                    fontSize =
-                        15.sp,
-
-                    fontWeight =
-                        FontWeight.Bold,
-
-                    modifier =
-                        Modifier.padding(
-                            vertical = 5.dp
-                        )
+                    text = "Confirm Booking",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
-
-            Spacer(
-                modifier =
-                    Modifier.height(12.dp)
-            )
-
-            Text(
-                text =
-                    "Please review the date, time and amount before confirming your booking.",
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                fontSize = 10.sp,
-
-                color =
-                    Gray
-            )
 
             Spacer(
                 modifier =
@@ -919,14 +398,196 @@ fun BookingSummaryScreen(
 }
 
 // ============================================================
-// DETAIL ROW
+// HERO
 // ============================================================
 
 @Composable
-private fun SummaryDetailRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    value: String
+private fun TurfHero(
+    imageUrl: String?,
+    turfName: String,
+    location: String
+) {
+
+    Box(
+
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+                .clip(
+                    RoundedCornerShape(26.dp)
+                )
+    ) {
+
+        // ----------------------------------------------------
+        // IMAGE
+        // ----------------------------------------------------
+
+        if (!imageUrl.isNullOrBlank()) {
+
+            AsyncImage(
+
+                model = imageUrl,
+
+                contentDescription =
+                    turfName,
+
+                contentScale =
+                    ContentScale.Crop,
+
+                modifier =
+                    Modifier.fillMaxSize()
+            )
+
+        } else {
+
+            Box(
+
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            SurfaceLight
+                        ),
+
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.SportsSoccer,
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.size(60.dp),
+
+                    tint =
+                        PrimaryGreen
+                )
+            }
+        }
+
+        // ----------------------------------------------------
+        // PREMIUM GRADIENT
+        // ----------------------------------------------------
+
+        Box(
+
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(
+
+                        Brush.verticalGradient(
+
+                            colors =
+                                listOf(
+                                    Color.Transparent,
+                                    Color.Transparent,
+                                    Color(0xE6020C09)
+                                )
+                        )
+                    )
+        )
+
+        // ----------------------------------------------------
+        // TURF NAME + LOCATION
+        // ----------------------------------------------------
+
+        Column(
+
+            modifier =
+                Modifier
+                    .align(
+                        Alignment.BottomStart
+                    )
+                    .padding(20.dp)
+        ) {
+
+            Text(
+                text =
+                    turfName,
+
+                fontSize =
+                    25.sp,
+
+                fontWeight =
+                    FontWeight.ExtraBold,
+
+                color =
+                    Color.White,
+
+                maxLines =
+                    1,
+
+                overflow =
+                    TextOverflow.Ellipsis
+            )
+
+            Spacer(
+                modifier =
+                    Modifier.height(7.dp)
+            )
+
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.LocationOn,
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.size(16.dp),
+
+                    tint =
+                        BrightGreen
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.width(5.dp)
+                )
+
+                Text(
+                    text =
+                        location,
+
+                    fontSize =
+                        12.sp,
+
+                    color =
+                        Color.White.copy(
+                            alpha = 0.82f
+                        ),
+
+                    maxLines =
+                        1,
+
+                    overflow =
+                        TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+// ============================================================
+// BOOKING INFORMATION
+// ============================================================
+
+@Composable
+private fun BookingInformation(
+    bookingDate: String,
+    startTime: String,
+    endTime: String
 ) {
 
     Row(
@@ -934,7 +595,99 @@ private fun SummaryDetailRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .clip(
+                    RoundedCornerShape(20.dp)
+                )
+                .background(
+                    Surface
+                )
+                .border(
+                    width = 1.dp,
+                    color = BorderColor,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 18.dp
+                ),
+
+        verticalAlignment =
+            Alignment.CenterVertically
+    ) {
+
+        // ----------------------------------------------------
+        // DATE
+        // ----------------------------------------------------
+
+        BookingDetail(
+            modifier =
+                Modifier.weight(1f),
+
+            icon =
+                Icons.Default.CalendarMonth,
+
+            title =
+                "DATE",
+
+            value =
+                formatBookingDate(
+                    bookingDate
+                )
+        )
+
+        // ----------------------------------------------------
+        // DIVIDER
+        // ----------------------------------------------------
+
+        Box(
+
+            modifier =
+                Modifier
+                    .width(1.dp)
+                    .height(42.dp)
+                    .background(
+                        BorderColor
+                    )
+        )
+
+        // ----------------------------------------------------
+        // TIME
+        // ----------------------------------------------------
+
+        BookingDetail(
+            modifier =
+                Modifier.weight(1f),
+
+            icon =
+                Icons.Default.AccessTime,
+
+            title =
+                "TIME",
+
+            value =
+                "${formatTime(startTime)} - ${
+                    formatTime(endTime)
+                }"
+        )
+    }
+}
+
+// ============================================================
+// BOOKING DETAIL
+// ============================================================
+
+@Composable
+private fun BookingDetail(
+    modifier: Modifier,
+    icon: ImageVector,
+    title: String,
+    value: String
+) {
+
+    Row(
+
+        modifier =
+            modifier,
 
         verticalAlignment =
             Alignment.CenterVertically
@@ -944,12 +697,12 @@ private fun SummaryDetailRow(
 
             modifier =
                 Modifier
-                    .size(42.dp)
+                    .size(40.dp)
+                    .clip(
+                        CircleShape
+                    )
                     .background(
-                        LightGreen.copy(
-                            alpha = 0.12f
-                        ),
-                        RoundedCornerShape(11.dp)
+                        SurfaceLight
                     ),
 
             contentAlignment =
@@ -964,37 +717,40 @@ private fun SummaryDetailRow(
                     null,
 
                 modifier =
-                    Modifier.size(20.dp),
+                    Modifier.size(18.dp),
 
                 tint =
-                    ForestGreen
+                    PrimaryGreen
             )
         }
 
         Spacer(
             modifier =
-                Modifier.width(12.dp)
+                Modifier.width(11.dp)
         )
 
-        Column(
-            modifier =
-                Modifier.weight(1f)
-        ) {
+        Column {
 
             Text(
                 text =
                     title,
 
                 fontSize =
-                    11.sp,
+                    9.sp,
+
+                fontWeight =
+                    FontWeight.Bold,
+
+                letterSpacing =
+                    1.2.sp,
 
                 color =
-                    Gray
+                    MutedText
             )
 
             Spacer(
                 modifier =
-                    Modifier.height(3.dp)
+                    Modifier.height(4.dp)
             )
 
             Text(
@@ -1002,26 +758,31 @@ private fun SummaryDetailRow(
                     value,
 
                 fontSize =
-                    14.sp,
+                    12.sp,
 
                 fontWeight =
-                    FontWeight.Bold,
+                    FontWeight.SemiBold,
 
                 color =
-                    Charcoal
+                    PrimaryText,
+
+                maxLines =
+                    2,
+
+                overflow =
+                    TextOverflow.Ellipsis
             )
         }
     }
 }
 
 // ============================================================
-// PRICE ROW
+// PRICE SECTION
 // ============================================================
 
 @Composable
-private fun SummaryPriceRow(
-    title: String,
-    amount: Double
+private fun PriceSection(
+    price: Int
 ) {
 
     Row(
@@ -1029,110 +790,180 @@ private fun SummaryPriceRow(
         modifier =
             Modifier.fillMaxWidth(),
 
+        verticalAlignment =
+            Alignment.Bottom,
+
         horizontalArrangement =
             Arrangement.SpaceBetween
     ) {
 
-        Text(
-            text =
-                title,
+        Column {
 
-            fontSize =
-                13.sp,
+            Text(
+                text =
+                    "TOTAL AMOUNT",
 
+                fontSize =
+                    10.sp,
+
+                fontWeight =
+                    FontWeight.Bold,
+
+                letterSpacing =
+                    1.5.sp,
+
+                color =
+                    MutedText
+            )
+
+            Spacer(
+                modifier =
+                    Modifier.height(5.dp)
+            )
+
+            Text(
+                text =
+                    "Final booking amount",
+
+                fontSize =
+                    12.sp,
+
+                color =
+                    SecondaryText
+            )
+        }
+
+        Row(
+            verticalAlignment =
+                Alignment.Bottom
+        ) {
+
+            Text(
+                text =
+                    "₹",
+
+                fontSize =
+                    19.sp,
+
+                fontWeight =
+                    FontWeight.Bold,
+
+                color =
+                    PrimaryGreen
+            )
+
+            Spacer(
+                modifier =
+                    Modifier.width(2.dp)
+            )
+
+            Text(
+                text =
+                    price.toString(),
+
+                fontSize =
+                    30.sp,
+
+                fontWeight =
+                    FontWeight.ExtraBold,
+
+                color =
+                    BrightGreen
+            )
+        }
+    }
+}
+
+// ============================================================
+// LOADING STATE
+// ============================================================
+
+@Composable
+private fun LoadingState() {
+
+    Box(
+
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(500.dp),
+
+        contentAlignment =
+            Alignment.Center
+    ) {
+
+        CircularProgressIndicator(
             color =
-                Gray
-        )
+                PrimaryGreen,
 
-        Text(
-            text =
-                "₹${amount.toInt()}",
-
-            fontSize =
-                13.sp,
-
-            fontWeight =
-                FontWeight.Medium,
-
-            color =
-                Charcoal
+            strokeWidth =
+                3.dp
         )
     }
 }
 
 // ============================================================
-// DIVIDER
+// ERROR STATE
 // ============================================================
 
 @Composable
-private fun SummaryDivider() {
-
-    Box(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .padding(
-                    start = 70.dp
-                )
-                .background(
-                    DividerColor
-                )
-    )
-}
-
-// ============================================================
-// MESSAGE CARD
-// ============================================================
-
-@Composable
-private fun SummaryMessageCard(
+private fun ErrorState(
     message: String
 ) {
 
-    Card(
+    Box(
 
         modifier =
-            Modifier.fillMaxWidth(),
+            Modifier
+                .fillMaxWidth()
+                .height(500.dp),
 
-        shape =
-            RoundedCornerShape(16.dp),
-
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    White
-            )
+        contentAlignment =
+            Alignment.Center
     ) {
 
         Column(
-
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
 
             horizontalAlignment =
                 Alignment.CenterHorizontally
         ) {
 
-            Icon(
-                imageVector =
-                    Icons.Default.SportsSoccer,
-
-                contentDescription =
-                    null,
+            Box(
 
                 modifier =
-                    Modifier.size(30.dp),
+                    Modifier
+                        .size(64.dp)
+                        .clip(
+                            CircleShape
+                        )
+                        .background(
+                            ErrorRed.copy(
+                                alpha = 0.10f
+                            )
+                        ),
 
-                tint =
-                    ErrorRed
-            )
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.SportsSoccer,
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.size(30.dp),
+
+                    tint =
+                        ErrorRed
+                )
+            }
 
             Spacer(
                 modifier =
-                    Modifier.height(10.dp)
+                    Modifier.height(16.dp)
             )
 
             Text(
@@ -1143,7 +974,7 @@ private fun SummaryMessageCard(
                     14.sp,
 
                 color =
-                    ErrorRed
+                    SecondaryText
             )
         }
     }
@@ -1167,7 +998,7 @@ private fun formatBookingDate(
 
         val outputFormat =
             SimpleDateFormat(
-                "EEE, dd MMM yyyy",
+                "EEE, dd MMM",
                 Locale.getDefault()
             )
 
@@ -1183,7 +1014,9 @@ private fun formatBookingDate(
             date
         }
 
-    } catch (e: Exception) {
+    } catch (
+        e: Exception
+    ) {
 
         date
     }
@@ -1223,7 +1056,9 @@ private fun formatTime(
             time
         }
 
-    } catch (e: Exception) {
+    } catch (
+        e: Exception
+    ) {
 
         time
     }

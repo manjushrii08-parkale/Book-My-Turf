@@ -1,5 +1,6 @@
 package com.example.bookmyturf.screens.user
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,13 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SportsSoccer
+
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -25,6 +29,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,38 +37,55 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
 
 import com.example.bookmyturf.data.local.SessionManager
+
 import com.example.bookmyturf.screens.user.components.SportFilterRow
 import com.example.bookmyturf.screens.user.components.TurfHomeCard
 import com.example.bookmyturf.screens.user.components.TurfSearchBar
 import com.example.bookmyturf.screens.user.components.UserHomeTopBar
 import com.example.bookmyturf.screens.user.components.UserWelcomeSection
+
 import com.example.bookmyturf.viewmodel.FavoriteViewModel
 import com.example.bookmyturf.viewmodel.NotificationViewModel
 import com.example.bookmyturf.viewmodel.UserHomeViewModel
 
+
 // ============================================================
-// PREMIUM COLORS
+// PREMIUM DARK COLORS
 // ============================================================
 
-private val DarkGreen = Color(0xFF173D20)
-private val ForestGreen = Color(0xFF2E6B35)
-private val LightGreen = Color(0xFF7DBB4A)
+private val ScreenBackground =
+    Color(0xFF020C09)
 
-private val OffWhite = Color(0xFFF8F8F5)
-private val White = Color(0xFFFFFFFF)
+private val DarkSurface =
+    Color(0xFF071713)
 
-private val Charcoal = Color(0xFF1C1C1C)
-private val Gray = Color(0xFF737373)
+private val ForestGreen =
+    Color(0xFF123D24)
+
+private val LightGreen =
+    Color(0xFF7DBB4A)
+
+private val White =
+    Color.White
+
+private val SecondaryWhite =
+    Color(0xFFB8C8C0)
+
+private val MutedText =
+    Color(0xFF82948B)
+
 
 // ============================================================
 // USER HOME SCREEN
@@ -71,24 +93,17 @@ private val Gray = Color(0xFF737373)
 
 @Composable
 fun UserHomeScreen(
-
     onTurfClick: (Int) -> Unit,
-
     onNotificationsClick: () -> Unit,
-
     onProfileClick: () -> Unit,
-
     viewModel: UserHomeViewModel = viewModel(),
-
     favoriteViewModel: FavoriteViewModel = viewModel(),
-
     notificationViewModel: NotificationViewModel = viewModel()
-
 ) {
 
-    // =========================================================
+    // ========================================================
     // TURF STATE
-    // =========================================================
+    // ========================================================
 
     val turfs by viewModel.turfs.collectAsState()
 
@@ -96,26 +111,32 @@ fun UserHomeScreen(
 
     val error by viewModel.error.collectAsState()
 
-    // =========================================================
+
+    // ========================================================
     // FAVORITE STATE
-    // =========================================================
+    // ========================================================
 
-    val favoriteStatus by
-    favoriteViewModel.favoriteStatus.collectAsState()
+    val favoriteStatus by favoriteViewModel
+        .favoriteStatus
+        .collectAsState()
 
-    val favoriteError by
-    favoriteViewModel.error.collectAsState()
+    val favoriteError by favoriteViewModel
+        .error
+        .collectAsState()
 
-    // =========================================================
+
+    // ========================================================
     // NOTIFICATION STATE
-    // =========================================================
+    // ========================================================
 
-    val unreadNotificationCount by
-    notificationViewModel.unreadCount.collectAsState()
+    val unreadNotificationCount by notificationViewModel
+        .unreadCount
+        .collectAsState()
 
-    // =========================================================
+
+    // ========================================================
     // SESSION
-    // =========================================================
+    // ========================================================
 
     val context = LocalContext.current
 
@@ -127,25 +148,28 @@ fun UserHomeScreen(
         sessionManager.getToken()
     }
 
-    // =========================================================
+
+    // ========================================================
     // SEARCH
-    // =========================================================
+    // ========================================================
 
     var searchQuery by remember {
         mutableStateOf("")
     }
 
-    // =========================================================
+
+    // ========================================================
     // SELECTED SPORT
-    // =========================================================
+    // ========================================================
 
     var selectedSport by remember {
         mutableStateOf("All")
     }
 
-    // =========================================================
-    // LOAD TURFS + FAVORITES + NOTIFICATION COUNT
-    // =========================================================
+
+    // ========================================================
+    // LOAD DATA
+    // ========================================================
 
     LaunchedEffect(token) {
 
@@ -163,67 +187,63 @@ fun UserHomeScreen(
         }
     }
 
-    // =========================================================
+
+    // ========================================================
     // FILTER TURFS
-    // =========================================================
+    // ========================================================
 
-    val filteredTurfs =
-        turfs.filter { turf ->
+    val filteredTurfs = turfs.filter { turf ->
 
-            val searchText =
-                searchQuery.trim()
+        val searchText =
+            searchQuery.trim()
 
-            val matchesSearch =
+        val matchesSearch =
+            searchText.isBlank() ||
+                    turf.name.contains(
+                        searchText,
+                        ignoreCase = true
+                    ) ||
+                    turf.location.contains(
+                        searchText,
+                        ignoreCase = true
+                    ) ||
+                    turf.city.contains(
+                        searchText,
+                        ignoreCase = true
+                    )
 
-                searchText.isBlank() ||
+        val matchesSport =
+            selectedSport == "All" ||
+                    turf.sportsTypes.any { sport ->
 
-                        turf.name.contains(
-                            searchText,
-                            ignoreCase = true
-                        ) ||
-
-                        turf.location.contains(
-                            searchText,
-                            ignoreCase = true
-                        ) ||
-
-                        turf.city.contains(
-                            searchText,
+                        sport.equals(
+                            selectedSport,
                             ignoreCase = true
                         )
+                    }
 
-            val matchesSport =
+        matchesSearch && matchesSport
+    }
 
-                selectedSport == "All" ||
 
-                        turf.sportsTypes.any { sport ->
-
-                            sport.equals(
-                                selectedSport,
-                                ignoreCase = true
-                            )
-                        }
-
-            matchesSearch && matchesSport
-        }
-
-    // =========================================================
-    // MAIN SCREEN
-    // =========================================================
+    // ========================================================
+    // MAIN HOME SCREEN
+    // ========================================================
 
     Column(
-
         modifier = Modifier
             .fillMaxSize()
-            .background(OffWhite)
+            .background(
+                ScreenBackground
+            )
     ) {
 
-        // =====================================================
+
+        // ====================================================
         // TOP BAR
-        // =====================================================
+        // ====================================================
 
         UserHomeTopBar(
-
             unreadNotificationCount =
                 unreadNotificationCount,
 
@@ -236,27 +256,28 @@ fun UserHomeScreen(
             }
         )
 
-        // =====================================================
-        // SCROLLABLE CONTENT
-        // =====================================================
+
+        // ====================================================
+        // VERTICAL HOME SCROLL
+        // ====================================================
 
         LazyColumn(
-
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxWidth()
+                .weight(1f),
 
-            contentPadding =
-                PaddingValues(
-                    top = 4.dp,
-                    bottom = 28.dp
-                ),
+            contentPadding = PaddingValues(
+                top = 0.dp,
+                bottom = 90.dp
+            ),
 
             verticalArrangement =
-                Arrangement.spacedBy(4.dp)
+                Arrangement.spacedBy(10.dp)
         ) {
 
+
             // =================================================
-            // WELCOME
+            // HERO SECTION
             // =================================================
 
             item {
@@ -264,14 +285,14 @@ fun UserHomeScreen(
                 UserWelcomeSection()
             }
 
+
             // =================================================
-            // SEARCH
+            // SEARCH BAR
             // =================================================
 
             item {
 
                 TurfSearchBar(
-
                     query = searchQuery,
 
                     onQueryChange = {
@@ -280,96 +301,36 @@ fun UserHomeScreen(
                 )
             }
 
+
             // =================================================
-            // SPORT TITLE
+            // SPORTS SECTION TITLE
             // =================================================
 
             item {
 
                 Column(
-
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
                             start = 18.dp,
                             end = 18.dp,
-                            top = 12.dp,
-                            bottom = 2.dp
+                            top = 18.dp,
+                            bottom = 4.dp
                         )
                 ) {
-
-                    Text(
-                        text = "Explore by sport",
-
-                        fontSize = 17.sp,
-
-                        fontWeight =
-                            FontWeight.ExtraBold,
-
-                        color = Charcoal
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(2.dp)
-                    )
 
                     Text(
                         text =
-                            "Choose your game and find the right turf",
+                            "Choose your sport",
 
-                        fontSize = 12.sp,
-
-                        color = Gray
-                    )
-                }
-            }
-
-            // =================================================
-            // SPORT FILTER
-            // =================================================
-
-            item {
-
-                SportFilterRow(
-
-                    selectedSport =
-                        selectedSport,
-
-                    onSportSelected = { sport ->
-
-                        selectedSport = sport
-                    }
-                )
-            }
-
-            // =================================================
-            // TURF HEADER
-            // =================================================
-
-            item {
-
-                Column(
-
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = 18.dp,
-                            end = 18.dp,
-                            top = 14.dp,
-                            bottom = 8.dp
-                        )
-                ) {
-
-                    Text(
-                        text = "Available turfs",
-
-                        fontSize = 21.sp,
+                        fontSize =
+                            20.sp,
 
                         fontWeight =
                             FontWeight.ExtraBold,
 
-                        color = Charcoal
+                        color =
+                            White
                     )
 
                     Spacer(
@@ -379,27 +340,102 @@ fun UserHomeScreen(
 
                     Text(
                         text =
-                            when {
+                            "Find the perfect place for your game",
 
-                                searchQuery.isNotBlank() ->
-                                    "Results for \"$searchQuery\""
+                        fontSize =
+                            12.sp,
 
-                                selectedSport != "All" ->
-                                    "Best ${selectedSport.lowercase()} turfs near you"
-
-                                else ->
-                                    "Book a place and start playing"
-                            },
-
-                        fontSize = 12.sp,
-
-                        color = Gray
+                        color =
+                            MutedText
                     )
                 }
             }
 
+
             // =================================================
-            // LOADING
+            // SPORTS FILTER
+            // =================================================
+
+            item {
+
+                SportFilterRow(
+                    selectedSport =
+                        selectedSport,
+
+                    onSportSelected = { sport ->
+
+                        selectedSport =
+                            sport
+                    }
+                )
+            }
+
+
+            // =================================================
+            // AVAILABLE TURFS HEADER
+            // =================================================
+
+            item {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 18.dp,
+                            end = 18.dp,
+                            top = 20.dp,
+                            bottom = 8.dp
+                        )
+                ) {
+
+                    Text(
+                        text =
+                            "Available Turfs",
+
+                        fontSize =
+                            22.sp,
+
+                        fontWeight =
+                            FontWeight.ExtraBold,
+
+                        color =
+                            White
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(4.dp)
+                    )
+
+                    Text(
+                        text =
+                            when {
+
+                                searchQuery.isNotBlank() -> {
+                                    "Results for \"$searchQuery\""
+                                }
+
+                                selectedSport != "All" -> {
+                                    "Best ${selectedSport.lowercase()} turfs"
+                                }
+
+                                else -> {
+                                    "Book your game and start playing"
+                                }
+                            },
+
+                        fontSize =
+                            12.sp,
+
+                        color =
+                            MutedText
+                    )
+                }
+            }
+
+
+            // =================================================
+            // LOADING STATE
             // =================================================
 
             if (isLoading) {
@@ -407,7 +443,6 @@ fun UserHomeScreen(
                 item {
 
                     Box(
-
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(260.dp),
@@ -417,13 +452,13 @@ fun UserHomeScreen(
                     ) {
 
                         Column(
-
                             horizontalAlignment =
                                 Alignment.CenterHorizontally
                         ) {
 
                             CircularProgressIndicator(
-                                color = ForestGreen
+                                color =
+                                    LightGreen
                             )
 
                             Spacer(
@@ -435,17 +470,20 @@ fun UserHomeScreen(
                                 text =
                                     "Finding available turfs...",
 
-                                fontSize = 13.sp,
+                                fontSize =
+                                    13.sp,
 
-                                color = Gray
+                                color =
+                                    SecondaryWhite
                             )
                         }
                     }
                 }
             }
 
+
             // =================================================
-            // ERROR
+            // ERROR STATE
             // =================================================
 
             else if (error != null) {
@@ -453,69 +491,81 @@ fun UserHomeScreen(
                 item {
 
                     Card(
-
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = 18.dp
-                                ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 18.dp
+                            ),
 
                         shape =
-                            RoundedCornerShape(18.dp),
+                            RoundedCornerShape(20.dp),
 
                         colors =
                             CardDefaults.cardColors(
                                 containerColor =
-                                    White
+                                    DarkSurface
                             ),
 
-                        elevation =
-                            CardDefaults.cardElevation(
-                                defaultElevation = 2.dp
+                        border =
+                            BorderStroke(
+                                1.dp,
+                                Color(0xFF16382B)
                             )
                     ) {
 
                         Column(
-
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(24.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(26.dp),
 
                             horizontalAlignment =
                                 Alignment.CenterHorizontally
                         ) {
 
-                            Icon(
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .background(
+                                        ForestGreen,
+                                        CircleShape
+                                    ),
 
-                                imageVector =
-                                    Icons.Default.Refresh,
+                                contentAlignment =
+                                    Alignment.Center
+                            ) {
 
-                                contentDescription =
-                                    null,
+                                Icon(
+                                    imageVector =
+                                        Icons.Default.Refresh,
 
+                                    contentDescription =
+                                        null,
+
+                                    modifier =
+                                        Modifier.size(27.dp),
+
+                                    tint =
+                                        LightGreen
+                                )
+                            }
+
+                            Spacer(
                                 modifier =
-                                    Modifier
-                                        .padding(
-                                            bottom = 10.dp
-                                        )
-                                        .height(30.dp),
-
-                                tint = ForestGreen
+                                    Modifier.height(14.dp)
                             )
 
                             Text(
-
                                 text =
                                     "Unable to load turfs",
 
-                                fontSize = 17.sp,
+                                fontSize =
+                                    18.sp,
 
                                 fontWeight =
                                     FontWeight.Bold,
 
-                                color = Charcoal
+                                color =
+                                    White
                             )
 
                             Spacer(
@@ -524,23 +574,23 @@ fun UserHomeScreen(
                             )
 
                             Text(
-
                                 text =
                                     error
                                         ?: "Something went wrong.",
 
-                                fontSize = 12.sp,
+                                fontSize =
+                                    12.sp,
 
-                                color = Gray
+                                color =
+                                    MutedText
                             )
 
                             Spacer(
                                 modifier =
-                                    Modifier.height(16.dp)
+                                    Modifier.height(18.dp)
                             )
 
                             Button(
-
                                 onClick = {
                                     viewModel.loadTurfs()
                                 },
@@ -548,7 +598,10 @@ fun UserHomeScreen(
                                 colors =
                                     ButtonDefaults.buttonColors(
                                         containerColor =
-                                            DarkGreen
+                                            LightGreen,
+
+                                        contentColor =
+                                            Color(0xFF06130F)
                                     ),
 
                                 shape =
@@ -556,7 +609,8 @@ fun UserHomeScreen(
                             ) {
 
                                 Text(
-                                    text = "Try Again",
+                                    text =
+                                        "Try Again",
 
                                     fontWeight =
                                         FontWeight.Bold
@@ -567,8 +621,9 @@ fun UserHomeScreen(
                 }
             }
 
+
             // =================================================
-            // EMPTY
+            // EMPTY STATE
             // =================================================
 
             else if (filteredTurfs.isEmpty()) {
@@ -576,47 +631,40 @@ fun UserHomeScreen(
                 item {
 
                     Card(
-
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = 18.dp
-                                ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 18.dp
+                            ),
 
                         shape =
-                            RoundedCornerShape(18.dp),
+                            RoundedCornerShape(20.dp),
 
                         colors =
                             CardDefaults.cardColors(
                                 containerColor =
-                                    White
+                                    DarkSurface
                             )
                     ) {
 
                         Column(
-
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        vertical = 40.dp,
-                                        horizontal = 20.dp
-                                    ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = 42.dp,
+                                    horizontal = 20.dp
+                                ),
 
                             horizontalAlignment =
                                 Alignment.CenterHorizontally
                         ) {
 
                             Box(
-
                                 modifier = Modifier
-                                    .size(58.dp)
+                                    .size(60.dp)
                                     .background(
-                                        LightGreen.copy(
-                                            alpha = 0.14f
-                                        ),
-                                        shape = CircleShape
+                                        ForestGreen,
+                                        CircleShape
                                     ),
 
                                 contentAlignment =
@@ -624,31 +672,27 @@ fun UserHomeScreen(
                             ) {
 
                                 Icon(
-
                                     imageVector =
-                                        Icons.Default
-                                            .SportsSoccer,
+                                        Icons.Default.SportsSoccer,
 
                                     contentDescription =
                                         null,
 
                                     modifier =
-                                        Modifier.size(28.dp),
+                                        Modifier.size(29.dp),
 
                                     tint =
-                                        ForestGreen
+                                        LightGreen
                                 )
                             }
 
                             Spacer(
                                 modifier =
-                                    Modifier.height(14.dp)
+                                    Modifier.height(15.dp)
                             )
 
                             Text(
-
                                 text =
-
                                     if (
                                         searchQuery.isNotBlank() ||
                                         selectedSport != "All"
@@ -658,55 +702,60 @@ fun UserHomeScreen(
                                         "No turfs available"
                                     },
 
-                                fontSize = 18.sp,
+                                fontSize =
+                                    18.sp,
 
                                 fontWeight =
                                     FontWeight.Bold,
 
-                                color = Charcoal
+                                color =
+                                    White
                             )
 
                             Spacer(
                                 modifier =
-                                    Modifier.height(6.dp)
+                                    Modifier.height(7.dp)
                             )
 
                             Text(
-
                                 text =
                                     "Try another sport, city or location.",
 
-                                fontSize = 12.sp,
+                                fontSize =
+                                    12.sp,
 
-                                color = Gray
+                                color =
+                                    MutedText
                             )
                         }
                     }
                 }
             }
 
+
             // =================================================
-            // TURF LIST
+            // VERTICAL TURF CARD LIST
             // =================================================
 
             else {
 
                 items(
-
                     items = filteredTurfs,
 
                     key = { turf ->
                         turf.id
                     }
-
                 ) { turf ->
 
                     TurfHomeCard(
 
-                        turf = turf,
+                        turf =
+                            turf,
 
                         isFavorite =
-                            favoriteStatus[turf.id] == true,
+                            favoriteStatus[
+                                turf.id
+                            ] == true,
 
                         onClick = {
 
@@ -717,39 +766,45 @@ fun UserHomeScreen(
 
                         onFavoriteClick = {
 
-                            if (token.isNullOrBlank()) {
-                                return@TurfHomeCard
-                            }
+                            if (
+                                !token.isNullOrBlank()
+                            ) {
 
-                            val currentlyFavorite =
-                                favoriteStatus[turf.id] == true
+                                val currentlyFavorite =
+                                    favoriteStatus[
+                                        turf.id
+                                    ] == true
 
-                            if (currentlyFavorite) {
+                                if (
+                                    currentlyFavorite
+                                ) {
 
-                                favoriteViewModel.removeFavorite(
-                                    token = token,
-                                    turfId = turf.id
-                                )
+                                    favoriteViewModel
+                                        .removeFavorite(
+                                            token = token,
+                                            turfId = turf.id
+                                        )
 
-                            } else {
+                                } else {
 
-                                favoriteViewModel.addFavorite(
-                                    token = token,
-                                    turfId = turf.id
-                                )
+                                    favoriteViewModel
+                                        .addFavorite(
+                                            token = token,
+                                            turfId = turf.id
+                                        )
+                                }
                             }
                         },
 
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = 18.dp,
-                                    vertical = 6.dp
-                                )
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 18.dp
+                            )
                     )
                 }
             }
+
 
             // =================================================
             // FAVORITE ERROR
@@ -760,25 +815,26 @@ fun UserHomeScreen(
                 item {
 
                     Text(
-
                         text =
                             favoriteError
                                 ?: "Unable to update favorite.",
 
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = 18.dp,
-                                    vertical = 8.dp
-                                ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 18.dp,
+                                vertical = 8.dp
+                            ),
 
-                        fontSize = 12.sp,
+                        fontSize =
+                            12.sp,
 
-                        color = Color(0xFFD32F2F)
+                        color =
+                            Color(0xFFFF6B6B)
                     )
                 }
             }
+
 
             // =================================================
             // BOTTOM SPACE
@@ -788,7 +844,7 @@ fun UserHomeScreen(
 
                 Spacer(
                     modifier =
-                        Modifier.height(12.dp)
+                        Modifier.height(18.dp)
                 )
             }
         }

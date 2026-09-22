@@ -1,41 +1,42 @@
 package com.example.bookmyturf.screens.user.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
 // ============================================================
-// BOOKMYTURF PREMIUM COLORS
+// BOOKMYTURF DARK PREMIUM COLORS
 // ============================================================
 
-private val DarkGreen = Color(0xFF173D20)
-private val ForestGreen = Color(0xFF2E6B35)
-private val LightGreen = Color(0xFF7DBB4A)
+private val BackgroundDark = Color(0xFF020C09)
+private val SearchBackground = Color(0xFF0B1C16)
+private val BorderColor = Color(0xFF1D3029)
 
 private val White = Color(0xFFFFFFFF)
-private val Charcoal = Color(0xFF1C1C1C)
-private val Gray = Color(0xFF737373)
+private val SecondaryText = Color(0xFF9EAAA4)
 
-private val SoftBorder = Color(0xFFE3E8DF)
-private val FocusBorder = Color(0xFF7DBB4A)
-private val SoftGreen = Color(0xFFF0F5EA)
+private val LightGreen = Color(0xFF7DBB4A)
+private val BrightGreen = Color(0xFF9FE15A)
 
 
 // ============================================================
@@ -48,171 +49,114 @@ fun TurfSearchBar(
     onQueryChange: (String) -> Unit
 ) {
 
-    OutlinedTextField(
-
-        // =====================================================
-        // VALUE
-        // =====================================================
-
-        value = query,
-
-        onValueChange = onQueryChange,
-
-        // =====================================================
-        // SIZE
-        // =====================================================
-
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
                 horizontal = 18.dp,
-                vertical = 7.dp
+                vertical = 10.dp
+            )
+            .background(
+                color = SearchBackground,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .then(
+                Modifier
+            )
+            .padding(
+                horizontal = 6.dp,
+                vertical = 4.dp
             ),
 
-        singleLine = true,
+        verticalAlignment = Alignment.CenterVertically,
 
-        // =====================================================
-        // PLACEHOLDER
-        // =====================================================
+        horizontalArrangement = Arrangement.Start
+    ) {
 
-        placeholder = {
-
-            Text(
-                text = "Search turf, city or location",
-
-                fontSize = 13.sp,
-
-                fontWeight = FontWeight.Normal,
-
-                color = Gray
-            )
-        },
-
-        // =====================================================
+        // ====================================================
         // SEARCH ICON
-        // =====================================================
+        // ====================================================
 
-        leadingIcon = {
+        Icon(
+            imageVector = Icons.Default.Search,
 
-            Icon(
-                imageVector = Icons.Default.Search,
+            contentDescription = "Search",
 
-                contentDescription = "Search",
+            modifier = Modifier
+                .padding(start = 10.dp)
+                .size(22.dp),
 
-                tint = ForestGreen
-            )
-        },
+            tint = LightGreen
+        )
 
-        // =====================================================
-        // CLEAR BUTTON
-        // =====================================================
+        // ====================================================
+        // SEARCH INPUT
+        // ====================================================
 
-        trailingIcon = {
+        BasicTextField(
 
-            if (query.isNotBlank()) {
+            value = query,
 
-                IconButton(
-                    onClick = {
-                        onQueryChange("")
-                    }
-                ) {
+            onValueChange = onQueryChange,
 
-                    Icon(
-                        imageVector = Icons.Default.Clear,
+            modifier = Modifier
+                .weight(1f)
+                .padding(
+                    horizontal = 12.dp,
+                    vertical = 11.dp
+                ),
 
-                        contentDescription = "Clear search",
+            singleLine = true,
 
-                        tint = Gray
+            textStyle = TextStyle(
+                color = White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            ),
+
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Search
+            ),
+
+            decorationBox = { innerTextField ->
+
+                if (query.isEmpty()) {
+
+                    androidx.compose.material3.Text(
+                        text = "Search turf, city or location",
+
+                        color = SecondaryText,
+
+                        fontSize = 13.sp,
+
+                        fontWeight = FontWeight.Normal
                     )
                 }
+
+                innerTextField()
             }
-        },
+        )
 
-        // =====================================================
-        // SHAPE
-        // =====================================================
+        // ====================================================
+        // CLEAR BUTTON
+        // ====================================================
 
-        shape = RoundedCornerShape(16.dp),
+        if (query.isNotBlank()) {
 
-        // =====================================================
-        // KEYBOARD
-        // =====================================================
+            IconButton(
+                onClick = {
+                    onQueryChange("")
+                }
+            ) {
 
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Search
-        ),
+                Icon(
+                    imageVector = Icons.Default.Clear,
 
-        // =====================================================
-        // COLORS
-        // =====================================================
+                    contentDescription = "Clear search",
 
-        colors = OutlinedTextFieldDefaults.colors(
-
-            // -------------------------------------------------
-            // UNFOCUSED
-            // -------------------------------------------------
-
-            unfocusedContainerColor = White,
-
-            unfocusedBorderColor = SoftBorder,
-
-            unfocusedTextColor = Charcoal,
-
-            // -------------------------------------------------
-            // FOCUSED
-            // -------------------------------------------------
-
-            focusedContainerColor = SoftGreen.copy(
-                alpha = 0.35f
-            ),
-
-            focusedBorderColor = FocusBorder,
-
-            focusedTextColor = Charcoal,
-
-            // -------------------------------------------------
-            // CURSOR
-            // -------------------------------------------------
-
-            cursorColor = ForestGreen,
-
-            // -------------------------------------------------
-            // LEADING ICON
-            // -------------------------------------------------
-
-            focusedLeadingIconColor = ForestGreen,
-
-            unfocusedLeadingIconColor = ForestGreen,
-
-            // -------------------------------------------------
-            // PLACEHOLDER
-            // -------------------------------------------------
-
-            focusedPlaceholderColor = Gray,
-
-            unfocusedPlaceholderColor = Gray,
-
-            // -------------------------------------------------
-            // TRAILING ICON
-            // -------------------------------------------------
-
-            focusedTrailingIconColor = Gray,
-
-            unfocusedTrailingIconColor = Gray
-        ),
-
-        // =====================================================
-        // TEXT STYLE
-        // =====================================================
-
-        textStyle = androidx.compose.material3.MaterialTheme
-            .typography
-            .bodyMedium
-            .copy(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Charcoal
-            )
-    )
+                    tint = SecondaryText
+                )
+            }
+        }
+    }
 }
-

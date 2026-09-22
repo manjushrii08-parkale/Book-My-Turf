@@ -1,25 +1,20 @@
 package com.example.bookmyturf.screens.user
 
 import androidx.activity.compose.BackHandler
+
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ReceiptLong
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,35 +23,52 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.data.repository.TurfRepository
-import com.example.bookmyturf.ui.theme.UserDarkGreen
-import com.example.bookmyturf.ui.theme.UserLightGreen
+
+import com.example.bookmyturf.screens.user.components.UserBottomNavigation
+
 import com.example.bookmyturf.viewmodel.BookingViewModel
 import com.example.bookmyturf.viewmodel.FavoriteViewModel
 import com.example.bookmyturf.viewmodel.NotificationViewModel
 import com.example.bookmyturf.viewmodel.UserProfileViewModel
 import com.example.bookmyturf.viewmodel.UserProfileViewModelFactory
 
-// =========================================================
-// BOTTOM NAVIGATION ITEM
-// =========================================================
 
-private data class UserBottomItem(
-    val title: String,
-    val icon: ImageVector
-)
+// ============================================================
+// BOOK MY TURF PREMIUM COLORS
+// ============================================================
 
-// =========================================================
+private val ScreenBackground =
+    Color(0xFF020C09)
+
+private val SelectedGreen =
+    Color(0xFF7DBB4A)
+
+private val White =
+    Color(0xFFF5F8F6)
+
+private val DialogBackground =
+    Color(0xFF071713)
+
+private val DialogText =
+    Color(0xFFE8F0EC)
+
+
+// ============================================================
 // USER MAIN SCREEN
-// =========================================================
+// ============================================================
 
 @Composable
 fun UserMainScreen(
@@ -65,82 +77,90 @@ fun UserMainScreen(
     onEditProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onRateReviewClick: (bookingId: Int, turfName: String) -> Unit
+    onRateReviewClick: (
+        bookingId: Int,
+        turfName: String
+    ) -> Unit
 ) {
 
-    // =====================================================
-    // SELECTED TAB
-    // =====================================================
+    // ========================================================
+    // SELECTED BOTTOM TAB
+    // ========================================================
 
     var selectedItem by remember {
         mutableIntStateOf(0)
     }
 
-    // =====================================================
-    // LOGOUT DIALOG STATE
-    // =====================================================
+
+    // ========================================================
+    // LOGOUT DIALOG
+    // ========================================================
 
     var showLogoutDialog by remember {
         mutableStateOf(false)
     }
 
-    // =====================================================
+
+    // ========================================================
     // CONTEXT
-    // =====================================================
+    // ========================================================
 
-    val context = LocalContext.current
+    val context =
+        LocalContext.current
 
-    // =====================================================
+
+    // ========================================================
     // SESSION MANAGER
-    // =====================================================
+    // ========================================================
 
-    val sessionManager = remember(context) {
-        SessionManager(context)
-    }
+    val sessionManager =
+        remember(context) {
+            SessionManager(context)
+        }
 
-    // =====================================================
-    // SAVED EMAIL
-    // =====================================================
 
-    val userEmail = remember(sessionManager) {
-        sessionManager.getEmail()
-    }
+    // ========================================================
+    // USER EMAIL
+    // ========================================================
 
-    // =====================================================
-    // SHARED FAVORITE VIEWMODEL
-    // =====================================================
+    val userEmail =
+        remember(sessionManager) {
+            sessionManager.getEmail()
+        }
+
+
+    // ========================================================
+    // FAVORITE VIEWMODEL
+    // ========================================================
 
     val favoriteViewModel: FavoriteViewModel =
         viewModel()
 
-    // =====================================================
-    // SHARED BOOKING VIEWMODEL
-    // =====================================================
+
+    // ========================================================
+    // BOOKING VIEWMODEL
+    // ========================================================
 
     val bookingViewModel: BookingViewModel =
         viewModel()
 
-    // =====================================================
-    // SHARED NOTIFICATION VIEWMODEL
-    // =====================================================
+
+    // ========================================================
+    // NOTIFICATION VIEWMODEL
+    // ========================================================
 
     val notificationViewModel: NotificationViewModel =
         viewModel()
 
-    // =====================================================
-    // NOTIFICATION UNREAD COUNT
-    // =====================================================
 
-    val unreadNotificationCount by
-    notificationViewModel.unreadCount.collectAsState()
-
-    // =====================================================
+    // ========================================================
     // LOAD NOTIFICATION COUNT
-    // =====================================================
+    // ========================================================
 
     LaunchedEffect(Unit) {
 
-        val token = sessionManager.getToken()
+        val token =
+            sessionManager.getToken()
 
         if (!token.isNullOrBlank()) {
 
@@ -150,43 +170,55 @@ fun UserMainScreen(
         }
     }
 
-    // =====================================================
+
+    // ========================================================
     // PROFILE REPOSITORY
-    // =====================================================
+    // ========================================================
 
-    val profileRepository = remember {
-        TurfRepository()
-    }
+    val profileRepository =
+        remember {
+            TurfRepository()
+        }
 
-    // =====================================================
+
+    // ========================================================
     // PROFILE VIEWMODEL FACTORY
-    // =====================================================
+    // ========================================================
 
-    val profileFactory = remember {
-        UserProfileViewModelFactory(
-            repository = profileRepository
-        )
-    }
+    val profileFactory =
+        remember {
 
-    // =====================================================
+            UserProfileViewModelFactory(
+                repository =
+                    profileRepository
+            )
+        }
+
+
+    // ========================================================
     // PROFILE VIEWMODEL
-    // =====================================================
+    // ========================================================
 
     val profileViewModel: UserProfileViewModel =
         viewModel(
-            factory = profileFactory
+            factory =
+                profileFactory
         )
 
-    // =====================================================
+
+    // ========================================================
     // PROFILE STATE
-    // =====================================================
+    // ========================================================
 
     val profile by
-    profileViewModel.profile.collectAsState()
+    profileViewModel
+        .profile
+        .collectAsState()
 
-    // =====================================================
+
+    // ========================================================
     // LOAD PROFILE WHEN PROFILE TAB OPENS
-    // =====================================================
+    // ========================================================
 
     LaunchedEffect(selectedItem) {
 
@@ -196,36 +228,10 @@ fun UserMainScreen(
         }
     }
 
-    // =====================================================
-    // BOTTOM NAVIGATION ITEMS
-    // =====================================================
 
-    val bottomItems = listOf(
-
-        UserBottomItem(
-            title = "Home",
-            icon = Icons.Default.Home
-        ),
-
-        UserBottomItem(
-            title = "Favorites",
-            icon = Icons.Default.FavoriteBorder
-        ),
-
-        UserBottomItem(
-            title = "Bookings",
-            icon = Icons.AutoMirrored.Filled.ReceiptLong
-        ),
-
-        UserBottomItem(
-            title = "Profile",
-            icon = Icons.Default.Person
-        )
-    )
-
-    // =====================================================
+    // ========================================================
     // BACK HANDLER
-    // =====================================================
+    // ========================================================
 
     BackHandler {
 
@@ -235,26 +241,31 @@ fun UserMainScreen(
 
         } else {
 
-            (context as? android.app.Activity)?.finish()
+            (context as? android.app.Activity)
+                ?.finish()
         }
     }
 
-    // =====================================================
+
+    // ========================================================
     // LOGOUT CONFIRMATION DIALOG
-    // =====================================================
+    // ========================================================
 
     if (showLogoutDialog) {
 
         AlertDialog(
 
             onDismissRequest = {
+
                 showLogoutDialog = false
             },
 
             title = {
 
                 Text(
-                    text = "Logout?"
+                    text = "Logout?",
+                    color = White,
+                    fontWeight = FontWeight.Bold
                 )
             },
 
@@ -262,7 +273,13 @@ fun UserMainScreen(
 
                 Text(
                     text =
-                        "Are you sure you want to logout from your account?"
+                        "Are you sure you want to logout from your account?",
+
+                    color =
+                        DialogText,
+
+                    fontSize =
+                        14.sp
                 )
             },
 
@@ -279,13 +296,21 @@ fun UserMainScreen(
 
                     colors =
                         ButtonDefaults.buttonColors(
+
                             containerColor =
-                                UserDarkGreen
-                        )
+                                SelectedGreen,
+
+                            contentColor =
+                                Color(0xFF06130F)
+                        ),
+
+                    shape =
+                        RoundedCornerShape(12.dp)
                 ) {
 
                     Text(
-                        text = "Logout"
+                        text = "Logout",
+                        fontWeight = FontWeight.Bold
                     )
                 }
             },
@@ -295,117 +320,84 @@ fun UserMainScreen(
                 OutlinedButton(
 
                     onClick = {
+
                         showLogoutDialog = false
-                    }
+                    },
+
+                    shape =
+                        RoundedCornerShape(12.dp)
                 ) {
 
                     Text(
-                        text = "Cancel"
+                        text = "Cancel",
+                        color = DialogText
                     )
                 }
             },
 
             containerColor =
-                Color.White
+                DialogBackground
         )
     }
 
-    // =====================================================
-    // SCAFFOLD
-    // =====================================================
+
+    // ========================================================
+    // MAIN SCAFFOLD
+    // ========================================================
 
     Scaffold(
 
         containerColor =
-            MaterialTheme
-                .colorScheme
-                .background,
+            ScreenBackground,
+
+        // ====================================================
+        // FIXED BOTTOM NAVIGATION
+        // ====================================================
 
         bottomBar = {
 
-            NavigationBar(
+            UserBottomNavigation(
 
-                containerColor =
-                    UserDarkGreen,
+                selectedItem =
+                    selectedItem,
 
-                tonalElevation =
-                    8.dp
-            ) {
+                onItemSelected = { index ->
 
-                bottomItems.forEachIndexed { index, item ->
-
-                    NavigationBarItem(
-
-                        selected =
-                            selectedItem == index,
-
-                        onClick = {
-
-                            selectedItem = index
-                        },
-
-                        icon = {
-
-                            Icon(
-
-                                imageVector =
-                                    item.icon,
-
-                                contentDescription =
-                                    item.title
-                            )
-                        },
-
-                        label = {
-
-                            Text(
-                                text =
-                                    item.title
-                            )
-                        },
-
-                        colors =
-                            NavigationBarItemDefaults.colors(
-
-                                selectedIconColor =
-                                    UserLightGreen,
-
-                                selectedTextColor =
-                                    UserLightGreen,
-
-                                unselectedIconColor =
-                                    Color(0xFFB5C2BA),
-
-                                unselectedTextColor =
-                                    Color(0xFFB5C2BA),
-
-                                indicatorColor =
-                                    Color(0xFF24542D)
-                            )
-                    )
+                    selectedItem =
+                        index
                 }
-            }
+            )
         }
 
     ) { innerPadding ->
 
-        // =================================================
-        // SCREEN CONTENT
-        // =================================================
+
+        // ====================================================
+        // MAIN CONTENT
+        // ====================================================
 
         Box(
 
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .background(
+                        ScreenBackground
+                    )
+                    .padding(
+                        innerPadding
+                    ),
+
+            contentAlignment =
+                Alignment.TopCenter
         ) {
 
             when (selectedItem) {
 
-                // =========================================
+
+                // =================================================
                 // HOME
-                // =========================================
+                // =================================================
 
                 0 -> {
 
@@ -436,9 +428,10 @@ fun UserMainScreen(
                     )
                 }
 
-                // =========================================
+
+                // =================================================
                 // FAVORITES
-                // =========================================
+                // =================================================
 
                 1 -> {
 
@@ -461,9 +454,10 @@ fun UserMainScreen(
                     )
                 }
 
-                // =========================================
+
+                // =================================================
                 // BOOKINGS
-                // =========================================
+                // =================================================
 
                 2 -> {
 
@@ -475,6 +469,7 @@ fun UserMainScreen(
                         },
 
                         onRateReviewClick = {
+
                                 bookingId,
                                 turfName ->
 
@@ -489,9 +484,10 @@ fun UserMainScreen(
                     )
                 }
 
-                // =========================================
+
+                // =================================================
                 // PROFILE
-                // =========================================
+                // =================================================
 
                 3 -> {
 
