@@ -1,6 +1,8 @@
 package com.example.bookmyturf.screens.user
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,14 +10,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,9 +32,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,27 +43,30 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bookmyturf.screens.user.components.UserSecondaryTopBar
-import androidx.compose.foundation.layout.statusBars
-//--------------------------------------------------------
-// COLORS
-// ============================================================
-
-private val DarkGreen = Color(0xFF173D20)
-private val ForestGreen = Color(0xFF2E6B35)
-private val LightGreen = Color(0xFF7DBB4A)
-
-private val OffWhite = Color(0xFFF8F8F5)
-private val White = Color(0xFFFFFFFF)
-
-private val Charcoal = Color(0xFF1C1C1C)
-private val Gray = Color(0xFF737373)
-
-private val DividerColor = Color(0xFFE5E5E0)
-private val LogoutRed = Color(0xFFD32F2F)
 
 // ============================================================
-// USER PROFILE SCREEN
+// PREMIUM THEME
+// ============================================================
+
+private val Background = Color(0xFF020907)
+private val SurfaceDark = Color(0xFF071410)
+private val SurfaceElevated = Color(0xFF0B1C15)
+private val SurfaceHighlight = Color(0xFF10271D)
+
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+private val BrightGreen = Color(0xFFC5F58B)
+
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
+
+private val Border = Color(0xFF1A3027)
+
+private val LogoutRed = Color(0xFFFF6B6B)
+
+// ============================================================
+// USER PROFILE
 // ============================================================
 
 @Composable
@@ -79,509 +82,358 @@ fun UserProfileScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .background(OffWhite)
+            .fillMaxSize()
+            .background(Background)
+            .navigationBarsPadding()
     ) {
 
-        // =====================================================
-        // TOP BAR
-        // =====================================================
-
-        UserSecondaryTopBar(
-            title = "My Profile",
-            subtitle = "Manage your account and preferences.",
+        ProfileTopBar(
             onBackClick = onBackClick
         )
 
-
-
-        // =====================================================
-        // CONTENT
-        // =====================================================
-
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f),
-
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                top = 18.dp,
                 start = 18.dp,
                 end = 18.dp,
-                bottom = 30.dp
+                top = 20.dp,
+                bottom = 32.dp
             ),
-
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
 
-            // =================================================
-            // PROFILE HEADER CARD
-            // =================================================
+            // --------------------------------------------------
+            // PROFILE
+            // --------------------------------------------------
 
             item {
 
-                Card(
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    shape =
-                        RoundedCornerShape(20.dp),
-
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                White
-                        ),
-
-                    elevation =
-                        CardDefaults.cardElevation(
-                            defaultElevation =
-                                2.dp
-                        )
-                ) {
-
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(18.dp),
-
-                        verticalAlignment =
-                            Alignment.CenterVertically
-                    ) {
-
-                        // =====================================
-                        // AVATAR
-                        // =====================================
-
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(72.dp)
-                                    .background(
-                                        LightGreen.copy(
-                                            alpha = 0.15f
-                                        ),
-                                        CircleShape
-                                    ),
-
-                            contentAlignment =
-                                Alignment.Center
-                        ) {
-
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .size(58.dp)
-                                        .background(
-                                            ForestGreen,
-                                            CircleShape
-                                        ),
-
-                                contentAlignment =
-                                    Alignment.Center
-                            ) {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.Person,
-
-                                    contentDescription =
-                                        "Profile",
-
-                                    modifier =
-                                        Modifier.size(32.dp),
-
-                                    tint =
-                                        White
-                                )
-                            }
-                        }
-
-                        Spacer(
-                            modifier =
-                                Modifier.width(14.dp)
-                        )
-
-                        // =====================================
-                        // USER DETAILS
-                        // =====================================
-
-                        Column(
-                            modifier =
-                                Modifier.weight(1f)
-                        ) {
-
-                            Text(
-                                text =
-                                    userName,
-
-                                fontSize =
-                                    19.sp,
-
-                                fontWeight =
-                                    FontWeight.ExtraBold,
-
-                                color =
-                                    Charcoal
-                            )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(4.dp)
-                            )
-
-                            Text(
-                                text =
-                                    email,
-
-                                fontSize =
-                                    12.sp,
-
-                                color =
-                                    Gray
-                            )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(10.dp)
-                            )
-
-                            // =================================
-                            // EDIT PROFILE
-                            // =================================
-
-                            Row(
-                                modifier =
-                                    Modifier.clickable(
-                                        onClick =
-                                            onEditProfileClick
-                                    ),
-
-                                verticalAlignment =
-                                    Alignment.CenterVertically
-                            ) {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.Edit,
-
-                                    contentDescription =
-                                        "Edit Profile",
-
-                                    modifier =
-                                        Modifier.size(17.dp),
-
-                                    tint =
-                                        ForestGreen
-                                )
-
-                                Spacer(
-                                    modifier =
-                                        Modifier.width(6.dp)
-                                )
-
-                                Text(
-                                    text =
-                                        "Edit Profile",
-
-                                    fontSize =
-                                        12.sp,
-
-                                    fontWeight =
-                                        FontWeight.Bold,
-
-                                    color =
-                                        ForestGreen
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // =================================================
-            // PERSONAL INFORMATION TITLE
-            // =================================================
-
-            item {
-
-                ProfileSectionTitle(
-                    title =
-                        "Personal Information",
-
-                    subtitle =
-                        "Your account details"
+                ProfileHero(
+                    userName = userName,
+                    email = email,
+                    onEditProfileClick = onEditProfileClick
                 )
             }
 
-            // =================================================
-            // PERSONAL INFORMATION CARD
-            // =================================================
+            // --------------------------------------------------
+            // PERSONAL INFORMATION
+            // --------------------------------------------------
 
             item {
 
-                Card(
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    shape =
-                        RoundedCornerShape(18.dp),
-
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                White
-                        ),
-
-                    elevation =
-                        CardDefaults.cardElevation(
-                            defaultElevation =
-                                1.dp
-                        )
-                ) {
-
-                    Column {
-
-                        ProfileInfoRow(
-                            icon =
-                                Icons.Default.Person,
-
-                            title =
-                                "Name",
-
-                            value =
-                                userName
-                        )
-
-                        ProfileDivider()
-
-                        ProfileInfoRow(
-                            icon =
-                                Icons.Default.Email,
-
-                            title =
-                                "Email",
-
-                            value =
-                                email
-                        )
-
-                        ProfileDivider()
-
-                        ProfileInfoRow(
-                            icon =
-                                Icons.Default.Phone,
-
-                            title =
-                                "Phone",
-
-                            value =
-                                phone
-                        )
-                    }
-                }
-            }
-
-            // =================================================
-            // ACCOUNT TITLE
-            // =================================================
-
-            item {
-
-                ProfileSectionTitle(
-                    title =
-                        "Account",
-
-                    subtitle =
-                        "Manage your app preferences"
+                ProfileSectionHeader(
+                    title = "Personal Information",
+                    subtitle = "Your account details"
                 )
             }
 
-            // =================================================
-            // SETTINGS
-            // =================================================
+            item {
+
+                PersonalInformation(
+                    userName = userName,
+                    email = email,
+                    phone = phone
+                )
+            }
+
+            // --------------------------------------------------
+            // ACCOUNT
+            // --------------------------------------------------
 
             item {
 
-                Card(
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    shape =
-                        RoundedCornerShape(18.dp),
-
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                White
-                        ),
-
-                    elevation =
-                        CardDefaults.cardElevation(
-                            defaultElevation =
-                                1.dp
-                        )
-                ) {
-
-                    ProfileActionRow(
-                        icon =
-                            Icons.Default.Settings,
-
-                        title =
-                            "Settings",
-
-                        subtitle =
-                            "Manage app preferences",
-
-                        onClick =
-                            onSettingsClick
-                    )
-                }
+                ProfileSectionHeader(
+                    title = "Account",
+                    subtitle = "Manage your preferences"
+                )
             }
-
-            // =================================================
-            // LOGOUT
-            // =================================================
 
             item {
 
-                Card(
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    shape =
-                        RoundedCornerShape(18.dp),
-
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                White
-                        ),
-
-                    elevation =
-                        CardDefaults.cardElevation(
-                            defaultElevation =
-                                1.dp
-                        )
-                ) {
-
-                    ProfileActionRow(
-                        icon =
-                            Icons.AutoMirrored.Filled.Logout,
-
-                        title =
-                            "Logout",
-
-                        subtitle =
-                            "Sign out of your account",
-
-                        iconTint =
-                            LogoutRed,
-
-                        onClick =
-                            onLogoutClick
-                    )
-                }
+                AccountAction(
+                    icon = Icons.Default.Settings,
+                    title = "Settings",
+                    subtitle = "App preferences",
+                    onClick = onSettingsClick
+                )
             }
 
-            // =================================================
+            item {
+
+                AccountAction(
+                    icon = Icons.AutoMirrored.Filled.Logout,
+                    title = "Logout",
+                    subtitle = "Sign out of your account",
+                    iconTint = LogoutRed,
+                    titleColor = LogoutRed,
+                    onClick = onLogoutClick
+                )
+            }
+
+            // --------------------------------------------------
             // FOOTER
-            // =================================================
+            // --------------------------------------------------
 
             item {
 
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                top = 18.dp,
-                                bottom = 8.dp
-                            ),
+                ProfileFooter()
+            }
+        }
+    }
+}
 
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally
+// ============================================================
+// TOP BAR
+// ============================================================
+
+@Composable
+private fun ProfileTopBar(
+    onBackClick: () -> Unit
+) {
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 18.dp,
+                    vertical = 14.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Surface(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clickable {
+                        onBackClick()
+                    },
+                shape = RoundedCornerShape(13.dp),
+                color = SurfaceElevated,
+                border = BorderStroke(
+                    1.dp,
+                    Border
+                )
+            ) {
+
+                Box(
+                    contentAlignment = Alignment.Center
                 ) {
 
-                    // =========================================
-                    // FOOTER ICON
-                    // =========================================
+                    Icon(
+                        imageVector =
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        modifier = Modifier.size(19.dp),
+                        tint = PrimaryText
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.width(13.dp)
+            )
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+
+                Text(
+                    text = "My Profile",
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = PrimaryText
+                )
+
+                Spacer(
+                    modifier = Modifier.height(2.dp)
+                )
+
+                Text(
+                    text = "Manage your account",
+                    fontSize = 11.sp,
+                    color = MutedText
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(Border)
+        )
+    }
+}
+
+// ============================================================
+// PROFILE HERO
+// ============================================================
+
+@Composable
+private fun ProfileHero(
+    userName: String,
+    email: String,
+    onEditProfileClick: () -> Unit
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = SurfaceDark
+        ),
+        border = BorderStroke(
+            1.dp,
+            Border
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        )
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                // Avatar
+
+                Box(
+                    modifier = Modifier
+                        .size(68.dp)
+                        .background(
+                            color = PrimaryGreen.copy(
+                                alpha = 0.10f
+                            ),
+                            shape = CircleShape
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = PrimaryGreen.copy(
+                                alpha = 0.25f
+                            ),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
 
                     Box(
-                        modifier =
-                            Modifier
-                                .size(48.dp)
-                                .background(
-                                    LightGreen.copy(
-                                        alpha = 0.15f
-                                    ),
-                                    CircleShape
-                                ),
-
-                        contentAlignment =
-                            Alignment.Center
+                        modifier = Modifier
+                            .size(54.dp)
+                            .background(
+                                color = SurfaceHighlight,
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
 
                         Icon(
-                            imageVector =
-                                Icons.Default.SportsSoccer,
-
-                            contentDescription =
-                                null,
-
-                            modifier =
-                                Modifier.size(26.dp),
-
-                            tint =
-                                ForestGreen
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile",
+                            modifier = Modifier.size(29.dp),
+                            tint = LightGreen
                         )
                     }
+                }
 
-                    Spacer(
-                        modifier =
-                            Modifier.height(8.dp)
-                    )
+                Spacer(
+                    modifier = Modifier.width(15.dp)
+                )
 
-                    // =========================================
-                    // APP NAME
-                    // =========================================
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
 
                     Text(
-                        text =
-                            "BookMyTurf",
-
-                        fontSize =
-                            16.sp,
-
-                        fontWeight =
-                            FontWeight.ExtraBold,
-
-                        color =
-                            DarkGreen
+                        text = userName,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = PrimaryText
                     )
 
                     Spacer(
-                        modifier =
-                            Modifier.height(3.dp)
+                        modifier = Modifier.height(5.dp)
                     )
 
-                    // =========================================
-                    // TAGLINE
-                    // =========================================
+                    Text(
+                        text = email,
+                        fontSize = 12.sp,
+                        color = SecondaryText,
+                        maxLines = 1
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(18.dp)
+            )
+
+            // Edit button
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onEditProfileClick()
+                    },
+                shape = RoundedCornerShape(13.dp),
+                color = PrimaryGreen.copy(
+                    alpha = 0.08f
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    PrimaryGreen.copy(
+                        alpha = 0.22f
+                    )
+                )
+            ) {
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 14.dp,
+                            vertical = 12.dp
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Profile",
+                        modifier = Modifier.size(18.dp),
+                        tint = LightGreen
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(8.dp)
+                    )
 
                     Text(
-                        text =
-                            "Book your game. Play your game.",
+                        text = "Edit Profile",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = LightGreen
+                    )
 
-                        fontSize =
-                            11.sp,
+                    Spacer(
+                        modifier = Modifier.weight(1f)
+                    )
 
-                        fontWeight =
-                            FontWeight.Medium,
-
-                        color =
-                            Gray
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = MutedText
                     )
                 }
             }
@@ -590,52 +442,86 @@ fun UserProfileScreen(
 }
 
 // ============================================================
-// SECTION TITLE
+// SECTION HEADER
 // ============================================================
 
 @Composable
-private fun ProfileSectionTitle(
+private fun ProfileSectionHeader(
     title: String,
     subtitle: String
 ) {
 
-    Column(
-        modifier =
-            Modifier.fillMaxWidth()
-    ) {
+    Column {
 
         Text(
-            text =
-                title,
-
-            fontSize =
-                18.sp,
-
-            fontWeight =
-                FontWeight.ExtraBold,
-
-            color =
-                DarkGreen
+            text = title,
+            fontSize = 17.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = PrimaryText
         )
 
         Spacer(
-            modifier =
-                Modifier.height(3.dp)
+            modifier = Modifier.height(3.dp)
         )
 
         Text(
-            text =
-                subtitle,
-
-            fontSize =
-                11.sp,
-
-            fontWeight =
-                FontWeight.Medium,
-
-            color =
-                Gray
+            text = subtitle,
+            fontSize = 11.sp,
+            color = MutedText
         )
+    }
+}
+
+// ============================================================
+// PERSONAL INFORMATION
+// ============================================================
+
+@Composable
+private fun PersonalInformation(
+    userName: String,
+    email: String,
+    phone: String
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(19.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = SurfaceDark
+        ),
+        border = BorderStroke(
+            1.dp,
+            Border
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        )
+    ) {
+
+        Column {
+
+            ProfileInfoRow(
+                icon = Icons.Default.Person,
+                title = "Name",
+                value = userName
+            )
+
+            ProfileDivider()
+
+            ProfileInfoRow(
+                icon = Icons.Default.Email,
+                title = "Email",
+                value = email
+            )
+
+            ProfileDivider()
+
+            ProfileInfoRow(
+                icon = Icons.Default.Phone,
+                title = "Phone",
+                value = phone
+            )
+        }
     }
 }
 
@@ -651,203 +537,157 @@ private fun ProfileInfoRow(
 ) {
 
     Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-
-        verticalAlignment =
-            Alignment.CenterVertically
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 15.dp,
+                vertical = 14.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Box(
-            modifier =
-                Modifier
-                    .size(42.dp)
-                    .background(
-                        LightGreen.copy(
-                            alpha = 0.12f
-                        ),
-                        RoundedCornerShape(11.dp)
-                    ),
-
-            contentAlignment =
-                Alignment.Center
+        Surface(
+            modifier = Modifier.size(40.dp),
+            shape = RoundedCornerShape(11.dp),
+            color = PrimaryGreen.copy(
+                alpha = 0.08f
+            )
         ) {
 
-            Icon(
-                imageVector =
-                    icon,
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
 
-                contentDescription =
-                    null,
-
-                modifier =
-                    Modifier.size(20.dp),
-
-                tint =
-                    ForestGreen
-            )
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = PrimaryGreen
+                )
+            }
         }
 
         Spacer(
-            modifier =
-                Modifier.width(12.dp)
+            modifier = Modifier.width(12.dp)
         )
 
         Column(
-            modifier =
-                Modifier.weight(1f)
+            modifier = Modifier.weight(1f)
         ) {
 
             Text(
-                text =
-                    title,
-
-                fontSize =
-                    11.sp,
-
-                color =
-                    Gray
+                text = title,
+                fontSize = 10.sp,
+                color = MutedText
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(3.dp)
+                modifier = Modifier.height(3.dp)
             )
 
             Text(
-                text =
-                    value,
-
-                fontSize =
-                    14.sp,
-
-                fontWeight =
-                    FontWeight.Medium,
-
-                color =
-                    Charcoal
+                text = value,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = PrimaryText
             )
         }
     }
 }
 
 // ============================================================
-// ACTION ROW
+// ACCOUNT ACTION
 // ============================================================
 
 @Composable
-private fun ProfileActionRow(
+private fun AccountAction(
     icon: ImageVector,
     title: String,
     subtitle: String,
     onClick: () -> Unit,
-    iconTint: Color = ForestGreen
+    iconTint: Color = PrimaryGreen,
+    titleColor: Color = PrimaryText
 ) {
 
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(
-                    onClick =
-                        onClick
-                )
-                .padding(16.dp),
-
-        verticalAlignment =
-            Alignment.CenterVertically
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick()
+            },
+        shape = RoundedCornerShape(17.dp),
+        color = SurfaceDark,
+        border = BorderStroke(
+            1.dp,
+            if (title == "Logout") {
+                LogoutRed.copy(alpha = 0.15f)
+            } else {
+                Border
+            }
+        )
     ) {
 
-        Box(
-            modifier =
-                Modifier
-                    .size(44.dp)
-                    .background(
-                        iconTint.copy(
-                            alpha = 0.10f
-                        ),
-                        RoundedCornerShape(12.dp)
-                    ),
-
-            contentAlignment =
-                Alignment.Center
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(15.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Icon(
-                imageVector =
-                    icon,
+            Surface(
+                modifier = Modifier.size(42.dp),
+                shape = RoundedCornerShape(11.dp),
+                color = iconTint.copy(
+                    alpha = 0.08f
+                )
+            ) {
 
-                contentDescription =
-                    null,
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
 
-                modifier =
-                    Modifier.size(22.dp),
-
-                tint =
-                    iconTint
-            )
-        }
-
-        Spacer(
-            modifier =
-                Modifier.width(12.dp)
-        )
-
-        Column(
-            modifier =
-                Modifier.weight(1f)
-        ) {
-
-            Text(
-                text =
-                    title,
-
-                fontSize =
-                    14.sp,
-
-                fontWeight =
-                    FontWeight.Bold,
-
-                color =
-                    if (iconTint == LogoutRed) {
-                        LogoutRed
-                    } else {
-                        Charcoal
-                    }
-            )
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = iconTint
+                    )
+                }
+            }
 
             Spacer(
-                modifier =
-                    Modifier.height(3.dp)
+                modifier = Modifier.width(12.dp)
             )
 
-            Text(
-                text =
-                    subtitle,
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
 
-                fontSize =
-                    11.sp,
+                Text(
+                    text = title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = titleColor
+                )
 
-                color =
-                    Gray
+                Spacer(
+                    modifier = Modifier.height(2.dp)
+                )
+
+                Text(
+                    text = subtitle,
+                    fontSize = 11.sp,
+                    color = MutedText
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                modifier = Modifier.size(19.dp),
+                tint = MutedText
             )
         }
-
-        Icon(
-            imageVector =
-                Icons.Default.ChevronRight,
-
-            contentDescription =
-                null,
-
-            modifier =
-                Modifier.size(20.dp),
-
-            tint =
-                Gray
-        )
     }
 }
 
@@ -859,16 +699,70 @@ private fun ProfileActionRow(
 private fun ProfileDivider() {
 
     Box(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .padding(
-                    start = 70.dp
-                )
-                .background(
-                    DividerColor
-                )
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 67.dp)
+            .height(1.dp)
+            .background(Border)
     )
 }
 
+// ============================================================
+// FOOTER
+// ============================================================
+
+@Composable
+private fun ProfileFooter() {
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                top = 8.dp,
+                bottom = 4.dp
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .background(
+                    color = PrimaryGreen.copy(
+                        alpha = 0.07f
+                    ),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+
+            Icon(
+                imageVector = Icons.Default.SportsSoccer,
+                contentDescription = null,
+                modifier = Modifier.size(23.dp),
+                tint = PrimaryGreen
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(7.dp)
+        )
+
+        Text(
+            text = "BookMyTurf",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = PrimaryText
+        )
+
+        Spacer(
+            modifier = Modifier.height(2.dp)
+        )
+
+        Text(
+            text = "Book your game. Play your game.",
+            fontSize = 10.sp,
+            color = MutedText
+        )
+    }
+}

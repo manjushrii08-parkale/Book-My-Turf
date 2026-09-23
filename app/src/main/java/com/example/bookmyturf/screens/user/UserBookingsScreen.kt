@@ -2,6 +2,8 @@ package com.example.bookmyturf.screens.user
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,7 +22,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
@@ -35,7 +41,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,39 +56,42 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.data.model.booking.Booking
-import com.example.bookmyturf.screens.user.components.UserSecondaryTopBar
 import com.example.bookmyturf.viewmodel.BookingViewModel
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 // =============================================================
-// COLORS
+// PREMIUM COLORS
 // =============================================================
 
-private val DarkGreen = Color(0xFF173D20)
-private val ForestGreen = Color(0xFF2E6B35)
-private val LightGreen = Color(0xFF7DBB4A)
+private val Background = Color(0xFF020907)
+private val SurfaceDark = Color(0xFF071410)
+private val SurfaceElevated = Color(0xFF0B1C15)
+private val SurfaceHighlight = Color(0xFF10271D)
 
-private val OffWhite = Color(0xFFF7F9F5)
-private val White = Color.White
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+private val BrightGreen = Color(0xFFC5F58B)
 
-private val Charcoal = Color(0xFF1C241D)
-private val Gray = Color(0xFF737B73)
-private val LightGray = Color(0xFFE2E8E0)
-private val BorderGray = Color(0xFFDDE5DA)
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
+
+private val Border = Color(0xFF1A3027)
 
 private val PendingOrange = Color(0xFFF59E0B)
-private val ConfirmedGreen = Color(0xFF2E7D32)
-private val CancelledRed = Color(0xFFD32F2F)
-private val RefundBlue = Color(0xFF2563EB)
+private val ConfirmedGreen = Color(0xFF6FBF73)
+private val CancelledRed = Color(0xFFFF6B6B)
+private val RefundBlue = Color(0xFF6FA8FF)
+
+private val ErrorSurface = Color(0xFF21100F)
 
 // =============================================================
 // BOOKING FILTER
@@ -198,27 +206,27 @@ fun UserBookingsScreen(
     }
 
     // =========================================================
-    // MAIN CONTENT
+    // SCREEN
     // =========================================================
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(OffWhite)
+            .background(Background)
+            .navigationBarsPadding()
     ) {
 
         // =====================================================
-        // SHARED TOP BAR
+        // PREMIUM TOP BAR
         // =====================================================
 
-        UserSecondaryTopBar(
-            title = "My Bookings",
-            subtitle = "Manage your turf bookings",
+        PremiumBookingsTopBar(
+            bookingCount = bookings.size,
             onBackClick = onBackClick
         )
 
         // =====================================================
-        // SEARCH SECTION
+        // SEARCH AREA
         // =====================================================
 
         Column(
@@ -226,71 +234,49 @@ fun UserBookingsScreen(
                 .fillMaxWidth()
                 .padding(
                     horizontal = 18.dp,
-                    vertical = 16.dp
+                    vertical = 18.dp
                 )
         ) {
 
             Text(
                 text = "Your Activity",
-                fontSize = 20.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = DarkGreen
+                color = PrimaryText
             )
 
             Spacer(
-                modifier = Modifier.height(4.dp)
+                modifier = Modifier.height(5.dp)
             )
 
             Text(
                 text = "Track and manage all your bookings",
                 fontSize = 12.sp,
-                color = Gray
+                color = SecondaryText
             )
 
             Spacer(
-                modifier = Modifier.height(15.dp)
+                modifier = Modifier.height(16.dp)
             )
 
-            OutlinedTextField(
+            PremiumSearchField(
                 value = searchQuery,
                 onValueChange = {
                     searchQuery = it
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                shape = RoundedCornerShape(15.dp),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search bookings",
-                        tint = ForestGreen
-                    )
-                },
-                placeholder = {
-                    Text(
-                        text = "Search turf, city or booking ID",
-                        fontSize = 13.sp,
-                        color = Gray
-                    )
-                },
-                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = ForestGreen,
-                    unfocusedBorderColor = BorderGray,
-                    focusedContainerColor = White,
-                    unfocusedContainerColor = White,
-                    cursorColor = ForestGreen
-                )
+                }
             )
         }
 
         // =====================================================
-        // FILTER CHIPS
+        // FILTERS
         // =====================================================
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
+                .horizontalScroll(
+                    rememberScrollState()
+                )
                 .padding(horizontal = 18.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -337,7 +323,7 @@ fun UserBookingsScreen(
         }
 
         Spacer(
-            modifier = Modifier.height(14.dp)
+            modifier = Modifier.height(16.dp)
         )
 
         // =====================================================
@@ -358,9 +344,9 @@ fun UserBookingsScreen(
                         } else {
                             "bookings"
                         },
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = Charcoal
+                color = SecondaryText
             )
 
             Spacer(
@@ -371,8 +357,13 @@ fun UserBookingsScreen(
 
                 Surface(
                     shape = RoundedCornerShape(50.dp),
-                    color = LightGreen.copy(alpha = 0.16f)
+                    color = PrimaryGreen.copy(alpha = 0.12f),
+                    border = BorderStroke(
+                        1.dp,
+                        Border.copy(alpha = 0.8f)
+                    )
                 ) {
+
                     Text(
                         text = selectedFilter.title,
                         modifier = Modifier.padding(
@@ -381,18 +372,18 @@ fun UserBookingsScreen(
                         ),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ForestGreen
+                        color = LightGreen
                     )
                 }
             }
         }
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier = Modifier.height(9.dp)
         )
 
         // =====================================================
-        // LOADING STATE
+        // LOADING
         // =====================================================
 
         if (isLoading) {
@@ -407,7 +398,9 @@ fun UserBookingsScreen(
                 ) {
 
                     CircularProgressIndicator(
-                        color = ForestGreen
+                        modifier = Modifier.size(34.dp),
+                        strokeWidth = 3.dp,
+                        color = PrimaryGreen
                     )
 
                     Spacer(
@@ -417,7 +410,7 @@ fun UserBookingsScreen(
                     Text(
                         text = "Loading your bookings...",
                         fontSize = 13.sp,
-                        color = Gray
+                        color = SecondaryText
                     )
                 }
             }
@@ -426,7 +419,7 @@ fun UserBookingsScreen(
         }
 
         // =====================================================
-        // ERROR STATE
+        // ERROR
         // =====================================================
 
         if (error != null) {
@@ -447,7 +440,7 @@ fun UserBookingsScreen(
         }
 
         // =====================================================
-        // EMPTY STATE
+        // EMPTY
         // =====================================================
 
         if (filteredBookings.isEmpty()) {
@@ -492,6 +485,206 @@ fun UserBookingsScreen(
 }
 
 // =============================================================
+// PREMIUM TOP BAR
+// =============================================================
+
+@Composable
+private fun PremiumBookingsTopBar(
+    bookingCount: Int,
+    onBackClick: () -> Unit
+) {
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 18.dp,
+                    vertical = 14.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Surface(
+                modifier = Modifier
+                    .size(43.dp)
+                    .clickable {
+                        onBackClick()
+                    },
+                shape = RoundedCornerShape(14.dp),
+                color = SurfaceElevated,
+                border = BorderStroke(
+                    1.dp,
+                    Border
+                )
+            ) {
+
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        modifier = Modifier.size(20.dp),
+                        tint = PrimaryText
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.width(13.dp)
+            )
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+
+                Text(
+                    text = "My Bookings",
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = PrimaryText
+                )
+
+                Spacer(
+                    modifier = Modifier.height(2.dp)
+                )
+
+                Text(
+                    text = "Manage your turf bookings",
+                    fontSize = 11.sp,
+                    color = MutedText
+                )
+            }
+
+            Surface(
+                shape = RoundedCornerShape(13.dp),
+                color = PrimaryGreen.copy(alpha = 0.10f),
+                border = BorderStroke(
+                    1.dp,
+                    Border.copy(alpha = 0.9f)
+                )
+            ) {
+
+                Row(
+                    modifier = Modifier.padding(
+                        horizontal = 10.dp,
+                        vertical = 8.dp
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
+                        contentDescription = null,
+                        modifier = Modifier.size(15.dp),
+                        tint = LightGreen
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(5.dp)
+                    )
+
+                    Text(
+                        text = bookingCount.toString(),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = LightGreen
+                    )
+                }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(Border)
+        )
+    }
+}
+
+// =============================================================
+// SEARCH FIELD
+// =============================================================
+
+@Composable
+private fun PremiumSearchField(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+
+    val shape = RoundedCornerShape(15.dp)
+
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        textStyle = TextStyle(
+            color = PrimaryText,
+            fontSize = 13.sp
+        ),
+        cursorBrush = androidx.compose.ui.graphics.SolidColor(
+            PrimaryGreen
+        ),
+        decorationBox = { innerTextField ->
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = SurfaceDark,
+                        shape = shape
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = Border,
+                        shape = shape
+                    )
+                    .padding(
+                        horizontal = 14.dp,
+                        vertical = 14.dp
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search bookings",
+                    modifier = Modifier.size(19.dp),
+                    tint = PrimaryGreen
+                )
+
+                Spacer(
+                    modifier = Modifier.width(10.dp)
+                )
+
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+
+                    if (value.isBlank()) {
+
+                        Text(
+                            text = "Search turf, city or booking ID",
+                            fontSize = 13.sp,
+                            color = MutedText
+                        )
+                    }
+
+                    innerTextField()
+                }
+            }
+        }
+    )
+}
+
+// =============================================================
 // FILTER CHIP
 // =============================================================
 
@@ -503,21 +696,23 @@ private fun BookingFilterChip(
 ) {
 
     Surface(
-        onClick = onClick,
+        modifier = Modifier.clickable {
+            onClick()
+        },
         shape = RoundedCornerShape(50.dp),
         color = if (selected) {
-            ForestGreen
+            PrimaryGreen
         } else {
-            White
+            SurfaceDark
         },
-        border = if (selected) {
-            null
-        } else {
-            BorderStroke(
-                width = 1.dp,
-                color = BorderGray
-            )
-        }
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (selected) {
+                PrimaryGreen
+            } else {
+                Border
+            }
+        )
     ) {
 
         Text(
@@ -533,9 +728,9 @@ private fun BookingFilterChip(
                 FontWeight.SemiBold
             },
             color = if (selected) {
-                White
+                Color(0xFF07100A)
             } else {
-                Charcoal
+                SecondaryText
             }
         )
     }
@@ -566,10 +761,14 @@ private fun BookingCard(
             .padding(horizontal = 18.dp),
         shape = RoundedCornerShape(21.dp),
         colors = CardDefaults.cardColors(
-            containerColor = White
+            containerColor = SurfaceDark
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = Border
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
+            defaultElevation = 0.dp
         )
     ) {
 
@@ -580,7 +779,7 @@ private fun BookingCard(
         ) {
 
             // =================================================
-            // CARD HEADER
+            // HEADER
             // =================================================
 
             Row(
@@ -596,7 +795,7 @@ private fun BookingCard(
                         text = turf?.name ?: "Turf",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Charcoal
+                        color = PrimaryText
                     )
 
                     if (!turf?.city.isNullOrBlank()) {
@@ -608,7 +807,7 @@ private fun BookingCard(
                         Text(
                             text = turf?.city ?: "",
                             fontSize = 12.sp,
-                            color = Gray
+                            color = MutedText
                         )
                     }
                 }
@@ -623,7 +822,7 @@ private fun BookingCard(
             }
 
             Spacer(
-                modifier = Modifier.height(17.dp)
+                modifier = Modifier.height(18.dp)
             )
 
             // =================================================
@@ -674,7 +873,7 @@ private fun BookingCard(
                 Text(
                     text = "Payment Status",
                     fontSize = 11.sp,
-                    color = Gray
+                    color = MutedText
                 )
 
                 Spacer(
@@ -690,15 +889,11 @@ private fun BookingCard(
                 modifier = Modifier.height(15.dp)
             )
 
-            // =================================================
-            // DIVIDER
-            // =================================================
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(LightGray)
+                    .background(Border)
             )
 
             Spacer(
@@ -706,7 +901,7 @@ private fun BookingCard(
             )
 
             // =================================================
-            // AMOUNT AND BOOKING ID
+            // AMOUNT + BOOKING ID
             // =================================================
 
             Row(
@@ -719,7 +914,7 @@ private fun BookingCard(
                     Text(
                         text = "Total Amount",
                         fontSize = 10.sp,
-                        color = Gray
+                        color = MutedText
                     )
 
                     Spacer(
@@ -730,7 +925,7 @@ private fun BookingCard(
                         text = "₹${formatAmount(booking.total_amount)}",
                         fontSize = 21.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = DarkGreen
+                        color = BrightGreen
                     )
                 }
 
@@ -745,7 +940,7 @@ private fun BookingCard(
                     Text(
                         text = "Booking ID",
                         fontSize = 10.sp,
-                        color = Gray
+                        color = MutedText
                     )
 
                     Spacer(
@@ -756,7 +951,7 @@ private fun BookingCard(
                         text = formatBookingId(booking.id),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Charcoal
+                        color = PrimaryText
                     )
                 }
             }
@@ -777,6 +972,7 @@ private fun BookingCard(
 
                 Button(
                     onClick = {
+
                         onRateReviewClick(
                             booking.id,
                             turf?.name ?: "Turf"
@@ -785,7 +981,8 @@ private fun BookingCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(13.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = DarkGreen
+                        containerColor = PrimaryGreen,
+                        contentColor = Color(0xFF07100A)
                     )
                 ) {
 
@@ -826,32 +1023,11 @@ private fun BookingCard(
                     modifier = Modifier.height(16.dp)
                 )
 
-                Button(
+                PremiumCancelButton(
                     onClick = {
                         showCancelDialog = true
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(13.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = CancelledRed
-                    )
-                ) {
-
-                    Icon(
-                        imageVector = Icons.Default.Cancel,
-                        contentDescription = null,
-                        modifier = Modifier.size(17.dp)
-                    )
-
-                    Spacer(
-                        modifier = Modifier.width(7.dp)
-                    )
-
-                    Text(
-                        text = "Cancel Booking",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                    }
+                )
             }
         }
     }
@@ -881,6 +1057,61 @@ private fun BookingCard(
                 showCancelDialog = false
             }
         )
+    }
+}
+
+// =============================================================
+// PREMIUM CANCEL BUTTON
+// =============================================================
+
+@Composable
+private fun PremiumCancelButton(
+    onClick: () -> Unit
+) {
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick()
+            },
+        shape = RoundedCornerShape(13.dp),
+        color = CancelledRed.copy(alpha = 0.07f),
+        border = BorderStroke(
+            width = 1.dp,
+            color = CancelledRed.copy(alpha = 0.35f)
+        )
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 14.dp,
+                    vertical = 12.dp
+                ),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Icon(
+                imageVector = Icons.Default.Cancel,
+                contentDescription = null,
+                modifier = Modifier.size(17.dp),
+                tint = CancelledRed
+            )
+
+            Spacer(
+                modifier = Modifier.width(7.dp)
+            )
+
+            Text(
+                text = "Cancel Booking",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = CancelledRed
+            )
+        }
     }
 }
 
@@ -917,7 +1148,7 @@ private fun CancelledBookingSection(
 
         "REJECTED" -> CancelledRed
 
-        else -> Gray
+        else -> MutedText
     }
 
     Box(
@@ -925,6 +1156,11 @@ private fun CancelledBookingSection(
             .fillMaxWidth()
             .background(
                 color = CancelledRed.copy(alpha = 0.06f),
+                shape = RoundedCornerShape(13.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = CancelledRed.copy(alpha = 0.12f),
                 shape = RoundedCornerShape(13.dp)
             )
             .padding(13.dp)
@@ -964,7 +1200,7 @@ private fun CancelledBookingSection(
                 Text(
                     text = "Reason: ${booking.cancellation_reason}",
                     fontSize = 11.sp,
-                    color = Gray
+                    color = SecondaryText
                 )
             }
 
@@ -1019,7 +1255,11 @@ private fun PaymentStatusBadge(
 
     Surface(
         shape = RoundedCornerShape(50.dp),
-        color = badgeColor.copy(alpha = 0.10f)
+        color = badgeColor.copy(alpha = 0.10f),
+        border = BorderStroke(
+            1.dp,
+            badgeColor.copy(alpha = 0.18f)
+        )
     ) {
 
         Text(
@@ -1050,14 +1290,18 @@ private fun BookingStatusBadge(
 
         "CONFIRMED" -> ConfirmedGreen
         "CANCELLED" -> CancelledRed
-        "COMPLETED" -> ForestGreen
+        "COMPLETED" -> PrimaryGreen
 
         else -> PendingOrange
     }
 
     Surface(
         shape = RoundedCornerShape(50.dp),
-        color = badgeColor.copy(alpha = 0.10f)
+        color = badgeColor.copy(alpha = 0.10f),
+        border = BorderStroke(
+            1.dp,
+            badgeColor.copy(alpha = 0.18f)
+        )
     ) {
 
         Text(
@@ -1092,7 +1336,11 @@ private fun BookingInfoRow(
         Surface(
             modifier = Modifier.size(35.dp),
             shape = RoundedCornerShape(11.dp),
-            color = ForestGreen.copy(alpha = 0.09f)
+            color = PrimaryGreen.copy(alpha = 0.08f),
+            border = BorderStroke(
+                1.dp,
+                Border
+            )
         ) {
 
             Box(
@@ -1103,7 +1351,7 @@ private fun BookingInfoRow(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(17.dp),
-                    tint = ForestGreen
+                    tint = PrimaryGreen
                 )
             }
         }
@@ -1115,7 +1363,7 @@ private fun BookingInfoRow(
             Text(
                 text = title,
                 fontSize = 10.sp,
-                color = Gray
+                color = MutedText
             )
 
             Spacer(
@@ -1126,7 +1374,7 @@ private fun BookingInfoRow(
                 text = value,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Charcoal
+                color = PrimaryText
             )
         }
     }
@@ -1149,12 +1397,14 @@ private fun CancelBookingDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = SurfaceElevated,
 
         title = {
+
             Text(
                 text = "Cancel Booking",
                 fontWeight = FontWeight.Bold,
-                color = DarkGreen
+                color = PrimaryText
             )
         },
 
@@ -1166,7 +1416,7 @@ private fun CancelBookingDialog(
                     text = "Are you sure you want to cancel " +
                             "${formatBookingId(booking.id)}?",
                     fontSize = 14.sp,
-                    color = Charcoal
+                    color = SecondaryText
                 )
 
                 Spacer(
@@ -1176,32 +1426,18 @@ private fun CancelBookingDialog(
                 Text(
                     text = "Cancellation is subject to the 24-hour refund policy.",
                     fontSize = 12.sp,
-                    color = Gray
+                    color = MutedText
                 )
 
                 Spacer(
                     modifier = Modifier.height(14.dp)
                 )
 
-                OutlinedTextField(
+                PremiumReasonField(
                     value = reason,
                     onValueChange = {
                         reason = it
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        Text(
-                            text = "Cancellation reason"
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = "Optional"
-                        )
-                    },
-                    minLines = 2,
-                    maxLines = 4,
-                    shape = RoundedCornerShape(12.dp)
+                    }
                 )
             }
         },
@@ -1220,13 +1456,15 @@ private fun CancelBookingDialog(
                     )
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CancelledRed
+                    containerColor = CancelledRed,
+                    contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(10.dp)
             ) {
 
                 Text(
-                    text = "Cancel Booking"
+                    text = "Cancel Booking",
+                    fontWeight = FontWeight.Bold
                 )
             }
         },
@@ -1239,8 +1477,69 @@ private fun CancelBookingDialog(
 
                 Text(
                     text = "Keep Booking",
-                    color = ForestGreen
+                    color = LightGreen,
+                    fontWeight = FontWeight.Bold
                 )
+            }
+        }
+    )
+}
+
+// =============================================================
+// CANCEL REASON FIELD
+// =============================================================
+
+@Composable
+private fun PremiumReasonField(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+
+    val shape = RoundedCornerShape(12.dp)
+
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(95.dp),
+        textStyle = TextStyle(
+            color = PrimaryText,
+            fontSize = 13.sp
+        ),
+        cursorBrush = androidx.compose.ui.graphics.SolidColor(
+            PrimaryGreen
+        ),
+        decorationBox = { innerTextField ->
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = SurfaceDark,
+                        shape = shape
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = Border,
+                        shape = shape
+                    )
+                    .padding(
+                        horizontal = 13.dp,
+                        vertical = 12.dp
+                    )
+            ) {
+
+                if (value.isBlank()) {
+
+                    Text(
+                        text = "Cancellation reason (optional)",
+                        fontSize = 13.sp,
+                        color = MutedText
+                    )
+                }
+
+                innerTextField()
             }
         }
     )
@@ -1267,10 +1566,14 @@ private fun BookingErrorState(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(21.dp),
             colors = CardDefaults.cardColors(
-                containerColor = White
+                containerColor = SurfaceDark
+            ),
+            border = BorderStroke(
+                1.dp,
+                Border
             ),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+                defaultElevation = 0.dp
             )
         ) {
 
@@ -1284,7 +1587,11 @@ private fun BookingErrorState(
                 Surface(
                     modifier = Modifier.size(70.dp),
                     shape = RoundedCornerShape(22.dp),
-                    color = ForestGreen.copy(alpha = 0.09f)
+                    color = ErrorSurface,
+                    border = BorderStroke(
+                        1.dp,
+                        CancelledRed.copy(alpha = 0.15f)
+                    )
                 ) {
 
                     Box(
@@ -1294,8 +1601,8 @@ private fun BookingErrorState(
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = null,
-                            modifier = Modifier.size(36.dp),
-                            tint = ForestGreen
+                            modifier = Modifier.size(34.dp),
+                            tint = CancelledRed
                         )
                     }
                 }
@@ -1308,7 +1615,7 @@ private fun BookingErrorState(
                     text = "Unable to load bookings",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Charcoal
+                    color = PrimaryText
                 )
 
                 Spacer(
@@ -1318,7 +1625,7 @@ private fun BookingErrorState(
                 Text(
                     text = error,
                     fontSize = 12.sp,
-                    color = Gray
+                    color = SecondaryText
                 )
 
                 Spacer(
@@ -1330,13 +1637,13 @@ private fun BookingErrorState(
                     shape = RoundedCornerShape(11.dp),
                     border = BorderStroke(
                         width = 1.dp,
-                        color = ForestGreen
+                        color = PrimaryGreen
                     )
                 ) {
 
                     Text(
                         text = "Try Again",
-                        color = ForestGreen,
+                        color = LightGreen,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -1369,7 +1676,11 @@ private fun BookingEmptyState(
             Surface(
                 modifier = Modifier.size(82.dp),
                 shape = RoundedCornerShape(25.dp),
-                color = LightGreen.copy(alpha = 0.11f)
+                color = PrimaryGreen.copy(alpha = 0.08f),
+                border = BorderStroke(
+                    1.dp,
+                    Border
+                )
             ) {
 
                 Box(
@@ -1380,7 +1691,7 @@ private fun BookingEmptyState(
                         imageVector = Icons.Default.SportsSoccer,
                         contentDescription = null,
                         modifier = Modifier.size(42.dp),
-                        tint = ForestGreen
+                        tint = PrimaryGreen
                     )
                 }
             }
@@ -1424,7 +1735,7 @@ private fun BookingEmptyState(
                 text = title,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Charcoal
+                color = PrimaryText
             )
 
             Spacer(
@@ -1438,7 +1749,7 @@ private fun BookingEmptyState(
                     "Your bookings will appear here."
                 },
                 fontSize = 13.sp,
-                color = Gray
+                color = SecondaryText
             )
         }
     }
@@ -1472,18 +1783,34 @@ private fun isUpcomingBooking(
             .substringBefore(".")
             .substringBefore("+")
 
-        val bookingDateTime = LocalDateTime.of(
-            LocalDate.parse(date),
-            LocalTime.parse(startTime)
+        val normalizedTime = when {
+            startTime.length == 5 -> {
+                "$startTime:00"
+            }
+
+            startTime.length >= 8 -> {
+                startTime.substring(0, 8)
+            }
+
+            else -> {
+                startTime
+            }
+        }
+
+        val parser = SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss",
+            Locale.getDefault()
         )
 
-        bookingDateTime.isAfter(
-            LocalDateTime.now()
+        parser.isLenient = false
+
+        val bookingDateTime = parser.parse(
+            "$date $normalizedTime"
         )
 
-    } catch (
-        e: Exception
-    ) {
+        bookingDateTime?.after(Date()) ?: true
+
+    } catch (_: Exception) {
 
         true
     }
@@ -1520,20 +1847,32 @@ private fun formatBookingDate(
 
     return try {
 
-        val date = LocalDate.parse(
-            dateString.substringBefore("T")
+        val cleanDate = dateString
+            .substringBefore("T")
+
+        val inputFormat = SimpleDateFormat(
+            "yyyy-MM-dd",
+            Locale.getDefault()
         )
 
-        date.format(
-            DateTimeFormatter.ofPattern(
-                "dd MMM yyyy",
-                Locale.getDefault()
-            )
+        val outputFormat = SimpleDateFormat(
+            "dd MMM yyyy",
+            Locale.getDefault()
         )
 
-    } catch (
-        e: Exception
-    ) {
+        inputFormat.isLenient = false
+
+        val date = inputFormat.parse(
+            cleanDate
+        )
+
+        if (date != null) {
+            outputFormat.format(date)
+        } else {
+            cleanDate
+        }
+
+    } catch (_: Exception) {
 
         dateString.substringBefore("T")
     }
@@ -1552,19 +1891,45 @@ private fun formatTime(
         val cleanTime = time
             .substringBefore(".")
             .substringBefore("+")
+            .trim()
 
-        LocalTime.parse(
-            cleanTime
-        ).format(
-            DateTimeFormatter.ofPattern(
-                "hh:mm a",
-                Locale.getDefault()
-            )
+        val normalizedTime = when {
+            cleanTime.length == 5 -> {
+                "$cleanTime:00"
+            }
+
+            cleanTime.length >= 8 -> {
+                cleanTime.substring(0, 8)
+            }
+
+            else -> {
+                cleanTime
+            }
+        }
+
+        val inputFormat = SimpleDateFormat(
+            "HH:mm:ss",
+            Locale.getDefault()
         )
 
-    } catch (
-        e: Exception
-    ) {
+        val outputFormat = SimpleDateFormat(
+            "hh:mm a",
+            Locale.getDefault()
+        )
+
+        inputFormat.isLenient = false
+
+        val date = inputFormat.parse(
+            normalizedTime
+        )
+
+        if (date != null) {
+            outputFormat.format(date)
+        } else {
+            cleanTime
+        }
+
+    } catch (_: Exception) {
 
         time
     }
@@ -1607,4 +1972,3 @@ private fun formatAmount(
         )
     }
 }
-

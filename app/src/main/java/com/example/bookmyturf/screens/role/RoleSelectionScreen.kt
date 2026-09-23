@@ -1,6 +1,6 @@
 package com.example.bookmyturf.screens.role
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,12 +20,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Stadium
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,22 +31,49 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bookmyturf.R
-import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
-import com.example.bookmyturf.ui.theme.AdminDarkGreen
-import com.example.bookmyturf.ui.theme.AdminForestGreen
-import com.example.bookmyturf.ui.theme.AdminGray
-import com.example.bookmyturf.ui.theme.AdminLightGreen
-import com.example.bookmyturf.ui.theme.AdminWhite
+
+// ============================================================
+// BOOKMYTURF PREMIUM COLOR PALETTE
+// Same dark background as EditProfileScreen
+// ============================================================
+
+// Main screen background
+private val Background = Color(0xFF020907)
+
+// White role cards
+private val CardWhite = Color(0xFFFFFFFF)
+
+// Green accents
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val ForestGreen = Color(0xFF2E6B35)
+private val LightGreen = Color(0xFFA8D86E)
+
+// Main card text
+private val PrimaryText = Color(0xFF1C1C1C)
+
+// Secondary card text
+private val SecondaryText = Color(0xFF737373)
+
+// Light green icon background
+private val IconBackground = Color(0xFFF1F7EE)
+
+// Card border
+private val Border = Color(0xFF1A3027)
+
+// Screen secondary text
+// Same style as EditProfileScreen
+private val ScreenSecondaryText = Color(0xFFA1AEA8)
+
+
+// ============================================================
+// ROLE SELECTION SCREEN
+// ============================================================
 
 @Composable
 fun RoleSelectionScreen(
@@ -58,46 +83,14 @@ fun RoleSelectionScreen(
 ) {
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Background)
     ) {
 
-        // =====================================================
-        // BACKGROUND
-        // =====================================================
-
-        Image(
-            painter = painterResource(
-                id = R.drawable.bg_turf
-            ),
-
-            contentDescription = null,
-
-            modifier = Modifier.fillMaxSize(),
-
-            contentScale = ContentScale.Crop
-        )
-
-        // =====================================================
-        // DARK GRADIENT
-        // =====================================================
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            AdminDarkGreen.copy(alpha = 0.20f),
-                            Color.Black.copy(alpha = 0.45f),
-                            Color.Black.copy(alpha = 0.78f)
-                        )
-                    )
-                )
-        )
-
-        // =====================================================
-        // CONTENT
-        // =====================================================
+        // ====================================================
+        // MAIN CONTENT
+        // ====================================================
 
         Column(
             modifier = Modifier
@@ -107,8 +100,8 @@ fun RoleSelectionScreen(
                 )
                 .navigationBarsPadding()
                 .padding(
-                    horizontal = 24.dp,
-                    vertical = 34.dp
+                    horizontal = 22.dp,
+                    vertical = 28.dp
                 ),
 
             horizontalAlignment =
@@ -119,204 +112,264 @@ fun RoleSelectionScreen(
         ) {
 
             // =================================================
-            // LOGO
+            // BOOKMYTURF LABEL
             // =================================================
 
-            Surface(
-                modifier = Modifier.size(108.dp),
+            Text(
+                text = "BOOKMYTURF",
 
-                shape = CircleShape,
+                color = PrimaryGreen,
 
-                color =
-                    AdminWhite.copy(
-                        alpha = 0.95f
-                    )
-            ) {
+                fontSize = 11.sp,
 
-                Box(
-                    contentAlignment =
-                        Alignment.Center
-                ) {
+                fontWeight = FontWeight.Bold,
 
-                    Image(
-                        painter = painterResource(
-                            id = R.drawable.logo
-                        ),
+                letterSpacing = 2.8.sp,
 
-                        contentDescription =
-                            "Book My Turf logo",
-
-                        modifier =
-                            Modifier.size(92.dp),
-
-                        contentScale =
-                            ContentScale.Fit
-                    )
-                }
-            }
+                textAlign = TextAlign.Center
+            )
 
             Spacer(
-                modifier =
-                    Modifier.height(30.dp)
+                modifier = Modifier.height(16.dp)
             )
 
             // =================================================
-            // WELCOME
+            // MAIN TITLE
             // =================================================
 
             Text(
                 text = "Welcome",
 
-                color =
-                    AdminWhite,
+                color = Color.White,
 
-                fontSize =
-                    28.sp,
+                fontSize = 34.sp,
 
-                fontWeight =
-                    FontWeight.Bold,
+                fontWeight = FontWeight.Bold,
 
-                textAlign =
-                    TextAlign.Center
+                letterSpacing = (-0.8).sp,
+
+                textAlign = TextAlign.Center
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(7.dp)
+                modifier = Modifier.height(7.dp)
             )
+
+            // =================================================
+            // SUBTITLE
+            // =================================================
 
             Text(
-                text =
-                    "Choose how you want to continue",
+                text = "Choose your account type to continue",
 
-                color =
-                    AdminWhite.copy(
-                        alpha = 0.86f
+                color = ScreenSecondaryText,
+
+                fontSize = 13.sp,
+
+                fontWeight = FontWeight.Normal,
+
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(
+                modifier = Modifier.height(34.dp)
+            )
+
+            // =================================================
+            // CONTINUE AS
+            // =================================================
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 3.dp
                     ),
 
-                fontSize =
-                    14.sp,
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
 
-                textAlign =
-                    TextAlign.Center
-            )
+                Text(
+                    text = "CONTINUE AS",
+
+                    color = PrimaryGreen,
+
+                    fontSize = 10.sp,
+
+                    fontWeight = FontWeight.Bold,
+
+                    letterSpacing = 1.5.sp
+                )
+
+                Spacer(
+                    modifier = Modifier.width(10.dp)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(1.dp)
+                        .background(
+                            Border.copy(
+                                alpha = 0.65f
+                            )
+                        )
+                )
+            }
 
             Spacer(
-                modifier =
-                    Modifier.height(26.dp)
+                modifier = Modifier.height(12.dp)
             )
 
             // =================================================
-            // USER
+            // USER CARD
             // =================================================
 
-            RoleCard(
+            PremiumRoleCard(
                 title = "User",
 
-                icon =
-                    Icons.Default.Person,
+                label = "PLAYER",
 
                 description =
-                    "Discover and book your favourite turf",
+                    "Find turfs, check availability and book your game.",
 
-                onClick =
-                    onUserClick
+                icon = Icons.Default.PersonOutline,
+
+                onClick = onUserClick
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(14.dp)
+                modifier = Modifier.height(12.dp)
             )
 
             // =================================================
-            // TURF OWNER
+            // TURF OWNER CARD
             // =================================================
 
-            RoleCard(
+            PremiumRoleCard(
                 title = "Turf Owner",
 
-                icon =
-                    Icons.Default.Stadium,
+                label = "BUSINESS",
 
                 description =
-                    "Manage your turf, slots and bookings",
+                    "Manage your turf, slots, bookings and customers.",
 
-                onClick =
-                    onAdminClick
+                icon = Icons.Default.Stadium,
+
+                onClick = onAdminClick
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(14.dp)
+                modifier = Modifier.height(12.dp)
             )
 
             // =================================================
-            // SUPER ADMIN
+            // SUPER ADMIN CARD
             // =================================================
 
-            RoleCard(
+            PremiumRoleCard(
                 title = "Super Admin",
 
-                icon =
-                    Icons.Default.Shield,
+                label = "PLATFORM",
 
                 description =
-                    "Manage users, turf owners and the platform",
+                    "Manage users, turf owners and platform operations.",
 
-                badge =
-                    "ADMIN",
+                icon = Icons.Default.Security,
 
-                onClick =
-                    onSuperAdminClick
+                badge = "ADMIN",
+
+                onClick = onSuperAdminClick
+            )
+
+            Spacer(
+                modifier = Modifier.height(30.dp)
+            )
+
+            // =================================================
+            // BOTTOM TEXT
+            // =================================================
+
+            Text(
+                text = "Your game starts here.",
+
+                color = Color.White.copy(
+                    alpha = 0.70f
+                ),
+
+                fontSize = 11.sp,
+
+                fontWeight = FontWeight.Medium,
+
+                letterSpacing = 0.4.sp,
+
+                textAlign = TextAlign.Center
             )
         }
     }
 }
 
 
-// =============================================================
-// ROLE CARD
-// =============================================================
+// ============================================================
+// PREMIUM WHITE ROLE CARD
+// ============================================================
 
 @Composable
-fun RoleCard(
+private fun PremiumRoleCard(
     title: String,
-    icon: ImageVector,
+    label: String,
     description: String,
+    icon: ImageVector,
     badge: String? = null,
     onClick: () -> Unit
 ) {
 
-    Card(
+    Surface(
+
         modifier = Modifier
             .fillMaxWidth()
-            .height(104.dp)
+            .height(102.dp)
             .clickable {
                 onClick()
             },
 
-        shape =
-            RoundedCornerShape(20.dp),
+        // =====================================================
+        // CARD SHAPE
+        // =====================================================
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite.copy(
-                        alpha = 0.96f
-                    )
-            ),
+        shape = RoundedCornerShape(
+            20.dp
+        ),
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 7.dp
-            )
+        // =====================================================
+        // WHITE CARD
+        // =====================================================
+
+        color = CardWhite,
+
+        // =====================================================
+        // CARD BORDER
+        // =====================================================
+
+        border = BorderStroke(
+            width = 1.dp,
+            color = Border
+        ),
+
+        // =====================================================
+        // CARD ELEVATION
+        // =====================================================
+
+        shadowElevation = 4.dp
     ) {
 
         Row(
+
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    horizontal = 16.dp,
+                    horizontal = 15.dp,
                     vertical = 14.dp
                 ),
 
@@ -325,17 +378,20 @@ fun RoleCard(
         ) {
 
             // =================================================
-            // ICON
+            // ICON BOX
             // =================================================
 
             Box(
+
                 modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(
-                        AdminLightGreen.copy(
-                            alpha = 0.18f
+                    .size(54.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            16.dp
                         )
+                    )
+                    .background(
+                        IconBackground
                     ),
 
                 contentAlignment =
@@ -343,36 +399,38 @@ fun RoleCard(
             ) {
 
                 Icon(
-                    imageVector =
-                        icon,
 
-                    contentDescription =
-                        title,
+                    imageVector = icon,
 
-                    modifier =
-                        Modifier.size(28.dp),
+                    contentDescription = title,
 
-                    tint =
-                        AdminForestGreen
+                    modifier = Modifier.size(
+                        25.dp
+                    ),
+
+                    tint = ForestGreen
                 )
             }
 
             Spacer(
-                modifier =
-                    Modifier.width(15.dp)
+                modifier = Modifier.width(15.dp)
             )
 
             // =================================================
-            // TEXT
+            // CARD TEXT
             // =================================================
 
             Column(
-                modifier =
-                    Modifier.weight(1f),
+
+                modifier = Modifier.weight(1f),
 
                 verticalArrangement =
                     Arrangement.Center
             ) {
+
+                // =============================================
+                // TITLE + BADGE
+                // =============================================
 
                 Row(
                     verticalAlignment =
@@ -380,95 +438,144 @@ fun RoleCard(
                 ) {
 
                     Text(
-                        text =
-                            title,
 
-                        color =
-                            AdminDarkCharcoal,
+                        text = title,
 
-                        fontSize =
-                            18.sp,
+                        color = PrimaryText,
+
+                        fontSize = 16.sp,
 
                         fontWeight =
-                            FontWeight.Bold
+                            FontWeight.SemiBold
                     )
+
+                    // =========================================
+                    // ADMIN BADGE
+                    // =========================================
 
                     if (badge != null) {
 
                         Spacer(
-                            modifier =
-                                Modifier.width(8.dp)
+                            modifier = Modifier.width(7.dp)
                         )
 
                         Surface(
+
                             shape =
-                                RoundedCornerShape(6.dp),
+                                RoundedCornerShape(
+                                    5.dp
+                                ),
 
                             color =
-                                AdminDarkGreen
+                                PrimaryGreen.copy(
+                                    alpha = 0.16f
+                                )
                         ) {
 
                             Text(
-                                text =
-                                    badge,
 
-                                color =
-                                    AdminWhite,
+                                text = badge,
 
-                                fontSize =
-                                    9.sp,
+                                color = ForestGreen,
+
+                                fontSize = 7.sp,
 
                                 fontWeight =
                                     FontWeight.Bold,
 
-                                modifier =
-                                    Modifier.padding(
-                                        horizontal = 7.dp,
-                                        vertical = 4.dp
-                                    )
+                                letterSpacing = 0.7.sp,
+
+                                modifier = Modifier.padding(
+                                    horizontal = 7.dp,
+                                    vertical = 4.dp
+                                )
                             )
                         }
                     }
                 }
 
                 Spacer(
-                    modifier =
-                        Modifier.height(4.dp)
+                    modifier = Modifier.height(3.dp)
                 )
 
+                // =============================================
+                // ROLE LABEL
+                // =============================================
+
                 Text(
-                    text =
-                        description,
 
-                    color =
-                        AdminGray,
+                    text = label,
 
-                    fontSize =
-                        12.sp,
+                    color = ForestGreen,
 
-                    lineHeight =
-                        17.sp
+                    fontSize = 8.sp,
+
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    letterSpacing = 1.2.sp
+                )
+
+                Spacer(
+                    modifier = Modifier.height(4.dp)
+                )
+
+                // =============================================
+                // DESCRIPTION
+                // =============================================
+
+                Text(
+
+                    text = description,
+
+                    color = SecondaryText,
+
+                    fontSize = 10.5.sp,
+
+                    lineHeight = 15.sp,
+
+                    maxLines = 2
                 )
             }
 
-            // =================================================
-            // ARROW
-            // =================================================
-
-            Icon(
-                imageVector =
-                    Icons.Default.ArrowForwardIos,
-
-                contentDescription =
-                    "Continue",
-
-                modifier =
-                    Modifier.size(17.dp),
-
-                tint =
-                    AdminForestGreen
+            Spacer(
+                modifier = Modifier.width(10.dp)
             )
+
+            // =================================================
+            // ARROW CIRCLE
+            // =================================================
+
+            Box(
+
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(
+                        CircleShape
+                    )
+                    .background(
+                        IconBackground
+                    ),
+
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.ArrowForward,
+
+                    contentDescription =
+                        "Continue",
+
+                    modifier =
+                        Modifier.size(17.dp),
+
+                    tint =
+                        ForestGreen
+                )
+            }
         }
     }
 }
-

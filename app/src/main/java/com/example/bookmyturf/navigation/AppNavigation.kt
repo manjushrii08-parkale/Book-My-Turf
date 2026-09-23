@@ -13,6 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.navigation.NavHostController
@@ -25,6 +27,8 @@ import com.example.bookmyturf.data.local.SessionManager
 import com.example.bookmyturf.data.model.SuperAdminBooking
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminRepository
+import com.example.bookmyturf.data.repository.ReviewRepository
+import com.example.bookmyturf.data.repository.TurfRepository
 
 import com.example.bookmyturf.screens.admin.AdminEntryScreen
 import com.example.bookmyturf.screens.admin.AdminHomeScreen
@@ -57,18 +61,22 @@ import com.example.bookmyturf.screens.superadmin.SuperAdminTurfDetailsScreen
 import com.example.bookmyturf.screens.superadmin.SuperAdminTurfsScreen
 import com.example.bookmyturf.screens.superadmin.SuperAdminUserDetailsScreen
 import com.example.bookmyturf.screens.superadmin.SuperAdminUsersScreen
-import com.example.bookmyturf.viewmodel.SuperAdminViewModel
+import com.example.bookmyturf.screens.superadmin.SuperAdminReportsScreen
+
+import com.example.bookmyturf.screens.NotificationScreen
+import com.example.bookmyturf.screens.user.RateReviewScreen
+
 import com.example.bookmyturf.viewmodel.AdminViewModel
 import com.example.bookmyturf.viewmodel.BookingViewModel
-import com.example.bookmyturf.viewmodel.SuperAdminAdminsViewModel
-import com.example.bookmyturf.viewmodel.SuperAdminUsersViewModel
-import com.example.bookmyturf.screens.superadmin.SuperAdminReportsScreen
-import com.example.bookmyturf.viewmodel.SuperAdminBookingsViewModel
-import com.example.bookmyturf.screens.NotificationScreen
-import com.example.bookmyturf.data.repository.ReviewRepository
-import com.example.bookmyturf.screens.user.RateReviewScreen
 import com.example.bookmyturf.viewmodel.ReviewViewModel
 import com.example.bookmyturf.viewmodel.ReviewViewModelFactory
+import com.example.bookmyturf.viewmodel.SuperAdminAdminsViewModel
+import com.example.bookmyturf.viewmodel.SuperAdminBookingsViewModel
+import com.example.bookmyturf.viewmodel.SuperAdminUsersViewModel
+import com.example.bookmyturf.viewmodel.SuperAdminViewModel
+import com.example.bookmyturf.viewmodel.UserProfileViewModel
+
+
 @Composable
 fun AppNavigation(
     navController: NavHostController
@@ -88,13 +96,20 @@ fun AppNavigation(
         SessionManager(context)
     }
 
+    // =========================================================
+    // SUPER ADMIN VIEWMODELS
+    // =========================================================
+
     val superAdminViewModel: SuperAdminViewModel = viewModel()
 
-    val dashboardData by superAdminViewModel.dashboard.collectAsState()
+    val dashboardData by
+    superAdminViewModel.dashboard.collectAsState()
 
-    val superAdminBookingsViewModel: SuperAdminBookingsViewModel = viewModel()
+    val superAdminBookingsViewModel:
+            SuperAdminBookingsViewModel = viewModel()
 
-    val superAdminBookings by superAdminBookingsViewModel.bookings.collectAsState()
+    val superAdminBookings by
+    superAdminBookingsViewModel.bookings.collectAsState()
 
     // =========================================================
     // SELECTED SUPER ADMIN BOOKING
@@ -108,8 +123,11 @@ fun AppNavigation(
     // AUTO LOGIN
     // =========================================================
 
-    val savedToken = sessionManager.getToken()
-    val savedRole = sessionManager.getRole()
+    val savedToken =
+        sessionManager.getToken()
+
+    val savedRole =
+        sessionManager.getRole()
 
     val startDestination = remember {
 
@@ -215,15 +233,21 @@ fun AppNavigation(
             RoleSelectionScreen(
 
                 onUserClick = {
-                    navController.navigate("login/USER")
+                    navController.navigate(
+                        "login/USER"
+                    )
                 },
 
                 onAdminClick = {
-                    navController.navigate("login/ADMIN")
+                    navController.navigate(
+                        "login/ADMIN"
+                    )
                 },
 
                 onSuperAdminClick = {
-                    navController.navigate("login/SUPER_ADMIN")
+                    navController.navigate(
+                        "login/SUPER_ADMIN"
+                    )
                 }
             )
         }
@@ -247,7 +271,8 @@ fun AppNavigation(
 
                 onOtpSent = { email ->
 
-                    val encodedEmail = Uri.encode(email)
+                    val encodedEmail =
+                        Uri.encode(email)
 
                     navController.navigate(
                         "otp/$encodedEmail/$role"
@@ -304,14 +329,19 @@ fun AppNavigation(
                         "Session saved: role=$loggedInRole email=$email"
                     )
 
-                    when (loggedInRole.uppercase()) {
+                    when (
+                        loggedInRole.uppercase()
+                    ) {
 
                         "USER" -> {
 
                             navController.navigate(
                                 Routes.USER_HOME
                             ) {
-                                popUpTo(Routes.ROLE) {
+
+                                popUpTo(
+                                    Routes.ROLE
+                                ) {
                                     inclusive = true
                                 }
 
@@ -329,7 +359,10 @@ fun AppNavigation(
                             navController.navigate(
                                 Routes.ADMIN_ENTRY
                             ) {
-                                popUpTo(Routes.ROLE) {
+
+                                popUpTo(
+                                    Routes.ROLE
+                                ) {
                                     inclusive = true
                                 }
 
@@ -342,7 +375,10 @@ fun AppNavigation(
                             navController.navigate(
                                 Routes.SUPER_ADMIN_HOME
                             ) {
-                                popUpTo(Routes.ROLE) {
+
+                                popUpTo(
+                                    Routes.ROLE
+                                ) {
                                     inclusive = true
                                 }
 
@@ -363,16 +399,20 @@ fun AppNavigation(
                 }
             )
         }
-// =====================================================
-// USER MAIN
-// =====================================================
+
+        // =====================================================
+        // USER MAIN
+        // =====================================================
 
         composable(
             route = Routes.USER_HOME
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
@@ -422,7 +462,9 @@ fun AppNavigation(
                         logout()
                     },
 
-                    onRateReviewClick = { bookingId, turfName ->
+                    onRateReviewClick = {
+                            bookingId,
+                            turfName ->
 
                         navController.navigate(
                             Routes.rateReview(
@@ -446,16 +488,20 @@ fun AppNavigation(
                 }
             }
         }
+
         // =====================================================
-// USER NOTIFICATIONS
-// =====================================================
+        // USER NOTIFICATIONS
+        // =====================================================
 
         composable(
             route = Routes.USER_NOTIFICATIONS
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
@@ -463,7 +509,9 @@ fun AppNavigation(
             ) {
 
                 NotificationScreen(
-                    sessionManager = sessionManager,
+
+                    sessionManager =
+                        sessionManager,
 
                     onBackClick = {
                         navController.popBackStack()
@@ -492,45 +540,183 @@ fun AppNavigation(
             route = Routes.USER_EDIT_PROFILE
         ) {
 
-            val email =
-                sessionManager.getEmail()
-                    ?: "No email available"
+            val token =
+                sessionManager.getToken()
 
-            EditProfileScreen(
+            val role =
+                sessionManager.getRole()
 
-                currentName = "BookMyTurf User",
+            if (
+                !token.isNullOrBlank() &&
+                role == "USER"
+            ) {
 
-                currentEmail = email,
+                // -------------------------------------------------
+                // PROFILE VIEWMODEL
+                // -------------------------------------------------
 
-                currentPhone = "",
+                val profileViewModel:
+                        UserProfileViewModel = viewModel(
+                    factory =
+                        object : ViewModelProvider.Factory {
 
-                currentDateOfBirth = "",
+                            @Suppress("UNCHECKED_CAST")
+                            override fun <T : ViewModel>
+                                    create(
+                                modelClass: Class<T>
+                            ): T {
 
-                onBackClick = {
-                    navController.popBackStack()
-                },
+                                return UserProfileViewModel(
+                                    TurfRepository()
+                                ) as T
+                            }
+                        }
+                )
 
-                onSaveClick = {
-                        name,
-                        phone,
-                        dateOfBirth ->
+                // -------------------------------------------------
+                // PROFILE STATE
+                // -------------------------------------------------
+
+                val profile by
+                profileViewModel.profile.collectAsState()
+
+                val isSaving by
+                profileViewModel.isUpdating.collectAsState()
+
+                val errorMessage by
+                profileViewModel.error.collectAsState()
+
+                val updateSuccess by
+                profileViewModel.updateSuccess.collectAsState()
+
+                // -------------------------------------------------
+                // LOAD PROFILE
+                // -------------------------------------------------
+
+                LaunchedEffect(Unit) {
 
                     Log.d(
                         "EDIT_PROFILE",
-                        "Name = $name"
+                        "Loading user profile"
                     )
 
-                    Log.d(
-                        "EDIT_PROFILE",
-                        "Phone = $phone"
-                    )
-
-                    Log.d(
-                        "EDIT_PROFILE",
-                        "Date of Birth = $dateOfBirth"
-                    )
+                    profileViewModel.loadProfile()
                 }
-            )
+
+                // -------------------------------------------------
+                // UPDATE SUCCESS
+                // -------------------------------------------------
+
+                LaunchedEffect(updateSuccess) {
+
+                    if (updateSuccess) {
+
+                        Log.d(
+                            "EDIT_PROFILE",
+                            "Profile update successful"
+                        )
+
+                        profileViewModel.clearUpdateSuccess()
+
+                        navController.popBackStack()
+                    }
+                }
+
+                // -------------------------------------------------
+                // EDIT PROFILE SCREEN
+                // -------------------------------------------------
+
+                EditProfileScreen(
+
+                    currentName =
+                        profile?.name
+                            ?: "",
+
+                    currentEmail =
+                        profile?.email
+                            ?: sessionManager.getEmail()
+                            ?: "",
+
+                    currentPhone =
+                        profile?.phone
+                            ?: "",
+
+                    currentDateOfBirth =
+                        profile?.dateOfBirth
+                            ?: "",
+
+                    isSaving =
+                        isSaving,
+
+                    errorMessage =
+                        errorMessage,
+
+                    onBackClick = {
+
+                        if (!isSaving) {
+
+                            navController.popBackStack()
+                        }
+                    },
+
+                    onSaveClick = {
+                            name,
+                            phone,
+                            dateOfBirth ->
+
+                        Log.d(
+                            "EDIT_PROFILE",
+                            "Save Changes clicked"
+                        )
+
+                        Log.d(
+                            "EDIT_PROFILE",
+                            "Name = $name"
+                        )
+
+                        Log.d(
+                            "EDIT_PROFILE",
+                            "Phone = $phone"
+                        )
+
+                        Log.d(
+                            "EDIT_PROFILE",
+                            "Date of Birth = $dateOfBirth"
+                        )
+
+                        // -------------------------------------------------
+                        // UPDATE PROFILE
+                        // -------------------------------------------------
+
+                        profileViewModel.updateProfile(
+
+                            name = name,
+
+                            phone =
+                                phone.ifBlank {
+                                    null
+                                },
+
+                            dateOfBirth =
+                                dateOfBirth.ifBlank {
+                                    null
+                                }
+                        )
+                    }
+                )
+
+            } else {
+
+                LaunchedEffect(Unit) {
+
+                    Log.e(
+                        "EDIT_PROFILE",
+                        "Invalid USER session"
+                    )
+
+                    logout()
+                }
+            }
         }
 
         // =====================================================
@@ -564,7 +750,9 @@ fun AppNavigation(
                     onBookNowClick = { selectedTurfId ->
 
                         navController.navigate(
-                            Routes.slotSelection(selectedTurfId)
+                            Routes.slotSelection(
+                                selectedTurfId
+                            )
                         )
                     }
                 )
@@ -612,9 +800,12 @@ fun AppNavigation(
 
                         navController.navigate(
                             Routes.bookingSummary(
-                                turfId = selectedTurfId,
-                                slotId = slotId,
-                                bookingDate = bookingDate
+                                turfId =
+                                    selectedTurfId,
+                                slotId =
+                                    slotId,
+                                bookingDate =
+                                    bookingDate
                             )
                         )
                     }
@@ -662,7 +853,8 @@ fun AppNavigation(
                     ?.getString("bookingDate")
                     ?: ""
 
-            val bookingViewModel: BookingViewModel = viewModel()
+            val bookingViewModel:
+                    BookingViewModel = viewModel()
 
             val createdBooking =
                 bookingViewModel.createdBooking
@@ -674,7 +866,9 @@ fun AppNavigation(
                 createdBooking?.let { booking ->
 
                     navController.navigate(
-                        Routes.payment(booking.id)
+                        Routes.payment(
+                            booking.id
+                        )
                     ) {
 
                         popUpTo(
@@ -686,11 +880,13 @@ fun AppNavigation(
                         launchSingleTop = true
                     }
 
-                    bookingViewModel.clearCreatedBooking()
+                    bookingViewModel
+                        .clearCreatedBooking()
                 }
             }
 
-            val token = sessionManager.getToken()
+            val token =
+                sessionManager.getToken()
 
             if (
                 turfId > 0 &&
@@ -700,11 +896,14 @@ fun AppNavigation(
 
                 BookingSummaryScreen(
 
-                    turfId = turfId,
+                    turfId =
+                        turfId,
 
-                    slotId = slotId,
+                    slotId =
+                        slotId,
 
-                    bookingDate = bookingDate,
+                    bookingDate =
+                        bookingDate,
 
                     onBackClick = {
                         navController.popBackStack()
@@ -715,14 +914,22 @@ fun AppNavigation(
                             selectedSlotId,
                             selectedBookingDate ->
 
-                        if (token.isNullOrBlank()) {
+                        if (
+                            token.isNullOrBlank()
+                        ) {
                             return@BookingSummaryScreen
                         }
 
                         bookingViewModel.createBooking(
-                            token = token,
-                            slotId = selectedSlotId,
-                            bookingDate = selectedBookingDate
+
+                            token =
+                                token,
+
+                            slotId =
+                                selectedSlotId,
+
+                            bookingDate =
+                                selectedBookingDate
                         )
                     }
                 )
@@ -730,20 +937,22 @@ fun AppNavigation(
             } else {
 
                 Text(
-                    text = "Invalid booking details."
+                    text =
+                        "Invalid booking details."
                 )
             }
         }
 
         // =====================================================
-// USER BOOKINGS
-// =====================================================
+        // USER BOOKINGS
+        // =====================================================
 
         composable(
             route = Routes.USER_BOOKINGS
         ) {
 
-            val bookingViewModel: BookingViewModel = viewModel()
+            val bookingViewModel:
+                    BookingViewModel = viewModel()
 
             UserBookingsScreen(
 
@@ -751,17 +960,22 @@ fun AppNavigation(
                     navController.popBackStack()
                 },
 
-                onRateReviewClick = { bookingId, turfName ->
+                onRateReviewClick = {
+                        bookingId,
+                        turfName ->
 
                     navController.navigate(
                         Routes.rateReview(
-                            bookingId = bookingId,
-                            turfName = turfName
+                            bookingId =
+                                bookingId,
+                            turfName =
+                                turfName
                         )
                     )
                 },
 
-                bookingViewModel = bookingViewModel
+                bookingViewModel =
+                    bookingViewModel
             )
         }
 
@@ -787,14 +1001,20 @@ fun AppNavigation(
 
                 PaymentScreen(
 
-                    bookingId = bookingId,
+                    bookingId =
+                        bookingId,
 
                     onPaymentSuccess = {
 
                         navController.navigate(
-                            Routes.bookingSuccess(bookingId)
+                            Routes.bookingSuccess(
+                                bookingId
+                            )
                         ) {
-                            popUpTo(Routes.PAYMENT) {
+
+                            popUpTo(
+                                Routes.PAYMENT
+                            ) {
                                 inclusive = true
                             }
 
@@ -810,14 +1030,15 @@ fun AppNavigation(
             } else {
 
                 Text(
-                    text = "Invalid payment details."
+                    text =
+                        "Invalid payment details."
                 )
             }
         }
 
         // =====================================================
-// USER RATE & REVIEW
-// =====================================================
+        // USER RATE & REVIEW
+        // =====================================================
 
         composable(
             route = Routes.RATE_REVIEW,
@@ -844,19 +1065,22 @@ fun AppNavigation(
             val token =
                 sessionManager.getToken()
 
-            val repository = remember {
-                ReviewRepository(
-                    RetrofitClient.api
-                )
-            }
+            val repository =
+                remember {
+                    ReviewRepository(
+                        RetrofitClient.api
+                    )
+                }
 
-            val factory = remember {
-                ReviewViewModelFactory(
-                    repository
-                )
-            }
+            val factory =
+                remember {
+                    ReviewViewModelFactory(
+                        repository
+                    )
+                }
 
-            val reviewViewModel: ReviewViewModel =
+            val reviewViewModel:
+                    ReviewViewModel =
                 viewModel(
                     factory = factory
                 )
@@ -867,10 +1091,18 @@ fun AppNavigation(
             ) {
 
                 RateReviewScreen(
-                    token = token,
-                    bookingId = bookingId,
-                    turfName = turfName,
-                    reviewViewModel = reviewViewModel,
+
+                    token =
+                        token,
+
+                    bookingId =
+                        bookingId,
+
+                    turfName =
+                        turfName,
+
+                    reviewViewModel =
+                        reviewViewModel,
 
                     onBackClick = {
                         navController.popBackStack()
@@ -884,7 +1116,8 @@ fun AppNavigation(
             } else {
 
                 Text(
-                    text = "Invalid review details."
+                    text =
+                        "Invalid review details."
                 )
             }
         }
@@ -911,14 +1144,18 @@ fun AppNavigation(
 
                 BookingSuccessScreen(
 
-                    bookingId = bookingId,
+                    bookingId =
+                        bookingId,
 
                     onHomeClick = {
 
                         navController.navigate(
                             Routes.USER_HOME
                         ) {
-                            popUpTo(Routes.USER_HOME) {
+
+                            popUpTo(
+                                Routes.USER_HOME
+                            ) {
                                 inclusive = false
                             }
 
@@ -930,7 +1167,8 @@ fun AppNavigation(
             } else {
 
                 Text(
-                    text = "Invalid booking."
+                    text =
+                        "Invalid booking."
                 )
             }
         }
@@ -943,37 +1181,54 @@ fun AppNavigation(
             route = Routes.ADMIN_ENTRY
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
                 role == "ADMIN"
             ) {
 
-                val repository = remember {
-                    AdminRepository(RetrofitClient.api)
-                }
+                val repository =
+                    remember {
+                        AdminRepository(
+                            RetrofitClient.api
+                        )
+                    }
 
-                val factory = remember {
-                    AdminViewModelFactory(repository)
-                }
+                val factory =
+                    remember {
+                        AdminViewModelFactory(
+                            repository
+                        )
+                    }
 
-                val adminViewModel: AdminViewModel =
-                    viewModel(factory = factory)
+                val adminViewModel:
+                        AdminViewModel =
+                    viewModel(
+                        factory = factory
+                    )
 
                 AdminEntryScreen(
 
-                    token = token,
+                    token =
+                        token,
 
-                    viewModel = adminViewModel,
+                    viewModel =
+                        adminViewModel,
 
                     onSubscriptionActive = {
 
                         navController.navigate(
                             Routes.ADMIN_HOME
                         ) {
-                            popUpTo(Routes.ADMIN_ENTRY) {
+
+                            popUpTo(
+                                Routes.ADMIN_ENTRY
+                            ) {
                                 inclusive = true
                             }
 
@@ -986,7 +1241,10 @@ fun AppNavigation(
                         navController.navigate(
                             Routes.ADMIN_SUBSCRIPTION
                         ) {
-                            popUpTo(Routes.ADMIN_ENTRY) {
+
+                            popUpTo(
+                                Routes.ADMIN_ENTRY
+                            ) {
                                 inclusive = true
                             }
 
@@ -1004,7 +1262,10 @@ fun AppNavigation(
                         navController.navigate(
                             Routes.ADMIN_SUBSCRIPTION
                         ) {
-                            popUpTo(Routes.ADMIN_ENTRY) {
+
+                            popUpTo(
+                                Routes.ADMIN_ENTRY
+                            ) {
                                 inclusive = true
                             }
 
@@ -1035,37 +1296,54 @@ fun AppNavigation(
             route = Routes.ADMIN_SUBSCRIPTION
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
                 role == "ADMIN"
             ) {
 
-                val repository = remember {
-                    AdminRepository(RetrofitClient.api)
-                }
+                val repository =
+                    remember {
+                        AdminRepository(
+                            RetrofitClient.api
+                        )
+                    }
 
-                val factory = remember {
-                    AdminViewModelFactory(repository)
-                }
+                val factory =
+                    remember {
+                        AdminViewModelFactory(
+                            repository
+                        )
+                    }
 
-                val adminViewModel: AdminViewModel =
-                    viewModel(factory = factory)
+                val adminViewModel:
+                        AdminViewModel =
+                    viewModel(
+                        factory = factory
+                    )
 
                 AdminSubscriptionScreen(
 
-                    token = token,
+                    token =
+                        token,
 
-                    viewModel = adminViewModel,
+                    viewModel =
+                        adminViewModel,
 
                     onSubscriptionActive = {
 
                         navController.navigate(
                             Routes.ADMIN_HOME
                         ) {
-                            popUpTo(Routes.ADMIN_SUBSCRIPTION) {
+
+                            popUpTo(
+                                Routes.ADMIN_SUBSCRIPTION
+                            ) {
                                 inclusive = true
                             }
 
@@ -1078,6 +1356,7 @@ fun AppNavigation(
                         navController.navigate(
                             Routes.ADMIN_PAID_PLANS
                         ) {
+
                             launchSingleTop = true
                         }
                     },
@@ -1087,7 +1366,10 @@ fun AppNavigation(
                         navController.navigate(
                             Routes.ADMIN_HOME
                         ) {
-                            popUpTo(Routes.ADMIN_SUBSCRIPTION) {
+
+                            popUpTo(
+                                Routes.ADMIN_SUBSCRIPTION
+                            ) {
                                 inclusive = true
                             }
 
@@ -1118,37 +1400,54 @@ fun AppNavigation(
             route = Routes.ADMIN_PAID_PLANS
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
                 role == "ADMIN"
             ) {
 
-                val repository = remember {
-                    AdminRepository(RetrofitClient.api)
-                }
+                val repository =
+                    remember {
+                        AdminRepository(
+                            RetrofitClient.api
+                        )
+                    }
 
-                val factory = remember {
-                    AdminViewModelFactory(repository)
-                }
+                val factory =
+                    remember {
+                        AdminViewModelFactory(
+                            repository
+                        )
+                    }
 
-                val adminViewModel: AdminViewModel =
-                    viewModel(factory = factory)
+                val adminViewModel:
+                        AdminViewModel =
+                    viewModel(
+                        factory = factory
+                    )
 
                 AdminPaidPlansScreen(
 
-                    token = token,
+                    token =
+                        token,
 
-                    viewModel = adminViewModel,
+                    viewModel =
+                        adminViewModel,
 
                     onPlanActivated = {
 
                         navController.navigate(
                             Routes.ADMIN_HOME
                         ) {
-                            popUpTo(Routes.ADMIN_PAID_PLANS) {
+
+                            popUpTo(
+                                Routes.ADMIN_PAID_PLANS
+                            ) {
                                 inclusive = true
                             }
 
@@ -1161,7 +1460,10 @@ fun AppNavigation(
                         navController.navigate(
                             Routes.ADMIN_SUBSCRIPTION
                         ) {
-                            popUpTo(Routes.ADMIN_PAID_PLANS) {
+
+                            popUpTo(
+                                Routes.ADMIN_PAID_PLANS
+                            ) {
                                 inclusive = true
                             }
 
@@ -1192,8 +1494,11 @@ fun AppNavigation(
             route = Routes.ADMIN_HOME
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
@@ -1202,7 +1507,8 @@ fun AppNavigation(
 
                 AdminHomeScreen(
 
-                    token = token,
+                    token =
+                        token,
 
                     onLogout = {
                         logout()
@@ -1223,16 +1529,19 @@ fun AppNavigation(
             }
         }
 
-        // =========================================================
-// SUPER ADMIN HOME
-// =========================================================
+        // =====================================================
+        // SUPER ADMIN HOME
+        // =====================================================
 
         composable(
             route = Routes.SUPER_ADMIN_HOME
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
@@ -1246,36 +1555,42 @@ fun AppNavigation(
                     },
 
                     onUsersClick = {
+
                         navController.navigate(
                             Routes.SUPER_ADMIN_USERS
                         )
                     },
 
                     onAdminsClick = {
+
                         navController.navigate(
                             Routes.SUPER_ADMIN_ADMINS
                         )
                     },
 
                     onSubscriptionsClick = {
+
                         navController.navigate(
                             Routes.SUPER_ADMIN_SUBSCRIPTIONS
                         )
                     },
 
                     onTurfsClick = {
+
                         navController.navigate(
                             Routes.SUPER_ADMIN_TURFS
                         )
                     },
 
                     onBookingsClick = {
+
                         navController.navigate(
                             Routes.SUPER_ADMIN_BOOKINGS
                         )
                     },
 
                     onReportsClick = {
+
                         navController.navigate(
                             Routes.SUPER_ADMIN_REPORTS
                         )
@@ -1295,50 +1610,45 @@ fun AppNavigation(
                 }
             }
         }
-// =========================================================
-// SUPER ADMIN REPORTS
-// =========================================================
+
+        // =====================================================
+        // SUPER ADMIN REPORTS
+        // =====================================================
 
         composable(
             route = Routes.SUPER_ADMIN_REPORTS
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
                 role == "SUPER_ADMIN"
             ) {
 
-                // Load bookings for reports
                 LaunchedEffect(token) {
 
-                    superAdminBookingsViewModel.loadBookings(
-                        token
-                    )
+                    superAdminBookingsViewModel
+                        .loadBookings(token)
                 }
 
                 if (dashboardData != null) {
 
                     SuperAdminReportsScreen(
 
-                        data = dashboardData!!,
+                        data =
+                            dashboardData!!,
 
-                        bookings = superAdminBookings,
-
-                        // -----------------------------------------
-                        // Back button
-                        // -----------------------------------------
+                        bookings =
+                            superAdminBookings,
 
                         onBackClick = {
-
                             navController.popBackStack()
                         },
-
-                        // -----------------------------------------
-                        // Bottom Navigation - Dashboard
-                        // -----------------------------------------
 
                         onDashboardClick = {
 
@@ -1350,10 +1660,6 @@ fun AppNavigation(
                             }
                         },
 
-                        // -----------------------------------------
-                        // Bottom Navigation - Users
-                        // -----------------------------------------
-
                         onUsersClick = {
 
                             navController.navigate(
@@ -1363,10 +1669,6 @@ fun AppNavigation(
                                 launchSingleTop = true
                             }
                         },
-
-                        // -----------------------------------------
-                        // Bottom Navigation - Admins
-                        // -----------------------------------------
 
                         onAdminsClick = {
 
@@ -1383,11 +1685,13 @@ fun AppNavigation(
 
                     LaunchedEffect(Unit) {
 
-                        superAdminViewModel.loadDashboard()
+                        superAdminViewModel
+                            .loadDashboard()
                     }
 
                     Text(
-                        text = "Loading reports..."
+                        text =
+                            "Loading reports..."
                     )
                 }
 
@@ -1405,15 +1709,14 @@ fun AppNavigation(
             }
         }
 
-
-
-            // =====================================================
+        // =====================================================
         // SUPER ADMIN USERS
         // =====================================================
 
         composable(
             route = Routes.SUPER_ADMIN_USERS
         ) {
+
             SuperAdminUsersScreen(
 
                 onBackClick = {
@@ -1421,31 +1724,40 @@ fun AppNavigation(
                 },
 
                 onUserClick = { userId ->
+
                     navController.navigate(
-                        Routes.superAdminUserDetails(userId)
+                        Routes.superAdminUserDetails(
+                            userId
+                        )
                     )
                 },
 
                 onDashboardClick = {
+
                     navController.navigate(
                         Routes.SUPER_ADMIN_HOME
                     ) {
+
                         launchSingleTop = true
                     }
                 },
 
                 onAdminsClick = {
+
                     navController.navigate(
                         Routes.SUPER_ADMIN_ADMINS
                     ) {
+
                         launchSingleTop = true
                     }
                 },
 
                 onReportsClick = {
+
                     navController.navigate(
                         Routes.SUPER_ADMIN_REPORTS
                     ) {
+
                         launchSingleTop = true
                     }
                 }
@@ -1470,10 +1782,12 @@ fun AppNavigation(
                     ?.getInt("userId")
                     ?: -1
 
-            val usersViewModel: SuperAdminUsersViewModel =
+            val usersViewModel:
+                    SuperAdminUsersViewModel =
                 viewModel()
 
-            val users by usersViewModel.users.collectAsState()
+            val users by
+            usersViewModel.users.collectAsState()
 
             val selectedUser =
                 users.firstOrNull { user ->
@@ -1484,7 +1798,8 @@ fun AppNavigation(
 
                 SuperAdminUserDetailsScreen(
 
-                    user = selectedUser,
+                    user =
+                        selectedUser,
 
                     onBackClick = {
                         navController.popBackStack()
@@ -1494,11 +1809,14 @@ fun AppNavigation(
             } else {
 
                 LaunchedEffect(Unit) {
-                    usersViewModel.loadUsers()
+
+                    usersViewModel
+                        .loadUsers()
                 }
 
                 Text(
-                    text = "Loading user details..."
+                    text =
+                        "Loading user details..."
                 )
             }
         }
@@ -1520,30 +1838,38 @@ fun AppNavigation(
                 onAdminClick = { adminId ->
 
                     navController.navigate(
-                        Routes.superAdminAdminDetails(adminId)
+                        Routes.superAdminAdminDetails(
+                            adminId
+                        )
                     )
                 },
 
                 onDashboardClick = {
+
                     navController.navigate(
                         Routes.SUPER_ADMIN_HOME
                     ) {
+
                         launchSingleTop = true
                     }
                 },
 
                 onUsersClick = {
+
                     navController.navigate(
                         Routes.SUPER_ADMIN_USERS
                     ) {
+
                         launchSingleTop = true
                     }
                 },
 
                 onReportsClick = {
+
                     navController.navigate(
                         Routes.SUPER_ADMIN_REPORTS
                     ) {
+
                         launchSingleTop = true
                     }
                 }
@@ -1568,10 +1894,12 @@ fun AppNavigation(
                     ?.getInt("adminId")
                     ?: -1
 
-            val adminsViewModel: SuperAdminAdminsViewModel =
+            val adminsViewModel:
+                    SuperAdminAdminsViewModel =
                 viewModel()
 
-            val admins by adminsViewModel.admins.collectAsState()
+            val admins by
+            adminsViewModel.admins.collectAsState()
 
             val selectedAdmin =
                 admins.firstOrNull { admin ->
@@ -1582,29 +1910,35 @@ fun AppNavigation(
 
                 SuperAdminAdminDetailsScreen(
 
-                    admin = selectedAdmin,
+                    admin =
+                        selectedAdmin,
 
                     onBackClick = {
                         navController.popBackStack()
                     },
 
                     onBlockClick = {
-                        adminsViewModel.blockAdmin(adminId)
+                        adminsViewModel
+                            .blockAdmin(adminId)
                     },
 
                     onActivateClick = {
-                        adminsViewModel.activateAdmin(adminId)
+                        adminsViewModel
+                            .activateAdmin(adminId)
                     }
                 )
 
             } else {
 
                 LaunchedEffect(Unit) {
-                    adminsViewModel.loadAdmins()
+
+                    adminsViewModel
+                        .loadAdmins()
                 }
 
                 Text(
-                    text = "Loading admin details..."
+                    text =
+                        "Loading admin details..."
                 )
             }
         }
@@ -1617,8 +1951,11 @@ fun AppNavigation(
             route = Routes.SUPER_ADMIN_TURFS
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
@@ -1627,7 +1964,8 @@ fun AppNavigation(
 
                 SuperAdminTurfsScreen(
 
-                    token = token,
+                    token =
+                        token,
 
                     onBackClick = {
                         navController.popBackStack()
@@ -1636,7 +1974,9 @@ fun AppNavigation(
                     onTurfClick = { turfId ->
 
                         navController.navigate(
-                            Routes.superAdminTurfDetails(turfId)
+                            Routes.superAdminTurfDetails(
+                                turfId
+                            )
                         )
                     }
                 )
@@ -1673,8 +2013,11 @@ fun AppNavigation(
                     ?.getInt("turfId")
                     ?: -1
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 turfId > 0 &&
@@ -1684,9 +2027,11 @@ fun AppNavigation(
 
                 SuperAdminTurfDetailsScreen(
 
-                    turfId = turfId,
+                    turfId =
+                        turfId,
 
-                    token = token,
+                    token =
+                        token,
 
                     onBackClick = {
                         navController.popBackStack()
@@ -1696,7 +2041,8 @@ fun AppNavigation(
             } else {
 
                 Text(
-                    text = "Invalid turf details."
+                    text =
+                        "Invalid turf details."
                 )
             }
         }
@@ -1715,7 +2061,8 @@ fun AppNavigation(
                     navController.popBackStack()
                 },
 
-                onSubscriptionClick = { subscriptionId ->
+                onSubscriptionClick = {
+                        subscriptionId ->
 
                     navController.navigate(
                         Routes.superAdminSubscriptionDetails(
@@ -1748,7 +2095,8 @@ fun AppNavigation(
 
                 SuperAdminSubscriptionDetailsScreen(
 
-                    subscriptionId = subscriptionId,
+                    subscriptionId =
+                        subscriptionId,
 
                     onBackClick = {
                         navController.popBackStack()
@@ -1758,7 +2106,8 @@ fun AppNavigation(
             } else {
 
                 Text(
-                    text = "Invalid subscription."
+                    text =
+                        "Invalid subscription."
                 )
             }
         }
@@ -1771,8 +2120,11 @@ fun AppNavigation(
             route = Routes.SUPER_ADMIN_BOOKINGS
         ) {
 
-            val token = sessionManager.getToken()
-            val role = sessionManager.getRole()
+            val token =
+                sessionManager.getToken()
+
+            val role =
+                sessionManager.getRole()
 
             if (
                 !token.isNullOrBlank() &&
@@ -1781,7 +2133,8 @@ fun AppNavigation(
 
                 SuperAdminBookingsScreen(
 
-                    token = token,
+                    token =
+                        token,
 
                     onBackClick = {
                         navController.popBackStack()
@@ -1794,7 +2147,8 @@ fun AppNavigation(
                             "Booking clicked: ${booking.id}"
                         )
 
-                        selectedSuperAdminBooking = booking
+                        selectedSuperAdminBooking =
+                            booking
 
                         navController.navigate(
                             Routes.SUPER_ADMIN_BOOKING_DETAILS
@@ -1824,13 +2178,15 @@ fun AppNavigation(
             route = Routes.SUPER_ADMIN_BOOKING_DETAILS
         ) {
 
-            val booking = selectedSuperAdminBooking
+            val booking =
+                selectedSuperAdminBooking
 
             if (booking != null) {
 
                 SuperAdminBookingDetailsScreen(
 
-                    booking = booking,
+                    booking =
+                        booking,
 
                     onBackClick = {
                         navController.popBackStack()
@@ -1852,3 +2208,4 @@ fun AppNavigation(
         }
     }
 }
+

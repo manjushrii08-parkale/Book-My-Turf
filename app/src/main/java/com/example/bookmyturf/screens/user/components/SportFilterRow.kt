@@ -1,12 +1,9 @@
 package com.example.bookmyturf.screens.user.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
@@ -19,17 +16,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val SurfaceDark = Color(0xFF071713)
-private val SurfaceSelected = Color(0xFF123D24)
-private val White = Color.White
-private val SecondaryText = Color(0xFF9EAAA4)
-private val LightGreen = Color(0xFF7DBB4A)
-private val BorderColor = Color(0xFF1D3029)
+// ============================================================
+// BOOKMYTURF PREMIUM DARK THEME
+// ============================================================
+
+private val SurfaceDark = Color(0xFF071410)
+private val SurfaceSelected = Color(0xFF10271D)
+
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+
+private val Border = Color(0xFF1A3027)
+
+// ============================================================
+// SPORT MODEL
+// ============================================================
 
 private data class SportItem(
     val name: String,
     val emoji: String
 )
+
+// ============================================================
+// SPORT FILTER ROW
+// ============================================================
 
 @Composable
 fun SportFilterRow(
@@ -47,12 +58,14 @@ fun SportFilterRow(
 
     Row(
         modifier = Modifier
-            .horizontalScroll(rememberScrollState())
+            .horizontalScroll(
+                rememberScrollState()
+            )
             .padding(
-                start = 18.dp,
-                end = 18.dp,
+                start = 20.dp,
+                end = 20.dp,
                 top = 6.dp,
-                bottom = 6.dp
+                bottom = 10.dp
             ),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -65,67 +78,57 @@ fun SportFilterRow(
             )
 
             Surface(
-                modifier = Modifier
-                    .size(
-                        width = 135.dp,
-                        height = 48.dp
-                    )
-                    .border(
-                        width = if (selected) 1.5.dp else 1.dp,
-                        color = if (selected) {
-                            LightGreen
-                        } else {
-                            BorderColor
-                        },
-                        shape = RoundedCornerShape(14.dp)
-                    ),
+                onClick = {
+                    onSportSelected(sport.name)
+                },
                 shape = RoundedCornerShape(14.dp),
                 color = if (selected) {
                     SurfaceSelected
                 } else {
                     SurfaceDark
                 },
-                shadowElevation = if (selected) 3.dp else 0.dp,
-                onClick = {
-                    onSportSelected(sport.name)
+                border = if (selected) {
+                    androidx.compose.foundation.BorderStroke(
+                        width = 1.dp,
+                        color = PrimaryGreen.copy(alpha = 0.65f)
+                    )
+                } else {
+                    androidx.compose.foundation.BorderStroke(
+                        width = 0.7.dp,
+                        color = Border
+                    )
                 }
             ) {
                 Row(
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .background(Color.Transparent),
-                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(
+                        horizontal = 14.dp,
+                        vertical = 9.dp
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = sport.emoji,
-                        fontSize = 20.sp
+                        fontSize = 16.sp
                     )
 
                     Text(
                         text = sport.name,
-                        modifier = Modifier.padding(start = 8.dp),
                         fontSize = 12.sp,
                         fontWeight = if (selected) {
-                            FontWeight.Bold
+                            FontWeight.SemiBold
                         } else {
                             FontWeight.Medium
                         },
                         color = if (selected) {
-                            White
+                            PrimaryText
                         } else {
                             SecondaryText
                         },
-                        maxLines = 1
+                        letterSpacing = 0.1.sp
                     )
                 }
             }
         }
     }
 }
-
-
-
-
-
-

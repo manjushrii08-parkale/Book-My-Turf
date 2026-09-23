@@ -47,23 +47,25 @@ import com.example.bookmyturf.viewmodel.UserProfileViewModelFactory
 
 
 // ============================================================
-// BOOK MY TURF PREMIUM COLORS
+// BOOKMYTURF PREMIUM DARK THEME
 // ============================================================
 
-private val ScreenBackground =
-    Color(0xFF020C09)
+private val ScreenBackground = Color(0xFF020907)
 
-private val SelectedGreen =
-    Color(0xFF7DBB4A)
+private val SurfaceDark = Color(0xFF071410)
+private val SurfaceElevated = Color(0xFF0B1C15)
+private val SurfaceHighlight = Color(0xFF10271D)
 
-private val White =
-    Color(0xFFF5F8F6)
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
 
-private val DialogBackground =
-    Color(0xFF071713)
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
 
-private val DialogText =
-    Color(0xFFE8F0EC)
+private val Border = Color(0xFF1A3027)
+
+private val ErrorRed = Color(0xFFFF6B6B)
 
 
 // ============================================================
@@ -84,6 +86,13 @@ fun UserMainScreen(
 ) {
 
     // ========================================================
+    // CONTEXT
+    // ========================================================
+
+    val context = LocalContext.current
+
+
+    // ========================================================
     // SELECTED BOTTOM TAB
     // ========================================================
 
@@ -102,55 +111,80 @@ fun UserMainScreen(
 
 
     // ========================================================
-    // CONTEXT
+    // SESSION
     // ========================================================
 
-    val context =
-        LocalContext.current
-
-
-    // ========================================================
-    // SESSION MANAGER
-    // ========================================================
-
-    val sessionManager =
-        remember(context) {
-            SessionManager(context)
-        }
+    val sessionManager = remember(context) {
+        SessionManager(context)
+    }
 
 
     // ========================================================
     // USER EMAIL
     // ========================================================
 
-    val userEmail =
-        remember(sessionManager) {
-            sessionManager.getEmail()
-        }
+    val userEmail = remember(sessionManager) {
+        sessionManager.getEmail()
+    }
 
 
     // ========================================================
     // FAVORITE VIEWMODEL
     // ========================================================
 
-    val favoriteViewModel: FavoriteViewModel =
-        viewModel()
+    val favoriteViewModel: FavoriteViewModel = viewModel()
 
 
     // ========================================================
     // BOOKING VIEWMODEL
     // ========================================================
 
-    val bookingViewModel: BookingViewModel =
-        viewModel()
+    val bookingViewModel: BookingViewModel = viewModel()
 
 
     // ========================================================
     // NOTIFICATION VIEWMODEL
     // ========================================================
 
-    val notificationViewModel: NotificationViewModel =
-        viewModel()
+    val notificationViewModel: NotificationViewModel = viewModel()
+
+
+    // ========================================================
+    // PROFILE REPOSITORY
+    // ========================================================
+
+    val profileRepository = remember {
+        TurfRepository()
+    }
+
+
+    // ========================================================
+    // PROFILE VIEWMODEL FACTORY
+    // ========================================================
+
+    val profileFactory = remember {
+        UserProfileViewModelFactory(
+            repository = profileRepository
+        )
+    }
+
+
+    // ========================================================
+    // PROFILE VIEWMODEL
+    // ========================================================
+
+    val profileViewModel: UserProfileViewModel = viewModel(
+        factory = profileFactory
+    )
+
+
+    // ========================================================
+    // PROFILE STATE
+    // ========================================================
+
+    val profile by profileViewModel
+        .profile
+        .collectAsState()
 
 
     // ========================================================
@@ -159,8 +193,7 @@ fun UserMainScreen(
 
     LaunchedEffect(Unit) {
 
-        val token =
-            sessionManager.getToken()
+        val token = sessionManager.getToken()
 
         if (!token.isNullOrBlank()) {
 
@@ -169,51 +202,6 @@ fun UserMainScreen(
             )
         }
     }
-
-
-    // ========================================================
-    // PROFILE REPOSITORY
-    // ========================================================
-
-    val profileRepository =
-        remember {
-            TurfRepository()
-        }
-
-
-    // ========================================================
-    // PROFILE VIEWMODEL FACTORY
-    // ========================================================
-
-    val profileFactory =
-        remember {
-
-            UserProfileViewModelFactory(
-                repository =
-                    profileRepository
-            )
-        }
-
-
-    // ========================================================
-    // PROFILE VIEWMODEL
-    // ========================================================
-
-    val profileViewModel: UserProfileViewModel =
-        viewModel(
-            factory =
-                profileFactory
-        )
-
-
-    // ========================================================
-    // PROFILE STATE
-    // ========================================================
-
-    val profile by
-    profileViewModel
-        .profile
-        .collectAsState()
 
 
     // ========================================================
@@ -248,7 +236,7 @@ fun UserMainScreen(
 
 
     // ========================================================
-    // LOGOUT CONFIRMATION DIALOG
+    // LOGOUT CONFIRMATION
     // ========================================================
 
     if (showLogoutDialog) {
@@ -256,15 +244,15 @@ fun UserMainScreen(
         AlertDialog(
 
             onDismissRequest = {
-
                 showLogoutDialog = false
             },
 
             title = {
 
                 Text(
-                    text = "Logout?",
-                    color = White,
+                    text = "Logout",
+                    color = PrimaryText,
+                    fontSize = 19.sp,
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -272,14 +260,10 @@ fun UserMainScreen(
             text = {
 
                 Text(
-                    text =
-                        "Are you sure you want to logout from your account?",
-
-                    color =
-                        DialogText,
-
-                    fontSize =
-                        14.sp
+                    text = "Are you sure you want to logout from your BookMyTurf account?",
+                    color = SecondaryText,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
                 )
             },
 
@@ -290,26 +274,20 @@ fun UserMainScreen(
                     onClick = {
 
                         showLogoutDialog = false
-
                         onLogoutClick()
                     },
 
-                    colors =
-                        ButtonDefaults.buttonColors(
+                    shape = RoundedCornerShape(12.dp),
 
-                            containerColor =
-                                SelectedGreen,
-
-                            contentColor =
-                                Color(0xFF06130F)
-                        ),
-
-                    shape =
-                        RoundedCornerShape(12.dp)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryGreen,
+                        contentColor = ScreenBackground
+                    )
                 ) {
 
                     Text(
                         text = "Logout",
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -320,23 +298,32 @@ fun UserMainScreen(
                 OutlinedButton(
 
                     onClick = {
-
                         showLogoutDialog = false
                     },
 
-                    shape =
-                        RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = SecondaryText
+                    ),
+
+                    border = androidx.compose.foundation.BorderStroke(
+                        width = 1.dp,
+                        color = Border
+                    )
                 ) {
 
                     Text(
                         text = "Cancel",
-                        color = DialogText
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             },
 
-            containerColor =
-                DialogBackground
+            shape = RoundedCornerShape(22.dp),
+
+            containerColor = SurfaceElevated
         )
     }
 
@@ -347,24 +334,19 @@ fun UserMainScreen(
 
     Scaffold(
 
-        containerColor =
-            ScreenBackground,
+        modifier = Modifier.fillMaxSize(),
 
-        // ====================================================
-        // FIXED BOTTOM NAVIGATION
-        // ====================================================
+        containerColor = ScreenBackground,
 
         bottomBar = {
 
             UserBottomNavigation(
 
-                selectedItem =
-                    selectedItem,
+                selectedItem = selectedItem,
 
                 onItemSelected = { index ->
 
-                    selectedItem =
-                        index
+                    selectedItem = index
                 }
             )
         }
@@ -373,27 +355,20 @@ fun UserMainScreen(
 
 
         // ====================================================
-        // MAIN CONTENT
+        // CONTENT CONTAINER
         // ====================================================
 
         Box(
 
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(
-                        ScreenBackground
-                    )
-                    .padding(
-                        innerPadding
-                    ),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(ScreenBackground)
+                .padding(innerPadding),
 
-            contentAlignment =
-                Alignment.TopCenter
+            contentAlignment = Alignment.TopCenter
         ) {
 
             when (selectedItem) {
-
 
                 // =================================================
                 // HOME
@@ -405,9 +380,7 @@ fun UserMainScreen(
 
                         onTurfClick = { turfId ->
 
-                            onTurfClick(
-                                turfId
-                            )
+                            onTurfClick(turfId)
                         },
 
                         onNotificationsClick = {
@@ -444,9 +417,7 @@ fun UserMainScreen(
 
                         onTurfClick = { turfId ->
 
-                            onTurfClick(
-                                turfId
-                            )
+                            onTurfClick(turfId)
                         },
 
                         favoriteViewModel =
@@ -469,7 +440,6 @@ fun UserMainScreen(
                         },
 
                         onRateReviewClick = {
-
                                 bookingId,
                                 turfName ->
 

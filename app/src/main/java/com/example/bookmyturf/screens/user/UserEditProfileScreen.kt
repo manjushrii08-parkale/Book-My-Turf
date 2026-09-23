@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -24,10 +26,9 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -43,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -50,21 +52,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // ============================================================
-// COLORS
+// PREMIUM DARK THEME
 // ============================================================
 
-private val DarkGreen = Color(0xFF173D20)
-private val ForestGreen = Color(0xFF2E6B35)
-private val LightGreen = Color(0xFF7DBB4A)
+private val Background = Color(0xFF020907)
+private val SurfaceDark = Color(0xFF071410)
+private val SurfaceElevated = Color(0xFF0B1C15)
+private val SurfaceHighlight = Color(0xFF10271D)
 
-private val OffWhite = Color(0xFFF8F8F5)
-private val White = Color(0xFFFFFFFF)
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+private val BrightGreen = Color(0xFFC5F58B)
 
-private val Charcoal = Color(0xFF1C1C1C)
-private val Gray = Color(0xFF737373)
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
 
-private val BorderColor = Color(0xFFDADAD4)
-private val ErrorRed = Color(0xFFD32F2F)
+private val Border = Color(0xFF1A3027)
+private val ErrorRed = Color(0xFFFF6B6B)
 
 // ============================================================
 // EDIT PROFILE SCREEN
@@ -123,9 +128,7 @@ fun EditProfileScreen(
         var valid = true
 
         if (name.trim().isBlank()) {
-
             nameError = "Name is required"
-
             valid = false
         }
 
@@ -133,15 +136,11 @@ fun EditProfileScreen(
             phone.isNotBlank() &&
             phone.length != 10
         ) {
-
-            phoneError =
-                "Enter a valid 10-digit mobile number"
-
+            phoneError = "Enter a valid 10-digit mobile number"
             valid = false
         }
 
         if (valid) {
-
             onSaveClick(
                 name.trim(),
                 phone.trim(),
@@ -155,195 +154,144 @@ fun EditProfileScreen(
     // =========================================================
 
     Scaffold(
-
-        containerColor = OffWhite,
+        containerColor = Background,
 
         topBar = {
 
-            TopAppBar(
+            Column {
 
-                title = {
+                TopAppBar(
 
-                    Column {
+                    title = {
 
-                        Text(
-                            text = "Edit Profile",
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Charcoal
-                        )
+                        Column {
 
-                        Text(
-                            text = "Update your personal details",
-                            fontSize = 11.sp,
-                            color = Gray
-                        )
-                    }
-                },
+                            Text(
+                                text = "Edit Profile",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = PrimaryText
+                            )
 
-                navigationIcon = {
+                            Text(
+                                text = "Update your personal details",
+                                fontSize = 11.sp,
+                                color = SecondaryText
+                            )
+                        }
+                    },
 
-                    IconButton(
-                        onClick = {
+                    navigationIcon = {
 
-                            if (!isSaving) {
-                                onBackClick()
-                            }
-                        },
-                        enabled = !isSaving
-                    ) {
+                        IconButton(
+                            onClick = {
+                                if (!isSaving) {
+                                    onBackClick()
+                                }
+                            },
+                            enabled = !isSaving
+                        ) {
 
-                        Icon(
-                            imageVector =
-                                Icons.AutoMirrored.Filled.ArrowBack,
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = PrimaryText
+                            )
+                        }
+                    },
 
-                            contentDescription =
-                                "Back",
-
-                            tint =
-                                Charcoal
-                        )
-                    }
-                },
-
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = White,
-                        titleContentColor = Charcoal,
-                        navigationIconContentColor = Charcoal
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Background,
+                        titleContentColor = PrimaryText,
+                        navigationIconContentColor = PrimaryText
                     )
-            )
+                )
+
+                HorizontalDivider(
+                    color = Border,
+                    thickness = 1.dp
+                )
+            }
         }
 
     ) { innerPadding ->
 
         Column(
 
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(
-                        rememberScrollState()
-                    )
-                    .padding(
-                        horizontal = 18.dp,
-                        vertical = 10.dp
-                    )
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    horizontal = 20.dp,
+                    vertical = 20.dp
+                )
+                .navigationBarsPadding()
         ) {
 
             // =================================================
-            // PROFILE ICON
+            // PROFILE HERO
             // =================================================
 
-            Card(
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                shape =
-                    RoundedCornerShape(20.dp),
-
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = White
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation = 2.dp
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Column(
-
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .size(58.dp)
+                        .clip(CircleShape)
+                        .background(
+                            PrimaryGreen.copy(alpha = 0.14f)
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
 
-                    Box(
-
-                        modifier =
-                            Modifier
-                                .size(68.dp)
-                                .background(
-                                    LightGreen.copy(
-                                        alpha = 0.14f
-                                    ),
-                                    RoundedCornerShape(18.dp)
-                                ),
-
-                        contentAlignment =
-                            Alignment.Center
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.Default.Person,
-
-                            contentDescription =
-                                "Profile",
-
-                            modifier =
-                                Modifier.size(34.dp),
-
-                            tint =
-                                ForestGreen
-                        )
-                    }
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(10.dp)
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp),
+                        tint = LightGreen
                     )
+                }
+
+                Spacer(
+                    modifier = Modifier.width(14.dp)
+                )
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
 
                     Text(
-                        text =
-                            "Personal Information",
-
-                        fontSize =
-                            18.sp,
-
-                        fontWeight =
-                            FontWeight.ExtraBold,
-
-                        color =
-                            Charcoal
+                        text = "Personal information",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryText
                     )
 
                     Spacer(
-                        modifier =
-                            Modifier.height(4.dp)
+                        modifier = Modifier.height(3.dp)
                     )
 
                     Text(
-                        text =
-                            "Keep your profile information up to date.",
-
-                        fontSize =
-                            11.sp,
-
-                        color =
-                            Gray
+                        text = "Keep your account details up to date.",
+                        fontSize = 12.sp,
+                        color = SecondaryText
                     )
                 }
             }
 
             Spacer(
-                modifier =
-                    Modifier.height(20.dp)
+                modifier = Modifier.height(28.dp)
             )
 
             // =================================================
             // NAME
             // =================================================
 
-            EditProfileField(
+            PremiumEditField(
                 icon = Icons.Default.Person,
                 label = "Full Name",
                 value = name,
@@ -362,17 +310,16 @@ fun EditProfileScreen(
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(14.dp)
+                modifier = Modifier.height(18.dp)
             )
 
             // =================================================
             // EMAIL
             // =================================================
 
-            EditProfileField(
+            PremiumEditField(
                 icon = Icons.Default.Email,
-                label = "Email",
+                label = "Email Address",
                 value = currentEmail,
                 placeholder = "Email",
                 onValueChange = {},
@@ -380,15 +327,14 @@ fun EditProfileScreen(
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(14.dp)
+                modifier = Modifier.height(18.dp)
             )
 
             // =================================================
             // PHONE
             // =================================================
 
-            EditProfileField(
+            PremiumEditField(
                 icon = Icons.Default.Phone,
                 label = "Mobile Number",
                 value = phone,
@@ -401,7 +347,6 @@ fun EditProfileScreen(
                             char.isDigit()
                         }
                     ) {
-
                         phone = it
                     }
 
@@ -409,7 +354,6 @@ fun EditProfileScreen(
                         it.isBlank() ||
                         it.length == 10
                     ) {
-
                         phoneError = null
                     }
                 },
@@ -419,38 +363,26 @@ fun EditProfileScreen(
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(14.dp)
+                modifier = Modifier.height(18.dp)
             )
 
             // =================================================
             // DATE OF BIRTH
             // =================================================
 
-            EditProfileField(
-                icon =
-                    Icons.Default.CalendarMonth,
-
-                label =
-                    "Date of Birth",
-
-                value =
-                    dateOfBirth,
-
-                placeholder =
-                    "YYYY-MM-DD",
-
+            PremiumEditField(
+                icon = Icons.Default.CalendarMonth,
+                label = "Date of Birth",
+                value = dateOfBirth,
+                placeholder = "YYYY-MM-DD",
                 onValueChange = {
                     dateOfBirth = it
                 },
-
-                enabled =
-                    !isSaving
+                enabled = !isSaving
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp)
             )
 
             // =================================================
@@ -459,42 +391,40 @@ fun EditProfileScreen(
 
             if (!errorMessage.isNullOrBlank()) {
 
-                Card(
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    shape =
-                        RoundedCornerShape(12.dp),
-
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                ErrorRed.copy(alpha = 0.08f)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(
+                            RoundedCornerShape(12.dp)
                         )
+                        .background(
+                            ErrorRed.copy(alpha = 0.08f)
+                        )
+                        .padding(13.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
 
+                    Box(
+                        modifier = Modifier
+                            .size(7.dp)
+                            .clip(CircleShape)
+                            .background(ErrorRed)
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(10.dp)
+                    )
+
                     Text(
-                        text =
-                            errorMessage,
-
-                        modifier =
-                            Modifier.padding(12.dp),
-
-                        fontSize =
-                            12.sp,
-
-                        color =
-                            ErrorRed,
-
-                        fontWeight =
-                            FontWeight.Medium
+                        text = errorMessage,
+                        fontSize = 12.sp,
+                        color = ErrorRed,
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
                 Spacer(
-                    modifier =
-                        Modifier.height(10.dp)
+                    modifier = Modifier.height(16.dp)
                 )
             }
 
@@ -504,134 +434,103 @@ fun EditProfileScreen(
 
             Button(
 
-                onClick =
-                    ::validateAndSave,
+                onClick = ::validateAndSave,
 
-                enabled =
-                    !isSaving,
+                enabled = !isSaving,
 
-                modifier =
-                    Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
 
-                shape =
-                    RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(15.dp),
 
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor =
-                            DarkGreen,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryGreen,
+                    contentColor = Background,
+                    disabledContainerColor =
+                        PrimaryGreen.copy(alpha = 0.45f),
+                    disabledContentColor =
+                        Background.copy(alpha = 0.65f)
+                ),
 
-                        disabledContainerColor =
-                            DarkGreen.copy(
-                                alpha = 0.6f
-                            )
-                    )
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 0.dp,
+                    pressedElevation = 0.dp,
+                    disabledElevation = 0.dp
+                )
             ) {
 
                 if (isSaving) {
 
                     CircularProgressIndicator(
-
-                        modifier =
-                            Modifier.size(18.dp),
-
-                        strokeWidth =
-                            2.dp,
-
-                        color =
-                            White
+                        modifier = Modifier.size(19.dp),
+                        strokeWidth = 2.dp,
+                        color = Background
                     )
 
                     Spacer(
-                        modifier =
-                            Modifier.width(8.dp)
+                        modifier = Modifier.width(9.dp)
                     )
 
                     Text(
-                        text =
-                            "Saving...",
-
-                        fontSize =
-                            15.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        modifier =
-                            Modifier.padding(
-                                vertical = 4.dp
-                            )
+                        text = "Saving...",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
                     )
 
                 } else {
 
                     Icon(
-                        imageVector =
-                            Icons.Default.Save,
-
-                        contentDescription =
-                            null,
-
-                        modifier =
-                            Modifier.size(19.dp)
+                        imageVector = Icons.Default.Save,
+                        contentDescription = null,
+                        modifier = Modifier.size(19.dp)
                     )
 
                     Spacer(
-                        modifier =
-                            Modifier.width(8.dp)
+                        modifier = Modifier.width(9.dp)
                     )
 
                     Text(
-                        text =
-                            "Save Changes",
-
-                        fontSize =
-                            15.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        modifier =
-                            Modifier.padding(
-                                vertical = 4.dp
-                            )
+                        text = "Save Changes",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
 
             Spacer(
-                modifier =
-                    Modifier.height(14.dp)
+                modifier = Modifier.height(18.dp)
             )
 
-            Text(
-                text =
-                    "Your email address cannot be changed here.",
+            // =================================================
+            // EMAIL NOTE
+            // =================================================
 
-                modifier =
-                    Modifier.fillMaxWidth(),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
 
-                fontSize =
-                    10.sp,
-
-                color =
-                    Gray
-            )
+                Text(
+                    text = "Your email address cannot be changed here.",
+                    fontSize = 10.sp,
+                    color = MutedText
+                )
+            }
 
             Spacer(
-                modifier =
-                    Modifier.height(20.dp)
+                modifier = Modifier.height(12.dp)
             )
         }
     }
 }
 
 // ============================================================
-// EDIT PROFILE FIELD
+// PREMIUM EDIT PROFILE FIELD
 // ============================================================
 
 @Composable
-private fun EditProfileField(
+private fun PremiumEditField(
     icon: ImageVector,
     label: String,
     value: String,
@@ -643,135 +542,127 @@ private fun EditProfileField(
 ) {
 
     Column(
-        modifier =
-            Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
 
+        // -----------------------------------------------------
+        // LABEL
+        // -----------------------------------------------------
+
         Row(
-            verticalAlignment =
-                Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
             Icon(
-                imageVector =
-                    icon,
-
-                contentDescription =
-                    null,
-
-                modifier =
-                    Modifier.size(17.dp),
-
-                tint =
-                    ForestGreen
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = if (enabled) {
+                    LightGreen
+                } else {
+                    MutedText
+                }
             )
 
             Spacer(
-                modifier =
-                    Modifier.width(7.dp)
+                modifier = Modifier.width(8.dp)
             )
 
             Text(
-                text =
-                    label,
-
-                fontSize =
-                    13.sp,
-
-                fontWeight =
-                    FontWeight.Bold,
-
-                color =
-                    Charcoal
+                text = label,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (enabled) {
+                    SecondaryText
+                } else {
+                    MutedText
+                }
             )
         }
 
         Spacer(
-            modifier =
-                Modifier.height(7.dp)
+            modifier = Modifier.height(8.dp)
         )
+
+        // -----------------------------------------------------
+        // FIELD
+        // -----------------------------------------------------
 
         OutlinedTextField(
 
-            value =
-                value,
+            value = value,
 
-            onValueChange =
-                onValueChange,
+            onValueChange = onValueChange,
 
-            modifier =
-                Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = if (enabled) {
+                        SurfaceElevated
+                    } else {
+                        SurfaceDark
+                    },
+                    shape = RoundedCornerShape(14.dp)
+                ),
 
-            enabled =
-                enabled,
+            enabled = enabled,
 
-            singleLine =
-                true,
+            singleLine = true,
 
             placeholder = {
 
                 Text(
-                    text =
-                        placeholder,
-
-                    fontSize =
-                        13.sp,
-
-                    color =
-                        Gray
+                    text = placeholder,
+                    fontSize = 13.sp,
+                    color = MutedText
                 )
             },
 
-            isError =
-                isError,
+            isError = isError,
 
-            shape =
-                RoundedCornerShape(14.dp),
+            shape = RoundedCornerShape(14.dp),
 
-            colors =
-                OutlinedTextFieldDefaults.colors(
+            colors = OutlinedTextFieldDefaults.colors(
 
-                    focusedBorderColor =
-                        ForestGreen,
+                focusedContainerColor = SurfaceElevated,
+                unfocusedContainerColor = SurfaceElevated,
+                disabledContainerColor = SurfaceDark,
 
-                    unfocusedBorderColor =
-                        BorderColor,
+                focusedBorderColor = PrimaryGreen,
+                unfocusedBorderColor = Border,
+                disabledBorderColor = Border,
 
-                    disabledBorderColor =
-                        BorderColor,
+                errorBorderColor = ErrorRed,
 
-                    focusedTextColor =
-                        Charcoal,
+                focusedTextColor = PrimaryText,
+                unfocusedTextColor = PrimaryText,
+                disabledTextColor = MutedText,
 
-                    unfocusedTextColor =
-                        Charcoal,
+                focusedPlaceholderColor = MutedText,
+                unfocusedPlaceholderColor = MutedText,
+                disabledPlaceholderColor = MutedText,
 
-                    disabledTextColor =
-                        Gray,
+                cursorColor = PrimaryGreen,
 
-                    cursorColor =
-                        ForestGreen
-                )
+                errorTextColor = ErrorRed
+            )
         )
+
+        // -----------------------------------------------------
+        // FIELD ERROR
+        // -----------------------------------------------------
 
         if (isError && errorMessage != null) {
 
             Spacer(
-                modifier =
-                    Modifier.height(4.dp)
+                modifier = Modifier.height(5.dp)
             )
 
             Text(
-                text =
-                    errorMessage,
-
-                fontSize =
-                    10.sp,
-
-                color =
-                    ErrorRed
+                text = errorMessage,
+                fontSize = 10.sp,
+                color = ErrorRed
             )
         }
     }
 }
-

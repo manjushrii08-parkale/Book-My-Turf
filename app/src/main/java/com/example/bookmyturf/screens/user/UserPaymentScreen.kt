@@ -3,7 +3,7 @@ package com.example.bookmyturf.screens.user
 import android.app.Activity
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.layout.width
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,44 +13,48 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Payment
+
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.Scaffold
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.platform.LocalContext
+
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.example.bookmyturf.MainActivity
@@ -68,20 +72,25 @@ import org.json.JSONObject
 
 
 // ============================================================
-// SAME THEME AS USER HOME / TURF DETAILS / SUCCESS SCREEN
+// PREMIUM BOOK MY TURF THEME
 // ============================================================
 
-private val DarkGreen = Color(0xFF173D20)
-private val ForestGreen = Color(0xFF2E6B35)
-private val LightGreen = Color(0xFF7DBB4A)
+private val Background = Color(0xFF020C09)
+private val CardBackground = Color(0xFF071713)
+private val SecondarySurface = Color(0xFF102A1F)
 
-private val OffWhite = Color(0xFFF8F8F5)
-private val White = Color(0xFFFFFFFF)
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+private val BrightGreen = Color(0xFFB7E77A)
 
-private val Charcoal = Color(0xFF1C1C1C)
-private val Gray = Color(0xFF737373)
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFF9EAEA6)
+private val MutedText = Color(0xFF718079)
 
-private val LightGray = Color(0xFFE5E5E0)
+private val BorderColor = Color(0xFF1B3028)
+
+private val ErrorRed = Color(0xFFFF6B6B)
+private val ErrorSurface = Color(0xFF21100F)
 
 
 // ============================================================
@@ -96,50 +105,46 @@ fun PaymentScreen(
     onBackClick: () -> Unit
 ) {
 
-    // =========================================================
+    // ========================================================
     // CONTEXT
-    // =========================================================
+    // ========================================================
 
     val context = LocalContext.current
 
 
-    // =========================================================
+    // ========================================================
     // SESSION
-    // =========================================================
+    // ========================================================
 
-    val sessionManager =
-        remember {
-            SessionManager(context)
-        }
+    val sessionManager = remember {
+        SessionManager(context)
+    }
 
-    val token =
-        remember {
-            sessionManager.getToken()
-        }
+    val token = remember {
+        sessionManager.getToken()
+    }
 
 
-    // =========================================================
+    // ========================================================
     // REPOSITORY
-    // =========================================================
+    // ========================================================
 
-    val repository =
-        remember {
-            PaymentRepository(
-                RetrofitClient.paymentApi
-            )
-        }
+    val repository = remember {
+        PaymentRepository(
+            RetrofitClient.paymentApi
+        )
+    }
 
 
-    // =========================================================
+    // ========================================================
     // VIEWMODEL
-    // =========================================================
+    // ========================================================
 
-    val factory =
-        remember {
-            PaymentViewModelFactory(
-                repository
-            )
-        }
+    val factory = remember {
+        PaymentViewModelFactory(
+            repository
+        )
+    }
 
     val paymentViewModel: PaymentViewModel =
         viewModel(
@@ -147,9 +152,9 @@ fun PaymentScreen(
         )
 
 
-    // =========================================================
+    // ========================================================
     // STATE
-    // =========================================================
+    // ========================================================
 
     val order by
     paymentViewModel.order.collectAsState()
@@ -167,13 +172,18 @@ fun PaymentScreen(
     paymentViewModel.isVerifying.collectAsState()
 
 
-    // =========================================================
+    // ========================================================
     // CREATE RAZORPAY ORDER
-    // =========================================================
+    // ========================================================
 
     LaunchedEffect(bookingId) {
 
         if (!token.isNullOrBlank()) {
+
+            Log.d(
+                "RAZORPAY",
+                "================================"
+            )
 
             Log.d(
                 "RAZORPAY",
@@ -183,6 +193,11 @@ fun PaymentScreen(
             Log.d(
                 "RAZORPAY",
                 "Booking ID = $bookingId"
+            )
+
+            Log.d(
+                "RAZORPAY",
+                "================================"
             )
 
             paymentViewModel.createRazorpayOrder(
@@ -196,13 +211,19 @@ fun PaymentScreen(
                 "RAZORPAY",
                 "Authentication token is missing"
             )
+
+            Toast.makeText(
+                context,
+                "Authentication expired. Please login again.",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
 
-    // =========================================================
+    // ========================================================
     // RAZORPAY SUCCESS CALLBACK
-    // =========================================================
+    // ========================================================
 
     LaunchedEffect(bookingId) {
 
@@ -244,10 +265,6 @@ fun PaymentScreen(
             )
 
 
-            // -------------------------------------------------
-            // CALLBACK DATA
-            // -------------------------------------------------
-
             val paymentId =
                 paymentData.paymentId
 
@@ -258,9 +275,9 @@ fun PaymentScreen(
                 paymentData.signature
 
 
-            // -------------------------------------------------
+            // ------------------------------------------------
             // TOKEN VALIDATION
-            // -------------------------------------------------
+            // ------------------------------------------------
 
             if (token.isNullOrBlank()) {
 
@@ -279,9 +296,30 @@ fun PaymentScreen(
             }
 
 
-            // -------------------------------------------------
+            // ------------------------------------------------
+            // PAYMENT ID VALIDATION
+            // ------------------------------------------------
+
+            if (paymentId.isNullOrBlank()) {
+
+                Log.e(
+                    "RAZORPAY",
+                    "Razorpay Payment ID missing."
+                )
+
+                Toast.makeText(
+                    context,
+                    "Payment ID is missing.",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                return@collectLatest
+            }
+
+
+            // ------------------------------------------------
             // ORDER ID VALIDATION
-            // -------------------------------------------------
+            // ------------------------------------------------
 
             if (razorpayOrderId.isNullOrBlank()) {
 
@@ -300,9 +338,9 @@ fun PaymentScreen(
             }
 
 
-            // -------------------------------------------------
+            // ------------------------------------------------
             // SIGNATURE VALIDATION
-            // -------------------------------------------------
+            // ------------------------------------------------
 
             if (signature.isNullOrBlank()) {
 
@@ -321,9 +359,9 @@ fun PaymentScreen(
             }
 
 
-            // -------------------------------------------------
+            // ------------------------------------------------
             // VERIFY PAYMENT WITH LARAVEL
-            // -------------------------------------------------
+            // ------------------------------------------------
 
             Log.d(
                 "RAZORPAY",
@@ -341,9 +379,9 @@ fun PaymentScreen(
     }
 
 
-    // =========================================================
+    // ========================================================
     // PAYMENT VERIFICATION RESULT
-    // =========================================================
+    // ========================================================
 
     LaunchedEffect(verificationResult) {
 
@@ -392,9 +430,9 @@ fun PaymentScreen(
             ).show()
 
 
-            // -------------------------------------------------
+            // ------------------------------------------------
             // NAVIGATE ONLY AFTER LARAVEL VERIFICATION
-            // -------------------------------------------------
+            // ------------------------------------------------
 
             onPaymentSuccess()
 
@@ -403,18 +441,13 @@ fun PaymentScreen(
     }
 
 
-    // =========================================================
+    // ========================================================
     // MAIN UI
-    // =========================================================
+    // ========================================================
 
     Scaffold(
 
-        containerColor =
-            OffWhite,
-
-        // =====================================================
-        // TOP BAR
-        // =====================================================
+        containerColor = Background,
 
         topBar = {
 
@@ -422,12 +455,22 @@ fun PaymentScreen(
 
                 title = {
 
-                    Text(
-                        text = "Payment",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Charcoal
-                    )
+                    Column {
+
+                        Text(
+                            text = "Payment",
+                            color = PrimaryText,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            text = "Booking #$bookingId",
+                            color = MutedText,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 },
 
                 navigationIcon = {
@@ -447,265 +490,80 @@ fun PaymentScreen(
                             imageVector =
                                 Icons.AutoMirrored.Filled.ArrowBack,
 
-                            contentDescription =
-                                "Back",
+                            contentDescription = "Back",
 
-                            tint =
-                                Charcoal
+                            tint = PrimaryText
                         )
                     }
                 },
 
                 colors =
                     TopAppBarDefaults.topAppBarColors(
-                        containerColor =
-                            White,
-
-                        titleContentColor =
-                            Charcoal,
-
-                        navigationIconContentColor =
-                            Charcoal
+                        containerColor = Background,
+                        titleContentColor = PrimaryText,
+                        navigationIconContentColor = PrimaryText
                     )
             )
         }
 
     ) { innerPadding ->
 
-
-        // =====================================================
-        // CONTENT
-        // =====================================================
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(
-                    horizontal = 18.dp,
-                    vertical = 18.dp
+                .verticalScroll(
+                    rememberScrollState()
                 )
+                .padding(horizontal = 20.dp)
+                .padding(
+                    top = 12.dp,
+                    bottom = 24.dp
+                )
+                .navigationBarsPadding()
         ) {
 
 
             // =================================================
-            // PAYMENT HEADER
+            // PAGE INTRO
             // =================================================
 
             Text(
-                text =
-                    "Complete Your Payment",
-
-                fontSize =
-                    26.sp,
-
-                fontWeight =
-                    FontWeight.ExtraBold,
-
-                color =
-                    Charcoal
+                text = "Complete your booking",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = PrimaryText,
+                letterSpacing = (-0.5).sp
             )
-
 
             Spacer(
-                modifier =
-                    Modifier.height(6.dp)
+                modifier = Modifier.height(6.dp)
             )
-
 
             Text(
-                text =
-                    "Securely pay for your turf booking.",
-
-                fontSize =
-                    13.sp,
-
-                color =
-                    Gray
+                text = "Review the amount and continue securely.",
+                fontSize = 13.sp,
+                color = SecondaryText
             )
 
 
             Spacer(
-                modifier =
-                    Modifier.height(22.dp)
+                modifier = Modifier.height(28.dp)
             )
 
 
             // =================================================
-            // BOOKING INFORMATION CARD
+            // AMOUNT HERO
             // =================================================
 
-            Card(
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                shape =
-                    RoundedCornerShape(18.dp),
-
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            White
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation =
-                            2.dp
-                    )
-            ) {
-
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(18.dp)
-                ) {
-
-                    // =========================================
-                    // CARD HEADER
-                    // =========================================
-
-                    Row(
-                        verticalAlignment =
-                            Alignment.CenterVertically
-                    ) {
-
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(46.dp)
-                                    .background(
-                                        color =
-                                            LightGreen.copy(
-                                                alpha = 0.14f
-                                            ),
-
-                                        shape =
-                                            RoundedCornerShape(
-                                                13.dp
-                                            )
-                                    ),
-
-                            contentAlignment =
-                                Alignment.Center
-                        ) {
-
-                            Icon(
-                                imageVector =
-                                    Icons.Default.Payment,
-
-                                contentDescription =
-                                    null,
-
-                                modifier =
-                                    Modifier.size(23.dp),
-
-                                tint =
-                                    ForestGreen
-                            )
-                        }
-
-
-                        Spacer(
-                            modifier =
-                                Modifier.width(12.dp)
-                        )
-
-
-                        Column(
-                            modifier =
-                                Modifier.weight(1f)
-                        ) {
-
-                            Text(
-                                text =
-                                    "Booking Payment",
-
-                                fontSize =
-                                    16.sp,
-
-                                fontWeight =
-                                    FontWeight.Bold,
-
-                                color =
-                                    Charcoal
-                            )
-
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(3.dp)
-                            )
-
-
-                            Text(
-                                text =
-                                    "Book My Turf",
-
-                                fontSize =
-                                    11.sp,
-
-                                color =
-                                    Gray
-                            )
-                        }
-                    }
-
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(18.dp)
-                    )
-
-
-                    HorizontalDivider(
-                        color =
-                            LightGray
-                    )
-
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(16.dp)
-                    )
-
-
-                    // =========================================
-                    // BOOKING ID
-                    // =========================================
-
-                    PaymentInfoRow(
-                        label = "Booking ID",
-                        value = "#$bookingId"
-                    )
-
-
-                    // =========================================
-                    // AMOUNT
-                    // =========================================
-
-                    if (order != null) {
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(12.dp)
-                        )
-
-                        PaymentInfoRow(
-                            label = "Amount",
-                            value =
-                                "₹${order!!.amount / 100}",
-                            valueBold = true
-                        )
-                    }
-                }
-            }
+            PaymentAmountSection(
+                bookingId = bookingId,
+                amount = order?.amount?.div(100)
+            )
 
 
             Spacer(
-                modifier =
-                    Modifier.height(24.dp)
+                modifier = Modifier.height(26.dp)
             )
 
 
@@ -715,57 +573,56 @@ fun PaymentScreen(
 
             when {
 
-                // =================================================
-                // CREATING ORDER
-                // =================================================
+                // ------------------------------------------------
+                // LOADING
+                // ------------------------------------------------
 
                 isLoading -> {
 
-                    PaymentLoadingCard(
+                    PaymentProcessingSection(
                         icon = Icons.Default.AccessTime,
-                        title = "Preparing Payment",
+                        title = "Preparing payment",
                         message =
                             "Creating your secure payment order..."
                     )
                 }
 
 
-                // =================================================
-                // VERIFYING PAYMENT
-                // =================================================
+                // ------------------------------------------------
+                // VERIFYING
+                // ------------------------------------------------
 
                 isVerifying -> {
 
-                    PaymentLoadingCard(
+                    PaymentProcessingSection(
                         icon = Icons.Default.Lock,
-                        title = "Verifying Payment",
+                        title = "Verifying payment",
                         message =
-                            "Please wait while we verify your payment..."
+                            "Please wait while we confirm your payment."
                     )
                 }
 
 
-                // =================================================
+                // ------------------------------------------------
                 // ERROR
-                // =================================================
+                // ------------------------------------------------
 
                 error != null -> {
 
-                    PaymentErrorCard(
+                    PaymentErrorSection(
                         error =
-                            error
-                                ?: "Payment error"
+                            error ?: "Unable to prepare payment."
                     )
                 }
 
 
-                // =================================================
-                // ORDER CREATED
-                // =================================================
+                // ------------------------------------------------
+                // ORDER READY
+                // ------------------------------------------------
 
                 order != null -> {
 
-                    PaymentReadyCard(
+                    PaymentActionSection(
                         amount =
                             order!!.amount / 100,
 
@@ -773,6 +630,10 @@ fun PaymentScreen(
                             !isVerifying,
 
                         onPayClick = {
+
+                            // =================================================
+                            // RAZORPAY CHECKOUT
+                            // =================================================
 
                             try {
 
@@ -803,18 +664,40 @@ fun PaymentScreen(
 
                                 Log.d(
                                     "RAZORPAY",
+                                    "Currency = ${order!!.currency}"
+                                )
+
+                                Log.d(
+                                    "RAZORPAY",
+                                    "Key ID = ${order!!.key_id}"
+                                )
+
+                                Log.d(
+                                    "RAZORPAY",
                                     "================================"
                                 )
 
+
+                                // ---------------------------------------------
+                                // CREATE CHECKOUT
+                                // ---------------------------------------------
 
                                 val checkout =
                                     Checkout()
 
 
+                                // ---------------------------------------------
+                                // SET RAZORPAY KEY
+                                // ---------------------------------------------
+
                                 checkout.setKeyID(
                                     order!!.key_id
                                 )
 
+
+                                // ---------------------------------------------
+                                // CHECKOUT OPTIONS
+                                // ---------------------------------------------
 
                                 val options =
                                     JSONObject().apply {
@@ -845,6 +728,11 @@ fun PaymentScreen(
                                         )
 
                                         put(
+                                            "theme.color",
+                                            "#7DBB4A"
+                                        )
+
+                                        put(
                                             "prefill",
                                             JSONObject().apply {
 
@@ -864,9 +752,13 @@ fun PaymentScreen(
 
                                 Log.d(
                                     "RAZORPAY",
-                                    "Opening Razorpay Checkout"
+                                    "Opening Razorpay Checkout..."
                                 )
 
+
+                                // ---------------------------------------------
+                                // OPEN RAZORPAY
+                                // ---------------------------------------------
 
                                 checkout.open(
                                     context as Activity,
@@ -881,10 +773,9 @@ fun PaymentScreen(
                                     e
                                 )
 
-
                                 Toast.makeText(
                                     context,
-                                    "Unable to open payment gateway",
+                                    "Unable to open payment gateway.",
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
@@ -893,169 +784,208 @@ fun PaymentScreen(
                 }
 
 
-                // =================================================
-                // PREPARING
-                // =================================================
+                // ------------------------------------------------
+                // DEFAULT
+                // ------------------------------------------------
 
                 else -> {
 
-                    PaymentLoadingCard(
+                    PaymentProcessingSection(
                         icon = Icons.Default.AccessTime,
-                        title = "Preparing Payment",
+                        title = "Preparing payment",
                         message =
-                            "Please wait while we prepare your payment..."
+                            "Please wait while we prepare your payment."
                     )
                 }
             }
 
 
             Spacer(
-                modifier =
-                    Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp)
             )
 
 
             // =================================================
-            // SECURE PAYMENT INFORMATION
+            // SECURITY FOOTER
             // =================================================
 
-            Card(
-                modifier =
-                    Modifier.fillMaxWidth(),
+            SecurePaymentFooter()
 
-                shape =
-                    RoundedCornerShape(14.dp),
 
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            LightGreen.copy(
-                                alpha = 0.08f
-                            )
-                    ),
+            Spacer(
+                modifier = Modifier.height(18.dp)
+            )
 
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation = 0.dp
-                    )
+
+            // =================================================
+            // BOOKING REFERENCE
+            // =================================================
+
+            Text(
+                text = "Booking reference #$bookingId",
+                modifier = Modifier.fillMaxWidth(),
+                fontSize = 11.sp,
+                color = MutedText,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+
+// ============================================================
+// AMOUNT HERO
+// ============================================================
+
+@Composable
+private fun PaymentAmountSection(
+    bookingId: Int,
+    amount: Int?
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = CardBackground,
+                shape = RoundedCornerShape(24.dp)
+            )
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(
+                            color =
+                                PrimaryGreen.copy(
+                                    alpha = 0.12f
+                                ),
+                            shape =
+                                RoundedCornerShape(13.dp)
+                        ),
 
-                    verticalAlignment =
-                        Alignment.CenterVertically
+                    contentAlignment = Alignment.Center
                 ) {
 
                     Icon(
-                        imageVector =
-                            Icons.Default.Lock,
-
-                        contentDescription =
-                            "Secure payment",
-
-                        modifier =
-                            Modifier.size(20.dp),
-
-                        tint =
-                            ForestGreen
+                        imageVector = Icons.Default.Payment,
+                        contentDescription = null,
+                        modifier = Modifier.size(21.dp),
+                        tint = LightGreen
                     )
+                }
 
+
+                Spacer(
+                    modifier = Modifier.width(12.dp)
+                )
+
+
+                Column {
+
+                    Text(
+                        text = "Turf booking",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = PrimaryText
+                    )
 
                     Spacer(
-                        modifier =
-                            Modifier.width(10.dp)
+                        modifier = Modifier.height(2.dp)
                     )
 
-
-                    Column(
-                        modifier =
-                            Modifier.weight(1f)
-                    ) {
-
-                        Text(
-                            text =
-                                "Secure Payment",
-
-                            fontSize =
-                                13.sp,
-
-                            fontWeight =
-                                FontWeight.Bold,
-
-                            color =
-                                DarkGreen
-                        )
-
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(2.dp)
-                        )
-
-
-                        Text(
-                            text =
-                                "Your payment is securely processed through Razorpay.",
-
-                            fontSize =
-                                11.sp,
-
-                            color =
-                                Gray,
-
-                            lineHeight =
-                                17.sp
-                        )
-                    }
+                    Text(
+                        text = "Booking #$bookingId",
+                        fontSize = 11.sp,
+                        color = MutedText
+                    )
                 }
             }
 
 
             Spacer(
-                modifier =
-                    Modifier.height(20.dp)
+                modifier = Modifier.height(25.dp)
             )
 
 
-            // =================================================
-            // BACK BUTTON
-            // =================================================
+            Text(
+                text = "TOTAL AMOUNT",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = MutedText,
+                letterSpacing = 1.2.sp
+            )
 
-            OutlinedButton(
-                onClick =
-                    onBackClick,
 
-                enabled =
-                    !isVerifying,
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
 
-                shape =
-                    RoundedCornerShape(13.dp),
+            if (amount != null) {
 
-                colors =
-                    ButtonDefaults.outlinedButtonColors(
-                        contentColor =
-                            DarkGreen
-                    )
+                Text(
+                    text = "₹$amount",
+                    fontSize = 38.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = BrightGreen,
+                    letterSpacing = (-1).sp
+                )
+
+            } else {
+
+                Text(
+                    text = "—",
+                    fontSize = 38.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = PrimaryText
+                )
+            }
+
+
+            Spacer(
+                modifier = Modifier.height(18.dp)
+            )
+
+
+            HorizontalDivider(
+                color = BorderColor
+            )
+
+
+            Spacer(
+                modifier = Modifier.height(14.dp)
+            )
+
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement =
+                    Arrangement.SpaceBetween
             ) {
 
                 Text(
-                    text =
-                        "Back",
+                    text = "Payment method",
+                    fontSize = 12.sp,
+                    color = SecondaryText
+                )
 
-                    fontSize =
-                        14.sp,
-
-                    fontWeight =
-                        FontWeight.Bold
+                Text(
+                    text = "Razorpay",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = PrimaryText
                 )
             }
         }
@@ -1064,202 +994,202 @@ fun PaymentScreen(
 
 
 // ============================================================
-// PAYMENT INFO ROW
+// PAYMENT ACTION
 // ============================================================
 
 @Composable
-private fun PaymentInfoRow(
-    label: String,
-    value: String,
-    valueBold: Boolean = false
+private fun PaymentActionSection(
+    amount: Int,
+    enabled: Boolean,
+    onPayClick: () -> Unit
 ) {
 
-    Row(
-        modifier =
-            Modifier.fillMaxWidth(),
-
-        horizontalArrangement =
-            Arrangement.SpaceBetween,
-
-        verticalAlignment =
-            Alignment.CenterVertically
+    Column(
+        modifier = Modifier.fillMaxWidth()
     ) {
 
-        Text(
-            text =
-                label,
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-            fontSize =
-                13.sp,
+            Box(
+                modifier = Modifier
+                    .size(7.dp)
+                    .background(
+                        color = PrimaryGreen,
+                        shape = RoundedCornerShape(50)
+                    )
+            )
 
-            color =
-                Gray
+            Spacer(
+                modifier = Modifier.width(9.dp)
+            )
+
+            Text(
+                text = "Ready for payment",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = PrimaryText
+            )
+        }
+
+
+        Spacer(
+            modifier = Modifier.height(14.dp)
+        )
+
+
+        Button(
+            onClick = onPayClick,
+            enabled = enabled,
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp),
+
+            shape = RoundedCornerShape(17.dp),
+
+            colors = ButtonDefaults.buttonColors(
+                containerColor = PrimaryGreen,
+                contentColor = Color(0xFF10200F),
+                disabledContainerColor =
+                    PrimaryGreen.copy(alpha = 0.35f),
+                disabledContentColor =
+                    PrimaryText.copy(alpha = 0.5f)
+            ),
+
+            elevation =
+                ButtonDefaults.buttonElevation(
+                    defaultElevation = 0.dp,
+                    pressedElevation = 0.dp
+                )
+        ) {
+
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+
+            Spacer(
+                modifier = Modifier.width(9.dp)
+            )
+
+            Text(
+                text = "Pay ₹$amount",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+        }
+
+
+        Spacer(
+            modifier = Modifier.height(10.dp)
         )
 
 
         Text(
-            text =
-                value,
-
-            fontSize =
-                if (valueBold) 18.sp else 14.sp,
-
-            fontWeight =
-                if (valueBold) {
-                    FontWeight.ExtraBold
-                } else {
-                    FontWeight.Bold
-                },
-
-            color =
-                if (valueBold) {
-                    DarkGreen
-                } else {
-                    Charcoal
-                }
+            text = "You will be redirected to Razorpay",
+            modifier = Modifier.fillMaxWidth(),
+            fontSize = 11.sp,
+            color = MutedText,
+            textAlign = TextAlign.Center
         )
     }
 }
 
 
 // ============================================================
-// PAYMENT LOADING CARD
+// PROCESSING SECTION
 // ============================================================
 
 @Composable
-private fun PaymentLoadingCard(
+private fun PaymentProcessingSection(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     message: String
 ) {
 
-    Card(
-        modifier =
-            Modifier.fillMaxWidth(),
-
-        shape =
-            RoundedCornerShape(18.dp),
-
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    White
-            ),
-
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    1.dp
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = CardBackground,
+                shape = RoundedCornerShape(20.dp)
             )
     ) {
 
         Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(25.dp),
 
             horizontalAlignment =
                 Alignment.CenterHorizontally
         ) {
 
             Box(
-                modifier =
-                    Modifier
-                        .size(58.dp)
-                        .background(
-                            color =
-                                LightGreen.copy(
-                                    alpha = 0.14f
-                                ),
-
-                            shape =
-                                CircleShape
-                        ),
+                modifier = Modifier
+                    .size(52.dp)
+                    .background(
+                        color =
+                            PrimaryGreen.copy(
+                                alpha = 0.10f
+                            ),
+                        shape =
+                            RoundedCornerShape(16.dp)
+                    ),
 
                 contentAlignment =
                     Alignment.Center
             ) {
 
                 Icon(
-                    imageVector =
-                        icon,
-
-                    contentDescription =
-                        null,
-
-                    modifier =
-                        Modifier.size(27.dp),
-
-                    tint =
-                        ForestGreen
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(23.dp),
+                    tint = LightGreen
                 )
             }
 
 
             Spacer(
-                modifier =
-                    Modifier.height(14.dp)
+                modifier = Modifier.height(17.dp)
             )
 
 
             CircularProgressIndicator(
-                modifier =
-                    Modifier.size(28.dp),
-
-                color =
-                    ForestGreen,
-
-                strokeWidth =
-                    3.dp
+                modifier = Modifier.size(25.dp),
+                color = PrimaryGreen,
+                strokeWidth = 2.5.dp
             )
 
 
             Spacer(
-                modifier =
-                    Modifier.height(14.dp)
+                modifier = Modifier.height(15.dp)
             )
 
 
             Text(
-                text =
-                    title,
-
-                fontSize =
-                    16.sp,
-
-                fontWeight =
-                    FontWeight.Bold,
-
-                color =
-                    Charcoal,
-
-                textAlign =
-                    TextAlign.Center
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryText,
+                textAlign = TextAlign.Center
             )
 
 
             Spacer(
-                modifier =
-                    Modifier.height(5.dp)
+                modifier = Modifier.height(5.dp)
             )
 
 
             Text(
-                text =
-                    message,
-
-                fontSize =
-                    12.sp,
-
-                color =
-                    Gray,
-
-                textAlign =
-                    TextAlign.Center,
-
-                lineHeight =
-                    18.sp
+                text = message,
+                fontSize = 12.sp,
+                color = SecondaryText,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp
             )
         }
     }
@@ -1267,58 +1197,45 @@ private fun PaymentLoadingCard(
 
 
 // ============================================================
-// PAYMENT ERROR CARD
+// ERROR SECTION
 // ============================================================
 
 @Composable
-private fun PaymentErrorCard(
+private fun PaymentErrorSection(
     error: String
 ) {
 
-    Card(
-        modifier =
-            Modifier.fillMaxWidth(),
-
-        shape =
-            RoundedCornerShape(18.dp),
-
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    White
-            ),
-
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    1.dp
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = ErrorSurface,
+                shape = RoundedCornerShape(20.dp)
             )
     ) {
 
         Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(22.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(23.dp),
 
             horizontalAlignment =
                 Alignment.CenterHorizontally
         ) {
 
             Box(
-                modifier =
-                    Modifier
-                        .size(56.dp)
-                        .background(
-                            color =
-                                Color(0xFFFFEBEE),
+                modifier = Modifier
+                    .size(52.dp)
+                    .background(
+                        color =
+                            ErrorRed.copy(
+                                alpha = 0.10f
+                            ),
+                        shape =
+                            RoundedCornerShape(16.dp)
+                    ),
 
-                            shape =
-                                CircleShape
-                        ),
-
-                contentAlignment =
-                    Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
 
                 Icon(
@@ -1329,56 +1246,37 @@ private fun PaymentErrorCard(
                         "Payment error",
 
                     modifier =
-                        Modifier.size(28.dp),
+                        Modifier.size(25.dp),
 
-                    tint =
-                        Color(0xFFC62828)
+                    tint = ErrorRed
                 )
             }
 
 
             Spacer(
-                modifier =
-                    Modifier.height(13.dp)
+                modifier = Modifier.height(14.dp)
             )
 
 
             Text(
-                text =
-                    "Payment Error",
-
-                fontSize =
-                    17.sp,
-
-                fontWeight =
-                    FontWeight.Bold,
-
-                color =
-                    Charcoal
+                text = "Payment unavailable",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryText
             )
 
 
             Spacer(
-                modifier =
-                    Modifier.height(6.dp)
+                modifier = Modifier.height(6.dp)
             )
 
 
             Text(
-                text =
-                    error,
-
-                fontSize =
-                    12.sp,
-
-                color =
-                    Gray,
-
-                textAlign =
-                    TextAlign.Center,
-
-                lineHeight =
-                    18.sp
+                text = error,
+                fontSize = 12.sp,
+                color = SecondaryText,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp
             )
         }
     }
@@ -1386,253 +1284,66 @@ private fun PaymentErrorCard(
 
 
 // ============================================================
-// PAYMENT READY CARD
+// SECURITY FOOTER
 // ============================================================
 
 @Composable
-private fun PaymentReadyCard(
-    amount: Int,
-    enabled: Boolean,
-    onPayClick: () -> Unit
-) {
+private fun SecurePaymentFooter() {
 
-    Card(
-        modifier =
-            Modifier.fillMaxWidth(),
-
-        shape =
-            RoundedCornerShape(18.dp),
-
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    White
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = SecondarySurface.copy(
+                    alpha = 0.55f
+                ),
+                shape = RoundedCornerShape(15.dp)
+            )
+            .padding(
+                horizontal = 14.dp,
+                vertical = 12.dp
             ),
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    2.dp
-            )
+        verticalAlignment =
+            Alignment.CenterVertically
     ) {
 
+        Icon(
+            imageVector = Icons.Default.Lock,
+            contentDescription = "Secure payment",
+            modifier = Modifier.size(18.dp),
+            tint = LightGreen
+        )
+
+
+        Spacer(
+            modifier = Modifier.width(10.dp)
+        )
+
+
         Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp)
+            modifier = Modifier.weight(1f)
         ) {
 
-            // ================================================
-            // READY HEADER
-            // ================================================
-
-            Row(
-                verticalAlignment =
-                    Alignment.CenterVertically
-            ) {
-
-                Box(
-                    modifier =
-                        Modifier
-                            .size(44.dp)
-                            .background(
-                                color =
-                                    LightGreen.copy(
-                                        alpha = 0.14f
-                                    ),
-
-                                shape =
-                                    CircleShape
-                            ),
-
-                    contentAlignment =
-                        Alignment.Center
-                ) {
-
-                    Icon(
-                        imageVector =
-                            Icons.Default.CheckCircle,
-
-                        contentDescription =
-                            "Payment ready",
-
-                        modifier =
-                            Modifier.size(24.dp),
-
-                        tint =
-                            ForestGreen
-                    )
-                }
-
-
-                Spacer(
-                    modifier =
-                        Modifier.width(11.dp)
-                )
-
-
-                Column(
-                    modifier =
-                        Modifier.weight(1f)
-                ) {
-
-                    Text(
-                        text =
-                            "Payment Ready",
-
-                        fontSize =
-                            16.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        color =
-                            Charcoal
-                    )
-
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(2.dp)
-                    )
-
-
-                    Text(
-                        text =
-                            "Your order is ready for payment.",
-
-                        fontSize =
-                            11.sp,
-
-                        color =
-                            Gray
-                    )
-                }
-            }
-
+            Text(
+                text = "Secure checkout",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryText
+            )
 
             Spacer(
-                modifier =
-                    Modifier.height(16.dp)
+                modifier = Modifier.height(2.dp)
             )
-
-
-            HorizontalDivider(
-                color =
-                    LightGray
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(16.dp)
-            )
-
-
-            // ================================================
-            // TOTAL AMOUNT
-            // ================================================
 
             Text(
                 text =
-                    "Total Amount",
+                    "Payment is securely processed by Razorpay.",
 
-                fontSize =
-                    12.sp,
-
-                color =
-                    Gray
+                fontSize = 10.sp,
+                color = MutedText,
+                lineHeight = 15.sp
             )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(3.dp)
-            )
-
-
-            Text(
-                text =
-                    "₹$amount",
-
-                fontSize =
-                    28.sp,
-
-                fontWeight =
-                    FontWeight.ExtraBold,
-
-                color =
-                    DarkGreen
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(18.dp)
-            )
-
-
-            // ================================================
-            // PAY NOW BUTTON
-            // ================================================
-
-            Button(
-                onClick =
-                    onPayClick,
-
-                enabled =
-                    enabled,
-
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-
-                shape =
-                    RoundedCornerShape(13.dp),
-
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor =
-                            DarkGreen,
-
-                        disabledContainerColor =
-                            DarkGreen.copy(
-                                alpha = 0.5f
-                            )
-                    )
-            ) {
-
-                Icon(
-                    imageVector =
-                        Icons.Default.Lock,
-
-                    contentDescription =
-                        null,
-
-                    modifier =
-                        Modifier.size(18.dp)
-                )
-
-
-                Spacer(
-                    modifier =
-                        Modifier.width(8.dp)
-                )
-
-
-                Text(
-                    text =
-                        "Pay ₹$amount",
-
-                    fontSize =
-                        15.sp,
-
-                    fontWeight =
-                        FontWeight.Bold
-                )
-            }
         }
     }
 }
