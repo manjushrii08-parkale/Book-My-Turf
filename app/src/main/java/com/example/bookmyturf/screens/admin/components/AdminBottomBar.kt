@@ -13,14 +13,38 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bookmyturf.ui.theme.AdminDarkGreen
-import com.example.bookmyturf.ui.theme.AdminGray
-import com.example.bookmyturf.ui.theme.AdminLightGreen
-import com.example.bookmyturf.ui.theme.AdminWhite
 
+
+// =============================================================
+// PREMIUM BOOKMYTURF COLORS
+// =============================================================
+
+private val Background =
+    Color(0xFF020907)
+
+private val SurfaceDark =
+    Color(0xFF06110D)
+
+private val PrimaryGreen =
+    Color(0xFF7DBB4A)
+
+private val LightGreen =
+    Color(0xFFA8D86E)
+
+private val PrimaryText =
+    Color(0xFFF5F8F6)
+
+private val MutedText =
+    Color(0xFF687871)
+
+
+// =============================================================
+// ADMIN BOTTOM BAR
+// =============================================================
 
 @Composable
 fun AdminBottomBar(
@@ -31,11 +55,12 @@ fun AdminBottomBar(
     NavigationBar(
 
         containerColor =
-            AdminWhite,
+            SurfaceDark,
 
         tonalElevation =
-            4.dp
+            0.dp
     ) {
+
 
         // =====================================================
         // DASHBOARD
@@ -71,7 +96,7 @@ fun AdminBottomBar(
                         "Dashboard",
 
                     fontSize =
-                        11.sp,
+                        10.sp,
 
                     fontWeight =
                         if (selectedTab == 0) {
@@ -89,20 +114,20 @@ fun AdminBottomBar(
                 NavigationBarItemDefaults.colors(
 
                     selectedIconColor =
-                        AdminDarkGreen,
+                        LightGreen,
 
                     selectedTextColor =
-                        AdminDarkGreen,
+                        PrimaryText,
 
                     unselectedIconColor =
-                        AdminGray,
+                        MutedText,
 
                     unselectedTextColor =
-                        AdminGray,
+                        MutedText,
 
                     indicatorColor =
-                        AdminLightGreen.copy(
-                            alpha = 0.20f
+                        PrimaryGreen.copy(
+                            alpha = 0.12f
                         )
                 )
         )
@@ -142,7 +167,7 @@ fun AdminBottomBar(
                         "Turfs",
 
                     fontSize =
-                        11.sp,
+                        10.sp,
 
                     fontWeight =
                         if (selectedTab == 1) {
@@ -160,20 +185,20 @@ fun AdminBottomBar(
                 NavigationBarItemDefaults.colors(
 
                     selectedIconColor =
-                        AdminDarkGreen,
+                        LightGreen,
 
                     selectedTextColor =
-                        AdminDarkGreen,
+                        PrimaryText,
 
                     unselectedIconColor =
-                        AdminGray,
+                        MutedText,
 
                     unselectedTextColor =
-                        AdminGray,
+                        MutedText,
 
                     indicatorColor =
-                        AdminLightGreen.copy(
-                            alpha = 0.20f
+                        PrimaryGreen.copy(
+                            alpha = 0.12f
                         )
                 )
         )
@@ -213,7 +238,7 @@ fun AdminBottomBar(
                         "Bookings",
 
                     fontSize =
-                        11.sp,
+                        10.sp,
 
                     fontWeight =
                         if (selectedTab == 2) {
@@ -231,20 +256,20 @@ fun AdminBottomBar(
                 NavigationBarItemDefaults.colors(
 
                     selectedIconColor =
-                        AdminDarkGreen,
+                        LightGreen,
 
                     selectedTextColor =
-                        AdminDarkGreen,
+                        PrimaryText,
 
                     unselectedIconColor =
-                        AdminGray,
+                        MutedText,
 
                     unselectedTextColor =
-                        AdminGray,
+                        MutedText,
 
                     indicatorColor =
-                        AdminLightGreen.copy(
-                            alpha = 0.20f
+                        PrimaryGreen.copy(
+                            alpha = 0.12f
                         )
                 )
         )
@@ -284,7 +309,7 @@ fun AdminBottomBar(
                         "Profile",
 
                     fontSize =
-                        11.sp,
+                        10.sp,
 
                     fontWeight =
                         if (selectedTab == 3) {
@@ -302,20 +327,20 @@ fun AdminBottomBar(
                 NavigationBarItemDefaults.colors(
 
                     selectedIconColor =
-                        AdminDarkGreen,
+                        LightGreen,
 
                     selectedTextColor =
-                        AdminDarkGreen,
+                        PrimaryText,
 
                     unselectedIconColor =
-                        AdminGray,
+                        MutedText,
 
                     unselectedTextColor =
-                        AdminGray,
+                        MutedText,
 
                     indicatorColor =
-                        AdminLightGreen.copy(
-                            alpha = 0.20f
+                        PrimaryGreen.copy(
+                            alpha = 0.12f
                         )
                 )
         )

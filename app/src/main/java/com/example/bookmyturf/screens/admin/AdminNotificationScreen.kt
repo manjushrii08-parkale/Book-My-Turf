@@ -1,7 +1,7 @@
 package com.example.bookmyturf.screens.admin
 
 import androidx.activity.compose.BackHandler
-
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,12 +11,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,16 +36,11 @@ import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +49,9 @@ import androidx.compose.runtime.getValue
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -61,11 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 import com.example.bookmyturf.data.model.notification.NotificationItem
-import com.example.bookmyturf.ui.theme.AdminDarkGreen
-import com.example.bookmyturf.ui.theme.AdminGray
-import com.example.bookmyturf.ui.theme.AdminLightGreen
-import com.example.bookmyturf.ui.theme.AdminOffWhite
-import com.example.bookmyturf.ui.theme.AdminWhite
 import com.example.bookmyturf.viewmodel.NotificationViewModel
 
 import java.text.SimpleDateFormat
@@ -73,10 +68,29 @@ import java.util.Locale
 
 
 // =============================================================
+// PREMIUM DARK THEME
+// =============================================================
+
+private val Background = Color(0xFF020907)
+private val SurfaceDark = Color(0xFF06110D)
+private val SurfaceElevated = Color(0xFF091711)
+private val SurfaceHighlight = Color(0xFF0D2017)
+
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
+private val Border = Color(0xFF183027)
+
+private val ErrorRed = Color(0xFFFF6B6B)
+
+
+// =============================================================
 // ADMIN NOTIFICATION SCREEN
 // =============================================================
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminNotificationScreen(
     token: String,
@@ -88,17 +102,13 @@ fun AdminNotificationScreen(
     // STATE
     // =========================================================
 
-    val notifications by
-    viewModel.notifications.collectAsState()
+    val notifications by viewModel.notifications.collectAsState()
 
-    val unreadCount by
-    viewModel.unreadCount.collectAsState()
+    val unreadCount by viewModel.unreadCount.collectAsState()
 
-    val isLoading by
-    viewModel.isLoading.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
-    val errorMessage by
-    viewModel.errorMessage.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
 
     // =========================================================
@@ -109,9 +119,7 @@ fun AdminNotificationScreen(
 
         if (token.isNotBlank()) {
 
-            viewModel.loadNotifications(
-                token
-            )
+            viewModel.loadNotifications(token)
         }
     }
 
@@ -121,7 +129,6 @@ fun AdminNotificationScreen(
     // =========================================================
 
     BackHandler {
-
         onBackClick()
     }
 
@@ -131,67 +138,186 @@ fun AdminNotificationScreen(
     // =========================================================
 
     Scaffold(
+        containerColor = Background
+    ) { paddingValues ->
 
-        containerColor =
-            AdminOffWhite,
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Background)
+        ) {
 
-        topBar = {
+            // =================================================
+            // PREMIUM TOP BAR
+            // =================================================
 
-            TopAppBar(
+            NotificationTopBar(
+                unreadCount = unreadCount,
+                onBackClick = onBackClick,
+                onMarkAllRead = {
+                    viewModel.markAllAsRead(token)
+                }
+            )
 
-                title = {
 
-                    Column {
+            // =================================================
+            // CONTENT
+            // =================================================
 
-                        Text(
-                            text = "Notifications",
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
 
-                            fontSize = 20.sp,
+                when {
 
-                            fontWeight =
-                                FontWeight.ExtraBold,
+                    // =============================================
+                    // LOADING
+                    // =============================================
 
-                            color =
-                                AdminDarkGreen
-                        )
+                    isLoading && notifications.isEmpty() -> {
 
-                        if (unreadCount > 0) {
-
-                            Text(
-                                text =
-                                    if (unreadCount == 1) {
-                                        "1 unread notification"
-                                    } else {
-                                        "$unreadCount unread notifications"
-                                    },
-
-                                fontSize = 11.sp,
-
-                                fontWeight =
-                                    FontWeight.Medium,
-
-                                color =
-                                    AdminGray
-                            )
-                        } else {
-
-                            Text(
-                                text =
-                                    "You're all caught up",
-
-                                fontSize = 11.sp,
-
-                                fontWeight =
-                                    FontWeight.Medium,
-
-                                color =
-                                    AdminGray
-                            )
-                        }
+                        NotificationLoading()
                     }
-                },
 
-                navigationIcon = {
+
+                    // =============================================
+                    // ERROR
+                    // =============================================
+
+                    errorMessage != null &&
+                            notifications.isEmpty() -> {
+
+                        NotificationError(
+                            message =
+                                errorMessage
+                                    ?: "Unable to load notifications.",
+
+                            onRetry = {
+
+                                viewModel.clearError()
+
+                                viewModel.loadNotifications(token)
+                            }
+                        )
+                    }
+
+
+                    // =============================================
+                    // EMPTY
+                    // =============================================
+
+                    notifications.isEmpty() -> {
+
+                        NotificationEmpty()
+                    }
+
+
+                    // =============================================
+                    // NOTIFICATION LIST
+                    // =============================================
+
+                    else -> {
+
+                        NotificationList(
+                            notifications = notifications,
+
+                            onNotificationClick = { notification ->
+
+                                if (!notification.isRead) {
+
+                                    viewModel.markAsRead(
+                                        token = token,
+                                        notificationId = notification.id
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+// =============================================================
+// PREMIUM TOP BAR
+// =============================================================
+
+@Composable
+private fun NotificationTopBar(
+    unreadCount: Int,
+    onBackClick: () -> Unit,
+    onMarkAllRead: () -> Unit
+) {
+
+    /*
+     * The status-bar inset is included INSIDE the top bar.
+     *
+     * This makes the premium dark gradient continue behind
+     * the Android status-bar area instead of starting below it.
+     */
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF071810),
+                        Background
+                    )
+                )
+            )
+            .windowInsetsPadding(
+                WindowInsets.statusBars
+            )
+    ) {
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            // =================================================
+            // HEADER ROW
+            // =================================================
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 14.dp,
+                        end = 14.dp,
+                        top = 10.dp,
+                        bottom = 14.dp
+                    ),
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                // =================================================
+                // BACK BUTTON
+                // =================================================
+
+                Surface(
+                    modifier =
+                        Modifier.size(42.dp),
+
+                    shape =
+                        RoundedCornerShape(14.dp),
+
+                    color =
+                        SurfaceElevated,
+
+                    border =
+                        BorderStroke(
+                            width = 1.dp,
+                            color = Border
+                        )
+                ) {
 
                     IconButton(
                         onClick = onBackClick
@@ -205,197 +331,183 @@ fun AdminNotificationScreen(
                                 "Back",
 
                             tint =
-                                AdminDarkGreen,
+                                PrimaryText,
 
                             modifier =
-                                Modifier.size(23.dp)
+                                Modifier.size(20.dp)
                         )
                     }
-                },
+                }
 
-                actions = {
 
-                    if (unreadCount > 0) {
+                Spacer(
+                    modifier =
+                        Modifier.width(14.dp)
+                )
 
-                        Surface(
 
-                            modifier =
-                                Modifier
-                                    .padding(
-                                        end = 12.dp
-                                    )
-                                    .clip(
-                                        RoundedCornerShape(10.dp)
-                                    )
-                                    .clickable {
+                // =================================================
+                // TITLE
+                // =================================================
 
-                                        viewModel.markAllAsRead(
-                                            token
-                                        )
-                                    },
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
 
-                            color =
-                                AdminLightGreen.copy(
-                                    alpha = 0.18f
+                    Text(
+                        text =
+                            "Notifications",
+
+                        fontSize =
+                            20.sp,
+
+                        fontWeight =
+                            FontWeight.Bold,
+
+                        letterSpacing =
+                            (-0.3).sp,
+
+                        color =
+                            PrimaryText
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(3.dp)
+                    )
+
+                    Text(
+                        text =
+                            if (unreadCount > 0) {
+
+                                if (unreadCount == 1) {
+                                    "1 unread notification"
+                                } else {
+                                    "$unreadCount unread notifications"
+                                }
+
+                            } else {
+
+                                "You're all caught up"
+                            },
+
+                        fontSize =
+                            11.sp,
+
+                        fontWeight =
+                            FontWeight.Medium,
+
+                        color =
+                            if (unreadCount > 0) {
+                                LightGreen
+                            } else {
+                                MutedText
+                            }
+                    )
+                }
+
+
+                // =================================================
+                // READ ALL
+                // =================================================
+
+                if (unreadCount > 0) {
+
+                    Surface(
+                        modifier =
+                            Modifier
+                                .clip(
+                                    RoundedCornerShape(11.dp)
                                 )
+                                .clickable(
+                                    onClick = onMarkAllRead
+                                ),
+
+                        shape =
+                            RoundedCornerShape(11.dp),
+
+                        color =
+                            SurfaceHighlight,
+
+                        border =
+                            BorderStroke(
+                                width = 1.dp,
+                                color = Border
+                            )
+                    ) {
+
+                        Row(
+                            modifier =
+                                Modifier.padding(
+                                    horizontal = 10.dp,
+                                    vertical = 8.dp
+                                ),
+
+                            verticalAlignment =
+                                Alignment.CenterVertically
                         ) {
 
-                            Row(
+                            Icon(
+                                imageVector =
+                                    Icons.Default.DoneAll,
+
+                                contentDescription =
+                                    "Mark all as read",
 
                                 modifier =
-                                    Modifier.padding(
-                                        horizontal = 10.dp,
-                                        vertical = 7.dp
-                                    ),
+                                    Modifier.size(16.dp),
 
-                                verticalAlignment =
-                                    Alignment.CenterVertically
-                            ) {
+                                tint =
+                                    PrimaryGreen
+                            )
 
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.DoneAll,
+                            Spacer(
+                                modifier =
+                                    Modifier.width(5.dp)
+                            )
 
-                                    contentDescription =
-                                        "Mark all as read",
+                            Text(
+                                text =
+                                    "Read all",
 
-                                    modifier =
-                                        Modifier.size(17.dp),
+                                fontSize =
+                                    11.sp,
 
-                                    tint =
-                                        AdminDarkGreen
-                                )
+                                fontWeight =
+                                    FontWeight.SemiBold,
 
-                                Spacer(
-                                    modifier =
-                                        Modifier.width(5.dp)
-                                )
-
-                                Text(
-                                    text =
-                                        "Read all",
-
-                                    fontSize =
-                                        11.sp,
-
-                                    fontWeight =
-                                        FontWeight.SemiBold,
-
-                                    color =
-                                        AdminDarkGreen
-                                )
-                            }
-                        }
-                    }
-                },
-
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-
-                        containerColor =
-                            AdminWhite,
-
-                        titleContentColor =
-                            AdminDarkGreen,
-
-                        navigationIconContentColor =
-                            AdminDarkGreen,
-
-                        actionIconContentColor =
-                            AdminDarkGreen
-                    )
-            )
-        }
-
-    ) { paddingValues ->
-
-        Box(
-
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(
-                        paddingValues
-                    )
-        ) {
-
-            when {
-
-                // =================================================
-                // LOADING
-                // =================================================
-
-                isLoading &&
-                        notifications.isEmpty() -> {
-
-                    NotificationLoading()
-                }
-
-
-                // =================================================
-                // ERROR
-                // =================================================
-
-                errorMessage != null &&
-                        notifications.isEmpty() -> {
-
-                    NotificationError(
-
-                        message =
-                            errorMessage
-                                ?: "Unable to load notifications.",
-
-                        onRetry = {
-
-                            viewModel.clearError()
-
-                            viewModel.loadNotifications(
-                                token
+                                color =
+                                    PrimaryText
                             )
                         }
-                    )
-                }
-
-
-                // =================================================
-                // EMPTY
-                // =================================================
-
-                notifications.isEmpty() -> {
-
-                    NotificationEmpty()
-                }
-
-
-                // =================================================
-                // NOTIFICATION LIST
-                // =================================================
-
-                else -> {
-
-                    NotificationList(
-
-                        notifications =
-                            notifications,
-
-                        onNotificationClick = {
-                                notification ->
-
-                            if (!notification.isRead) {
-
-                                viewModel.markAsRead(
-
-                                    token =
-                                        token,
-
-                                    notificationId =
-                                        notification.id
-                                )
-                            }
-                        }
-                    )
+                    }
                 }
             }
+
+
+            // =================================================
+            // DIVIDER
+            // =================================================
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Border,
+                                PrimaryGreen.copy(
+                                    alpha = 0.18f
+                                ),
+                                Border,
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
         }
     }
 }
@@ -413,44 +525,34 @@ private fun NotificationList(
 ) {
 
     LazyColumn(
-
         modifier =
             Modifier.fillMaxSize(),
 
         contentPadding =
             PaddingValues(
                 start = 16.dp,
-                top = 16.dp,
+                top = 18.dp,
                 end = 16.dp,
                 bottom = 28.dp
             ),
 
         verticalArrangement =
-            Arrangement.spacedBy(12.dp)
+            Arrangement.spacedBy(10.dp)
     ) {
 
         items(
+            items = notifications,
 
-            items =
-                notifications,
-
-            key = {
-                    notification ->
+            key = { notification ->
                 notification.id
             }
-
         ) { notification ->
 
             NotificationCard(
-
-                notification =
-                    notification,
+                notification = notification,
 
                 onClick = {
-
-                    onNotificationClick(
-                        notification
-                    )
+                    onNotificationClick(notification)
                 }
             )
         }
@@ -473,104 +575,66 @@ private fun NotificationCard(
 
 
     Surface(
-
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clip(
-                    RoundedCornerShape(18.dp)
-                )
-                .clickable(
-                    onClick = onClick
-                ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(
+                RoundedCornerShape(18.dp)
+            )
+            .clickable(
+                onClick = onClick
+            ),
 
         shape =
             RoundedCornerShape(18.dp),
 
         color =
             if (isUnread) {
-
-                AdminWhite
-
+                SurfaceElevated
             } else {
-
-                AdminWhite.copy(
-                    alpha = 0.82f
-                )
+                SurfaceDark
             },
 
         border =
-            if (isUnread) {
+            BorderStroke(
+                width = 1.dp,
 
-                BorderStroke(
-                    width = 1.dp,
-                    color =
-                        AdminLightGreen.copy(
-                            alpha = 0.45f
+                color =
+                    if (isUnread) {
+                        PrimaryGreen.copy(
+                            alpha = 0.32f
                         )
-                )
-
-            } else {
-
-                BorderStroke(
-                    width = 1.dp,
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .outlineVariant
-                            .copy(
-                                alpha = 0.45f
-                            )
-                )
-            },
-
-        tonalElevation =
-            if (isUnread) {
-                2.dp
-            } else {
-                0.dp
-            },
-
-        shadowElevation =
-            if (isUnread) {
-                2.dp
-            } else {
-                1.dp
-            }
+                    } else {
+                        Border.copy(
+                            alpha = 0.75f
+                        )
+                    }
+            )
     ) {
 
         Row(
-
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(15.dp),
 
             verticalAlignment =
                 Alignment.Top
         ) {
 
             // =================================================
-            // NOTIFICATION ICON
+            // ICON
             // =================================================
 
             Box(
-
                 modifier =
                     Modifier
                         .size(46.dp)
-                        .clip(
-                            CircleShape
-                        )
+                        .clip(CircleShape)
                         .background(
-
                             if (isUnread) {
-
-                                AdminDarkGreen
-
+                                SurfaceHighlight
                             } else {
-
-                                AdminOffWhite
+                                SurfaceDark
                             }
                         ),
 
@@ -579,7 +643,6 @@ private fun NotificationCard(
             ) {
 
                 Icon(
-
                     imageVector =
                         Icons.Default.NotificationsNone,
 
@@ -591,12 +654,9 @@ private fun NotificationCard(
 
                     tint =
                         if (isUnread) {
-
-                            AdminWhite
-
+                            PrimaryGreen
                         } else {
-
-                            AdminGray
+                            MutedText
                         }
                 )
             }
@@ -618,11 +678,10 @@ private fun NotificationCard(
             ) {
 
                 // =================================================
-                // TITLE + STATUS
+                // TITLE + UNREAD DOT
                 // =================================================
 
                 Row(
-
                     modifier =
                         Modifier.fillMaxWidth(),
 
@@ -631,7 +690,6 @@ private fun NotificationCard(
                 ) {
 
                     Text(
-
                         text =
                             notification.title,
 
@@ -643,27 +701,20 @@ private fun NotificationCard(
 
                         fontWeight =
                             if (isUnread) {
-
                                 FontWeight.Bold
-
                             } else {
-
                                 FontWeight.SemiBold
                             },
 
                         color =
                             if (isUnread) {
-
-                                AdminDarkGreen
-
+                                PrimaryText
                             } else {
-
-                                MaterialTheme
-                                    .colorScheme
-                                    .onSurface
+                                SecondaryText
                             },
 
-                        maxLines = 1,
+                        maxLines =
+                            1,
 
                         overflow =
                             TextOverflow.Ellipsis
@@ -678,15 +729,12 @@ private fun NotificationCard(
                         )
 
                         Box(
-
                             modifier =
                                 Modifier
-                                    .size(9.dp)
-                                    .clip(
-                                        CircleShape
-                                    )
+                                    .size(8.dp)
+                                    .clip(CircleShape)
                                     .background(
-                                        AdminDarkGreen
+                                        PrimaryGreen
                                     )
                         )
                     }
@@ -704,7 +752,6 @@ private fun NotificationCard(
                 // =================================================
 
                 Text(
-
                     text =
                         notification.message,
 
@@ -715,11 +762,10 @@ private fun NotificationCard(
                         19.sp,
 
                     color =
-                        MaterialTheme
-                            .colorScheme
-                            .onSurfaceVariant,
+                        SecondaryText,
 
-                    maxLines = 3,
+                    maxLines =
+                        3,
 
                     overflow =
                         TextOverflow.Ellipsis
@@ -737,7 +783,6 @@ private fun NotificationCard(
                 // =================================================
 
                 Text(
-
                     text =
                         formatNotificationDate(
                             notification.createdAt
@@ -750,7 +795,7 @@ private fun NotificationCard(
                         FontWeight.Medium,
 
                     color =
-                        AdminGray
+                        MutedText
                 )
             }
         }
@@ -766,7 +811,6 @@ private fun NotificationCard(
 private fun NotificationLoading() {
 
     Column(
-
         modifier =
             Modifier
                 .fillMaxSize()
@@ -780,7 +824,6 @@ private fun NotificationLoading() {
     ) {
 
         Surface(
-
             modifier =
                 Modifier.size(68.dp),
 
@@ -788,8 +831,15 @@ private fun NotificationLoading() {
                 CircleShape,
 
             color =
-                AdminLightGreen.copy(
-                    alpha = 0.18f
+                SurfaceHighlight,
+
+            border =
+                BorderStroke(
+                    width = 1.dp,
+                    color =
+                        Border.copy(
+                            alpha = 0.8f
+                        )
                 )
         ) {
 
@@ -799,12 +849,11 @@ private fun NotificationLoading() {
             ) {
 
                 CircularProgressIndicator(
-
                     modifier =
                         Modifier.size(30.dp),
 
                     color =
-                        AdminDarkGreen,
+                        PrimaryGreen,
 
                     strokeWidth =
                         3.dp
@@ -820,7 +869,6 @@ private fun NotificationLoading() {
 
 
         Text(
-
             text =
                 "Loading notifications...",
 
@@ -831,7 +879,25 @@ private fun NotificationLoading() {
                 FontWeight.SemiBold,
 
             color =
-                AdminDarkGreen
+                PrimaryText
+        )
+
+
+        Spacer(
+            modifier =
+                Modifier.height(5.dp)
+        )
+
+
+        Text(
+            text =
+                "Please wait",
+
+            fontSize =
+                12.sp,
+
+            color =
+                MutedText
         )
     }
 }
@@ -845,7 +911,6 @@ private fun NotificationLoading() {
 private fun NotificationEmpty() {
 
     Column(
-
         modifier =
             Modifier
                 .fillMaxSize()
@@ -859,7 +924,6 @@ private fun NotificationEmpty() {
     ) {
 
         Surface(
-
             modifier =
                 Modifier.size(84.dp),
 
@@ -867,19 +931,24 @@ private fun NotificationEmpty() {
                 CircleShape,
 
             color =
-                AdminLightGreen.copy(
-                    alpha = 0.18f
+                SurfaceHighlight,
+
+            border =
+                BorderStroke(
+                    width = 1.dp,
+                    color =
+                        Border.copy(
+                            alpha = 0.9f
+                        )
                 )
         ) {
 
             Box(
-
                 contentAlignment =
                     Alignment.Center
             ) {
 
                 Icon(
-
                     imageVector =
                         Icons.Default.NotificationsNone,
 
@@ -890,7 +959,7 @@ private fun NotificationEmpty() {
                         Modifier.size(40.dp),
 
                     tint =
-                        AdminDarkGreen
+                        PrimaryGreen
                 )
             }
         }
@@ -903,7 +972,6 @@ private fun NotificationEmpty() {
 
 
         Text(
-
             text =
                 "You're all caught up",
 
@@ -911,21 +979,20 @@ private fun NotificationEmpty() {
                 20.sp,
 
             fontWeight =
-                FontWeight.ExtraBold,
+                FontWeight.Bold,
 
             color =
-                AdminDarkGreen
+                PrimaryText
         )
 
 
         Spacer(
             modifier =
-                Modifier.height(7.dp)
+                Modifier.height(8.dp)
         )
 
 
         Text(
-
             text =
                 "New booking and account updates will appear here.",
 
@@ -939,7 +1006,7 @@ private fun NotificationEmpty() {
                 19.sp,
 
             color =
-                AdminGray,
+                SecondaryText,
 
             textAlign =
                 TextAlign.Center
@@ -959,7 +1026,6 @@ private fun NotificationError(
 ) {
 
     Column(
-
         modifier =
             Modifier
                 .fillMaxSize()
@@ -973,7 +1039,6 @@ private fun NotificationError(
     ) {
 
         Surface(
-
             modifier =
                 Modifier.size(72.dp),
 
@@ -981,19 +1046,26 @@ private fun NotificationError(
                 CircleShape,
 
             color =
-                MaterialTheme
-                    .colorScheme
-                    .errorContainer
+                ErrorRed.copy(
+                    alpha = 0.08f
+                ),
+
+            border =
+                BorderStroke(
+                    width = 1.dp,
+                    color =
+                        ErrorRed.copy(
+                            alpha = 0.22f
+                        )
+                )
         ) {
 
             Box(
-
                 contentAlignment =
                     Alignment.Center
             ) {
 
                 Icon(
-
                     imageVector =
                         Icons.Default.ErrorOutline,
 
@@ -1001,12 +1073,10 @@ private fun NotificationError(
                         null,
 
                     modifier =
-                        Modifier.size(38.dp),
+                        Modifier.size(36.dp),
 
                     tint =
-                        MaterialTheme
-                            .colorScheme
-                            .error
+                        ErrorRed
                 )
             }
         }
@@ -1019,7 +1089,6 @@ private fun NotificationError(
 
 
         Text(
-
             text =
                 "Unable to load notifications",
 
@@ -1030,7 +1099,7 @@ private fun NotificationError(
                 FontWeight.Bold,
 
             color =
-                AdminDarkGreen,
+                PrimaryText,
 
             textAlign =
                 TextAlign.Center
@@ -1044,7 +1113,6 @@ private fun NotificationError(
 
 
         Text(
-
             text =
                 message,
 
@@ -1058,7 +1126,7 @@ private fun NotificationError(
                 19.sp,
 
             color =
-                AdminGray,
+                SecondaryText,
 
             textAlign =
                 TextAlign.Center
@@ -1072,7 +1140,6 @@ private fun NotificationError(
 
 
         Button(
-
             onClick =
                 onRetry,
 
@@ -1085,7 +1152,10 @@ private fun NotificationError(
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor =
-                        AdminDarkGreen
+                        PrimaryGreen,
+
+                    contentColor =
+                        Background
                 )
         ) {
 
@@ -1094,7 +1164,7 @@ private fun NotificationError(
                     "Try Again",
 
                 fontWeight =
-                    FontWeight.SemiBold
+                    FontWeight.Bold
             )
         }
     }
@@ -1110,7 +1180,6 @@ private fun formatNotificationDate(
 ): String {
 
     if (createdAt.isNullOrBlank()) {
-
         return ""
     }
 
@@ -1130,15 +1199,11 @@ private fun formatNotificationDate(
             )
 
         val date =
-            inputFormat.parse(
-                createdAt
-            )
+            inputFormat.parse(createdAt)
 
         if (date != null) {
 
-            outputFormat.format(
-                date
-            )
+            outputFormat.format(date)
 
         } else {
 
@@ -1162,15 +1227,11 @@ private fun formatNotificationDate(
                 )
 
             val date =
-                fallbackInput.parse(
-                    createdAt
-                )
+                fallbackInput.parse(createdAt)
 
             if (date != null) {
 
-                outputFormat.format(
-                    date
-                )
+                outputFormat.format(date)
 
             } else {
 

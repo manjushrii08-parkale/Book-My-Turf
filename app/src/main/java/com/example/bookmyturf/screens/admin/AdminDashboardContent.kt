@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Groups
@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -49,15 +50,28 @@ import androidx.compose.ui.unit.sp
 import com.example.bookmyturf.data.model.AdminDashboardStatistics
 import com.example.bookmyturf.data.model.AdminDashboardUser
 import com.example.bookmyturf.data.model.AdminSubscription
-import com.example.bookmyturf.screens.admin.components.AdminAccountCard
-import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
-import com.example.bookmyturf.ui.theme.AdminDarkGreen
-import com.example.bookmyturf.ui.theme.AdminForestGreen
-import com.example.bookmyturf.ui.theme.AdminGray
-import com.example.bookmyturf.ui.theme.AdminLightGreen
-import com.example.bookmyturf.ui.theme.AdminOffWhite
-import com.example.bookmyturf.ui.theme.AdminWhite
-import androidx.compose.foundation.layout.fillMaxSize
+
+// =============================================================
+// PREMIUM SUBSCRIPTION-STYLE COLORS
+// =============================================================
+
+private val Background = Color(0xFF020907)
+private val SurfaceDark = Color(0xFF06110D)
+private val SurfaceElevated = Color(0xFF091711)
+private val SurfaceHighlight = Color(0xFF0D2017)
+
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+private val BrightGreen = Color(0xFFC5F58B)
+
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
+private val Border = Color(0xFF183027)
+
+private val ErrorRed = Color(0xFFFF6B6B)
+private val WarningOrange = Color(0xFFFFB74D)
+
 
 // =============================================================
 // ADMIN DASHBOARD
@@ -171,17 +185,18 @@ fun AdminDashboardContent(
 
     Column(
         modifier = modifier
-            .background(AdminOffWhite)
+            .fillMaxSize()
+            .background(Background)
             .verticalScroll(
                 rememberScrollState()
             )
             .padding(
-                horizontal = 18.dp,
-                vertical = 18.dp
+                horizontal = 20.dp,
+                vertical = 16.dp
             ),
 
         verticalArrangement =
-            Arrangement.spacedBy(16.dp)
+            Arrangement.spacedBy(18.dp)
     ) {
 
         // =====================================================
@@ -244,34 +259,28 @@ fun AdminDashboardContent(
                 Modifier.fillMaxWidth(),
 
             horizontalArrangement =
-                Arrangement.spacedBy(12.dp)
+                Arrangement.spacedBy(10.dp)
         ) {
 
             DashboardMetricCard(
                 title = "Turfs",
                 value = totalTurfs.toString(),
-                icon =
-                    Icons.Default.SportsSoccer,
-                modifier =
-                    Modifier.weight(1f)
+                icon = Icons.Default.SportsSoccer,
+                modifier = Modifier.weight(1f)
             )
 
             DashboardMetricCard(
                 title = "Bookings",
                 value = totalBookings.toString(),
-                icon =
-                    Icons.Default.CalendarMonth,
-                modifier =
-                    Modifier.weight(1f)
+                icon = Icons.Default.CalendarMonth,
+                modifier = Modifier.weight(1f)
             )
 
             DashboardMetricCard(
                 title = "Customers",
                 value = totalCustomers.toString(),
-                icon =
-                    Icons.Default.Groups,
-                modifier =
-                    Modifier.weight(1f)
+                icon = Icons.Default.Groups,
+                modifier = Modifier.weight(1f)
             )
         }
 
@@ -304,76 +313,51 @@ fun AdminDashboardContent(
 
         DashboardSectionHeader(
             title = "Quick Actions",
-            subtitle =
-                "Manage your business"
+            subtitle = "Manage your business"
         )
 
         QuickActionRow(
-            icon =
-                Icons.Default.SportsSoccer,
-            title =
-                "Manage Turfs",
-            description =
-                "View and manage your turf grounds",
-            onClick =
-                onManageTurfs
+            icon = Icons.Default.SportsSoccer,
+            title = "Manage Turfs",
+            description = "View and manage your turf grounds",
+            onClick = onManageTurfs
         )
 
         QuickActionRow(
-            icon =
-                Icons.Default.Timer,
-            title =
-                "Manage Slots",
-            description =
-                "Create and manage turf time slots",
-            onClick =
-                onManageTurfs
+            icon = Icons.Default.Timer,
+            title = "Manage Slots",
+            description = "Create and manage turf time slots",
+            onClick = onManageTurfs
         )
 
         QuickActionRow(
-            icon =
-                Icons.Default.CalendarMonth,
-            title =
-                "Bookings",
-            description =
-                "View and manage customer bookings",
-            onClick =
-                onBookingsClick
+            icon = Icons.Default.CalendarMonth,
+            title = "Bookings",
+            description = "View and manage customer bookings",
+            onClick = onBookingsClick
         )
 
         QuickActionRow(
-            icon =
-                Icons.Default.Groups,
-            title =
-                "Customers",
-            description =
-                "View customers who booked your turfs",
-            onClick =
-                onBookingsClick
+            icon = Icons.Default.Groups,
+            title = "Customers",
+            description = "View customers who booked your turfs",
+            onClick = onBookingsClick
         )
 
         QuickActionRow(
-            icon =
-                Icons.Default.WorkspacePremium,
-            title =
-                "Subscription",
-            description =
-                "View and manage your current plan",
-            onClick =
-                onSubscriptionClick
+            icon = Icons.Default.WorkspacePremium,
+            title = "Subscription",
+            description = "View and manage your current plan",
+            onClick = onSubscriptionClick
         )
 
         // =====================================================
         // ACCOUNT
         // =====================================================
 
-        AdminAccountCard(
-            admin = admin
-        )
 
         Spacer(
-            modifier =
-                Modifier.height(6.dp)
+            modifier = Modifier.height(6.dp)
         )
     }
 }
@@ -395,68 +379,38 @@ private fun WelcomeHeader(
             }
             ?: "Admin"
 
-    Row(
-        modifier =
-            Modifier.fillMaxWidth(),
-
-        verticalAlignment =
-            Alignment.CenterVertically
+    Column(
+        modifier = Modifier.fillMaxWidth()
     ) {
 
-        Column(
-            modifier =
-                Modifier.weight(1f)
-        ) {
+        Text(
+            text = "Good to see you",
+            color = SecondaryText,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium
+        )
 
-            Text(
-                text =
-                    "Good to see you",
+        Spacer(
+            modifier = Modifier.height(4.dp)
+        )
 
-                color =
-                    AdminGray,
+        Text(
+            text = "$adminName 👋",
+            color = PrimaryText,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = (-0.4).sp
+        )
 
-                fontSize =
-                    13.sp,
+        Spacer(
+            modifier = Modifier.height(4.dp)
+        )
 
-                fontWeight =
-                    FontWeight.Medium
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(3.dp)
-            )
-
-            Text(
-                text =
-                    "$adminName 👋",
-
-                color =
-                    AdminDarkCharcoal,
-
-                style =
-                    MaterialTheme.typography.headlineSmall,
-
-                fontWeight =
-                    FontWeight.Bold
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(3.dp)
-            )
-
-            Text(
-                text =
-                    "Here is your turf business overview.",
-
-                color =
-                    AdminGray,
-
-                fontSize =
-                    12.sp
-            )
-        }
+        Text(
+            text = "Here is your turf business overview.",
+            color = MutedText,
+            fontSize = 12.sp
+        )
     }
 }
 
@@ -473,32 +427,20 @@ private fun DashboardSectionHeader(
 
     Column(
         verticalArrangement =
-            Arrangement.spacedBy(2.dp)
+            Arrangement.spacedBy(3.dp)
     ) {
 
         Text(
-            text =
-                title,
-
-            color =
-                AdminDarkCharcoal,
-
-            style =
-                MaterialTheme.typography.titleMedium,
-
-            fontWeight =
-                FontWeight.Bold
+            text = title,
+            color = PrimaryText,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
         )
 
         Text(
-            text =
-                subtitle,
-
-            color =
-                AdminGray,
-
-            fontSize =
-                11.sp
+            text = subtitle,
+            color = MutedText,
+            fontSize = 11.sp
         )
     }
 }
@@ -540,22 +482,20 @@ private fun SubscriptionSummaryCard(
                 "INACTIVE"
         }
 
-    Card(
+    Surface(
         modifier =
             Modifier.fillMaxWidth(),
 
         shape =
             RoundedCornerShape(20.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminDarkGreen
-            ),
+        color =
+            SurfaceDark,
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 2.dp
+        border =
+            BorderStroke(
+                1.dp,
+                Border
             )
     ) {
 
@@ -564,7 +504,7 @@ private fun SubscriptionSummaryCard(
                 Modifier.padding(18.dp),
 
             verticalArrangement =
-                Arrangement.spacedBy(13.dp)
+                Arrangement.spacedBy(14.dp)
         ) {
 
             Row(
@@ -581,54 +521,35 @@ private fun SubscriptionSummaryCard(
                 ) {
 
                     Text(
-                        text =
-                            "CURRENT PLAN",
-
-                        color =
-                            AdminLightGreen,
-
-                        fontSize =
-                            10.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        letterSpacing =
-                            1.sp
+                        text = "CURRENT PLAN",
+                        color = PrimaryGreen,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
                     )
 
                     Spacer(
-                        modifier =
-                            Modifier.height(4.dp)
+                        modifier = Modifier.height(5.dp)
                     )
 
                     Text(
-                        text =
-                            planText,
-
-                        color =
-                            AdminWhite,
-
-                        fontSize =
-                            20.sp,
-
-                        fontWeight =
-                            FontWeight.Bold
+                        text = planText,
+                        color = PrimaryText,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
                 SubscriptionStatusBadge(
-                    text =
-                        statusText,
-                    active =
-                        isActive
+                    text = statusText,
+                    active = isActive
                 )
             }
 
             HorizontalDivider(
                 color =
-                    AdminWhite.copy(
-                        alpha = 0.12f
+                    Border.copy(
+                        alpha = 0.9f
                     )
             )
 
@@ -648,7 +569,6 @@ private fun SubscriptionSummaryCard(
                     Text(
                         text =
                             when {
-
                                 isExpired ->
                                     "Your subscription has expired"
 
@@ -660,9 +580,7 @@ private fun SubscriptionSummaryCard(
                             },
 
                         color =
-                            AdminWhite.copy(
-                                alpha = 0.70f
-                            ),
+                            SecondaryText,
 
                         fontSize =
                             11.sp
@@ -670,13 +588,12 @@ private fun SubscriptionSummaryCard(
 
                     Spacer(
                         modifier =
-                            Modifier.height(3.dp)
+                            Modifier.height(4.dp)
                     )
 
                     Text(
                         text =
                             when {
-
                                 isExpired ->
                                     "Upgrade to restore management access"
 
@@ -688,7 +605,7 @@ private fun SubscriptionSummaryCard(
                             },
 
                         color =
-                            AdminWhite,
+                            PrimaryText,
 
                         fontSize =
                             12.sp,
@@ -698,9 +615,13 @@ private fun SubscriptionSummaryCard(
                     )
                 }
 
+                Spacer(
+                    modifier =
+                        Modifier.width(10.dp)
+                )
+
                 OutlinedButton(
-                    onClick =
-                        onClick,
+                    onClick = onClick,
 
                     shape =
                         RoundedCornerShape(11.dp),
@@ -708,8 +629,8 @@ private fun SubscriptionSummaryCard(
                     border =
                         BorderStroke(
                             1.dp,
-                            AdminWhite.copy(
-                                alpha = 0.40f
+                            Border.copy(
+                                alpha = 0.9f
                             )
                         )
                 ) {
@@ -723,7 +644,7 @@ private fun SubscriptionSummaryCard(
                             },
 
                         color =
-                            AdminWhite,
+                            PrimaryText,
 
                         fontSize =
                             11.sp,
@@ -753,9 +674,15 @@ private fun SubscriptionStatusBadge(
             RoundedCornerShape(50.dp),
 
         color =
-            AdminWhite.copy(
-                alpha = 0.10f
-            )
+            if (active) {
+                PrimaryGreen.copy(
+                    alpha = 0.10f
+                )
+            } else {
+                WarningOrange.copy(
+                    alpha = 0.08f
+                )
+            }
     ) {
 
         Row(
@@ -782,9 +709,9 @@ private fun SubscriptionStatusBadge(
                     drawCircle(
                         color =
                             if (active) {
-                                AdminLightGreen
+                                PrimaryGreen
                             } else {
-                                Color(0xFFFFB74D)
+                                WarningOrange
                             }
                     )
                 }
@@ -796,17 +723,10 @@ private fun SubscriptionStatusBadge(
             )
 
             Text(
-                text =
-                    text,
-
-                color =
-                    AdminWhite,
-
-                fontSize =
-                    10.sp,
-
-                fontWeight =
-                    FontWeight.Bold
+                text = text,
+                color = PrimaryText,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
@@ -823,22 +743,20 @@ private fun TodayOverviewCard(
     todayRevenue: Double
 ) {
 
-    Card(
+    Surface(
         modifier =
             Modifier.fillMaxWidth(),
 
         shape =
             RoundedCornerShape(20.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
+        color =
+            SurfaceDark,
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+        border =
+            BorderStroke(
+                1.dp,
+                Border
             )
     ) {
 
@@ -861,20 +779,11 @@ private fun TodayOverviewCard(
                 ) {
 
                     Text(
-                        text =
-                            "TODAY",
-
-                        color =
-                            AdminForestGreen,
-
-                        fontSize =
-                            10.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        letterSpacing =
-                            1.sp
+                        text = "TODAY",
+                        color = PrimaryGreen,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
                     )
 
                     Spacer(
@@ -883,33 +792,21 @@ private fun TodayOverviewCard(
                     )
 
                     Text(
-                        text =
-                            "$todayBookings bookings",
-
-                        color =
-                            AdminDarkCharcoal,
-
-                        fontSize =
-                            20.sp,
-
-                        fontWeight =
-                            FontWeight.Bold
+                        text = "$todayBookings bookings",
+                        color = PrimaryText,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
 
                     Spacer(
                         modifier =
-                            Modifier.height(2.dp)
+                            Modifier.height(3.dp)
                     )
 
                     Text(
-                        text =
-                            "Customer activity today",
-
-                        color =
-                            AdminGray,
-
-                        fontSize =
-                            11.sp
+                        text = "Customer activity today",
+                        color = MutedText,
+                        fontSize = 11.sp
                     )
                 }
 
@@ -919,20 +816,11 @@ private fun TodayOverviewCard(
                 ) {
 
                     Text(
-                        text =
-                            "REVENUE",
-
-                        color =
-                            AdminGray,
-
-                        fontSize =
-                            10.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        letterSpacing =
-                            0.8.sp
+                        text = "REVENUE",
+                        color = MutedText,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.8.sp
                     )
 
                     Spacer(
@@ -947,7 +835,7 @@ private fun TodayOverviewCard(
                             ),
 
                         color =
-                            AdminDarkGreen,
+                            LightGreen,
 
                         fontSize =
                             22.sp,
@@ -965,7 +853,7 @@ private fun TodayOverviewCard(
 
             HorizontalDivider(
                 color =
-                    Color(0xFFE8ECE8)
+                    Border
             )
 
             Spacer(
@@ -989,7 +877,7 @@ private fun TodayOverviewCard(
                         Modifier.size(16.dp),
 
                     tint =
-                        AdminForestGreen
+                        PrimaryGreen
                 )
 
                 Spacer(
@@ -1002,7 +890,7 @@ private fun TodayOverviewCard(
                         "Keep your turf schedule up to date",
 
                     color =
-                        AdminGray,
+                        SecondaryText,
 
                     fontSize =
                         11.sp
@@ -1025,22 +913,20 @@ private fun DashboardMetricCard(
     modifier: Modifier
 ) {
 
-    Card(
+    Surface(
         modifier =
             modifier.height(112.dp),
 
         shape =
             RoundedCornerShape(17.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
+        color =
+            SurfaceDark,
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+        border =
+            BorderStroke(
+                1.dp,
+                Border
             )
     ) {
 
@@ -1060,7 +946,8 @@ private fun DashboardMetricCard(
                         .size(36.dp)
                         .background(
                             color =
-                                AdminOffWhite,
+                                SurfaceElevated,
+
                             shape =
                                 RoundedCornerShape(
                                     10.dp
@@ -1082,7 +969,7 @@ private fun DashboardMetricCard(
                         Modifier.size(18.dp),
 
                     tint =
-                        AdminForestGreen
+                        PrimaryGreen
                 )
             }
 
@@ -1093,7 +980,7 @@ private fun DashboardMetricCard(
                         value,
 
                     color =
-                        AdminDarkCharcoal,
+                        PrimaryText,
 
                     fontSize =
                         22.sp,
@@ -1107,7 +994,7 @@ private fun DashboardMetricCard(
                         title,
 
                     color =
-                        AdminGray,
+                        MutedText,
 
                     fontSize =
                         10.sp
@@ -1132,22 +1019,20 @@ private fun TurfManagementCard(
     onAddTurf: () -> Unit
 ) {
 
-    Card(
+    Surface(
         modifier =
             Modifier.fillMaxWidth(),
 
         shape =
             RoundedCornerShape(20.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
+        color =
+            SurfaceDark,
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+        border =
+            BorderStroke(
+                1.dp,
+                Border
             )
     ) {
 
@@ -1156,7 +1041,7 @@ private fun TurfManagementCard(
                 Modifier.padding(18.dp),
 
             verticalArrangement =
-                Arrangement.spacedBy(13.dp)
+                Arrangement.spacedBy(14.dp)
         ) {
 
             // =================================================
@@ -1173,7 +1058,7 @@ private fun TurfManagementCard(
                         Modifier
                             .size(44.dp)
                             .background(
-                                AdminOffWhite,
+                                SurfaceElevated,
                                 RoundedCornerShape(
                                     12.dp
                                 )
@@ -1194,7 +1079,7 @@ private fun TurfManagementCard(
                             Modifier.size(21.dp),
 
                         tint =
-                            AdminDarkGreen
+                            PrimaryGreen
                     )
                 }
 
@@ -1213,7 +1098,7 @@ private fun TurfManagementCard(
                             "Your Turfs",
 
                         color =
-                            AdminDarkCharcoal,
+                            PrimaryText,
 
                         fontSize =
                             15.sp,
@@ -1231,7 +1116,7 @@ private fun TurfManagementCard(
                             },
 
                         color =
-                            AdminGray,
+                            MutedText,
 
                         fontSize =
                             11.sp
@@ -1248,9 +1133,7 @@ private fun TurfManagementCard(
                 val progress =
                     (
                             totalTurfs.toFloat() /
-                                    maxTurfs.coerceAtLeast(
-                                        1
-                                    )
+                                    maxTurfs.coerceAtLeast(1)
                             ).coerceIn(
                             0f,
                             1f
@@ -1262,13 +1145,15 @@ private fun TurfManagementCard(
                     },
 
                     modifier =
-                        Modifier.fillMaxWidth(),
+                        Modifier
+                            .fillMaxWidth()
+                            .height(5.dp),
 
                     color =
-                        AdminForestGreen,
+                        PrimaryGreen,
 
                     trackColor =
-                        Color(0xFFE9EEE9)
+                        SurfaceElevated
                 )
             }
 
@@ -1295,7 +1180,7 @@ private fun TurfManagementCard(
                     },
 
                 color =
-                    AdminGray,
+                    SecondaryText,
 
                 fontSize =
                     11.sp,
@@ -1329,9 +1214,7 @@ private fun TurfManagementCard(
                     border =
                         BorderStroke(
                             1.dp,
-                            AdminForestGreen.copy(
-                                alpha = 0.45f
-                            )
+                            Border
                         )
                 ) {
 
@@ -1340,7 +1223,7 @@ private fun TurfManagementCard(
                             "Manage",
 
                         color =
-                            AdminDarkGreen,
+                            PrimaryText,
 
                         fontWeight =
                             FontWeight.SemiBold
@@ -1364,9 +1247,10 @@ private fun TurfManagementCard(
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor =
-                                        Color(0xFFE8ECE8),
+                                        SurfaceElevated,
+
                                     contentColor =
-                                        AdminGray
+                                        SecondaryText
                                 )
                         ) {
 
@@ -1395,10 +1279,10 @@ private fun TurfManagementCard(
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor =
-                                        AdminLightGreen,
+                                        PrimaryGreen,
 
                                     contentColor =
-                                        AdminDarkCharcoal
+                                        Color(0xFF061008)
                                 )
                         ) {
 
@@ -1424,12 +1308,21 @@ private fun TurfManagementCard(
                                 Modifier.weight(1f),
 
                             shape =
-                                RoundedCornerShape(12.dp)
+                                RoundedCornerShape(12.dp),
+
+                            border =
+                                BorderStroke(
+                                    1.dp,
+                                    Border
+                                )
                         ) {
 
                             Text(
                                 text =
                                     "Limit Reached",
+
+                                color =
+                                    MutedText,
 
                                 fontSize =
                                     11.sp
@@ -1455,22 +1348,20 @@ private fun QuickActionRow(
     onClick: () -> Unit
 ) {
 
-    Card(
+    Surface(
         modifier =
             Modifier.fillMaxWidth(),
 
         shape =
             RoundedCornerShape(16.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
+        color =
+            SurfaceDark,
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+        border =
+            BorderStroke(
+                1.dp,
+                Border
             ),
 
         onClick =
@@ -1495,7 +1386,7 @@ private fun QuickActionRow(
                     Modifier
                         .size(42.dp)
                         .background(
-                            AdminOffWhite,
+                            SurfaceElevated,
                             RoundedCornerShape(
                                 12.dp
                             )
@@ -1516,7 +1407,7 @@ private fun QuickActionRow(
                         Modifier.size(20.dp),
 
                     tint =
-                        AdminDarkGreen
+                        PrimaryGreen
                 )
             }
 
@@ -1535,7 +1426,7 @@ private fun QuickActionRow(
                         title,
 
                     color =
-                        AdminDarkCharcoal,
+                        PrimaryText,
 
                     fontSize =
                         14.sp,
@@ -1554,7 +1445,7 @@ private fun QuickActionRow(
                         description,
 
                     color =
-                        AdminGray,
+                        MutedText,
 
                     fontSize =
                         11.sp
@@ -1569,10 +1460,10 @@ private fun QuickActionRow(
                     "Open $title",
 
                 modifier =
-                    Modifier.size(21.dp),
+                    Modifier.size(20.dp),
 
                 tint =
-                    AdminForestGreen
+                    SecondaryText
             )
         }
     }
@@ -1588,22 +1479,20 @@ private fun ExpiredAccessCard(
     onUpgradeClick: () -> Unit
 ) {
 
-    Card(
+    Surface(
         modifier =
             Modifier.fillMaxWidth(),
 
         shape =
             RoundedCornerShape(18.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
+        color =
+            SurfaceDark,
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+        border =
+            BorderStroke(
+                1.dp,
+                Border
             )
     ) {
 
@@ -1612,7 +1501,7 @@ private fun ExpiredAccessCard(
                 Modifier.padding(17.dp),
 
             verticalArrangement =
-                Arrangement.spacedBy(10.dp)
+                Arrangement.spacedBy(11.dp)
         ) {
 
             Row(
@@ -1625,7 +1514,7 @@ private fun ExpiredAccessCard(
                         Modifier
                             .size(40.dp)
                             .background(
-                                AdminOffWhite,
+                                SurfaceElevated,
                                 RoundedCornerShape(
                                     11.dp
                                 )
@@ -1643,7 +1532,7 @@ private fun ExpiredAccessCard(
                             null,
 
                         tint =
-                            AdminForestGreen,
+                            PrimaryGreen,
 
                         modifier =
                             Modifier.size(20.dp)
@@ -1662,7 +1551,7 @@ private fun ExpiredAccessCard(
                             "View-Only Mode",
 
                         color =
-                            AdminDarkCharcoal,
+                            PrimaryText,
 
                         fontSize =
                             14.sp,
@@ -1676,7 +1565,7 @@ private fun ExpiredAccessCard(
                             "Your subscription has expired.",
 
                         color =
-                            AdminGray,
+                            SecondaryText,
 
                         fontSize =
                             11.sp
@@ -1691,7 +1580,7 @@ private fun ExpiredAccessCard(
                             "you upgrade your plan.",
 
                 color =
-                    AdminGray,
+                    SecondaryText,
 
                 fontSize =
                     11.sp,
@@ -1713,10 +1602,10 @@ private fun ExpiredAccessCard(
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
-                            AdminLightGreen,
+                            PrimaryGreen,
 
                         contentColor =
-                            AdminDarkCharcoal
+                            Color(0xFF061008)
                     )
             ) {
 
@@ -1743,12 +1632,11 @@ private fun DashboardLoading(
 ) {
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                AdminOffWhite
-            )
-            .padding(24.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(Background)
+                .padding(24.dp),
 
         horizontalAlignment =
             Alignment.CenterHorizontally,
@@ -1759,7 +1647,7 @@ private fun DashboardLoading(
 
         CircularProgressIndicator(
             color =
-                AdminForestGreen
+                PrimaryGreen
         )
 
         Spacer(
@@ -1772,7 +1660,7 @@ private fun DashboardLoading(
                 "Loading dashboard...",
 
             color =
-                AdminGray,
+                SecondaryText,
 
             fontSize =
                 13.sp
@@ -1793,12 +1681,11 @@ private fun DashboardError(
 ) {
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                AdminOffWhite
-            )
-            .padding(24.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(Background)
+                .padding(24.dp),
 
         horizontalAlignment =
             Alignment.CenterHorizontally,
@@ -1807,19 +1694,37 @@ private fun DashboardError(
             Arrangement.Center
     ) {
 
-        Icon(
-            imageVector =
-                Icons.Default.Lock,
-
-            contentDescription =
-                null,
-
-            tint =
-                AdminForestGreen,
-
+        Surface(
             modifier =
-                Modifier.size(42.dp)
-        )
+                Modifier.size(60.dp),
+
+            shape =
+                RoundedCornerShape(18.dp),
+
+            color =
+                SurfaceElevated
+        ) {
+
+            Box(
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.Lock,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        PrimaryGreen,
+
+                    modifier =
+                        Modifier.size(28.dp)
+                )
+            }
+        }
 
         Spacer(
             modifier =
@@ -1831,7 +1736,7 @@ private fun DashboardError(
                 "Unable to load dashboard",
 
             color =
-                AdminDarkCharcoal,
+                PrimaryText,
 
             fontWeight =
                 FontWeight.Bold,
@@ -1850,7 +1755,7 @@ private fun DashboardError(
                 message,
 
             color =
-                AdminGray,
+                SecondaryText,
 
             fontSize =
                 12.sp,
@@ -1877,10 +1782,10 @@ private fun DashboardError(
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor =
-                        AdminDarkGreen,
+                        PrimaryGreen,
 
                     contentColor =
-                        AdminWhite
+                        Color(0xFF061008)
                 )
         ) {
 
@@ -1906,4 +1811,3 @@ private fun formatIndianCurrency(
 
     return "₹${String.format("%,.0f", amount)}"
 }
-

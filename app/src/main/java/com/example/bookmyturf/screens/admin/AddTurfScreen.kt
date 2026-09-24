@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,12 +26,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
@@ -40,21 +44,21 @@ import androidx.compose.material.icons.filled.Storefront
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -69,13 +73,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -84,13 +88,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bookmyturf.data.model.turf.CreateTurfRequest
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminRepository
-import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
-import com.example.bookmyturf.ui.theme.AdminDarkGreen
-import com.example.bookmyturf.ui.theme.AdminForestGreen
-import com.example.bookmyturf.ui.theme.AdminGray
-import com.example.bookmyturf.ui.theme.AdminLightGreen
-import com.example.bookmyturf.ui.theme.AdminOffWhite
-import com.example.bookmyturf.ui.theme.AdminWhite
 import com.example.bookmyturf.viewmodel.AdminViewModel
 
 import kotlinx.coroutines.Dispatchers
@@ -102,6 +99,28 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 import java.io.ByteArrayOutputStream
+
+
+// =============================================================
+// PREMIUM COLORS
+// =============================================================
+
+private val Background = Color(0xFF020907)
+private val SurfaceDark = Color(0xFF06110D)
+private val SurfaceElevated = Color(0xFF091711)
+private val SurfaceHighlight = Color(0xFF0D2017)
+
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+private val BrightGreen = Color(0xFFC5F58B)
+
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
+
+private val Border = Color(0xFF183027)
+
+private val ErrorRed = Color(0xFFFF6B6B)
 
 
 // =============================================================
@@ -158,52 +177,44 @@ fun AddTurfScreen(
     onSuccess: () -> Unit
 ) {
 
-    val context =
-        LocalContext.current
+    val context = LocalContext.current
 
-    val snackbarHostState =
-        remember {
-            SnackbarHostState()
-        }
+    val snackbarHostState = remember {
+        SnackbarHostState()
+    }
 
-    val scope =
-        rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
 
 
     // =========================================================
     // REPOSITORY
     // =========================================================
 
-    val repository =
-        remember {
-
-            AdminRepository(
-                RetrofitClient.api
-            )
-        }
+    val repository = remember {
+        AdminRepository(
+            RetrofitClient.api
+        )
+    }
 
 
     // =========================================================
     // VIEWMODEL FACTORY
     // =========================================================
 
-    val factory =
-        remember {
-
-            AdminViewModelFactory(
-                repository
-            )
-        }
+    val factory = remember {
+        AdminViewModelFactory(
+            repository
+        )
+    }
 
 
     // =========================================================
     // VIEWMODEL
     // =========================================================
 
-    val viewModel: AdminViewModel =
-        viewModel(
-            factory = factory
-        )
+    val viewModel: AdminViewModel = viewModel(
+        factory = factory
+    )
 
 
     // =========================================================
@@ -349,68 +360,39 @@ fun AddTurfScreen(
 
     Scaffold(
 
-        containerColor = AdminOffWhite,
+        containerColor =
+            Background,
+
+        topBar = {
+
+            PremiumAddTurfTopBar(
+                onBack = onBack,
+                enabled = !isLoading
+            )
+        },
 
         snackbarHost = {
 
             SnackbarHost(
-                hostState = snackbarHostState
-            )
-        },
+                hostState =
+                    snackbarHostState
+            ) { snackbarData ->
 
-        // =====================================================
-        // TOP BAR
-        // =====================================================
+                Snackbar(
 
-        topBar = {
+                    snackbarData =
+                        snackbarData,
 
-            TopAppBar(
+                    containerColor =
+                        SurfaceElevated,
 
-                title = {
+                    contentColor =
+                        PrimaryText,
 
-                    Column(
-                        verticalArrangement =
-                            Arrangement.spacedBy(1.dp)
-                    ) {
-
-                        Text(
-                            text = "Add Turf",
-                            color = AdminDarkCharcoal,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 19.sp
-                        )
-
-                        Text(
-                            text = "Create your turf listing",
-                            color = AdminGray,
-                            fontSize = 11.sp
-                        )
-                    }
-                },
-
-                navigationIcon = {
-
-                    IconButton(
-                        onClick = onBack,
-                        enabled = !isLoading
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = AdminDarkGreen
-                        )
-                    }
-                },
-
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = AdminWhite,
-                        titleContentColor = AdminDarkCharcoal,
-                        navigationIconContentColor = AdminDarkGreen
-                    )
-            )
+                    shape =
+                        RoundedCornerShape(14.dp)
+                )
+            }
         }
 
     ) { paddingValues ->
@@ -425,291 +407,164 @@ fun AddTurfScreen(
                         rememberScrollState()
                     )
                     .padding(
-                        horizontal = 16.dp,
-                        vertical = 14.dp
+                        start = 18.dp,
+                        end = 18.dp,
+                        top = 22.dp,
+                        bottom = 24.dp
                     ),
 
             verticalArrangement =
-                Arrangement.spacedBy(16.dp)
+                Arrangement.spacedBy(22.dp)
         ) {
 
 
             // =================================================
-            // HEADER
+            // INTRO
             // =================================================
 
-            Card(
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                shape =
-                    RoundedCornerShape(22.dp),
-
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            AdminDarkGreen
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation = 2.dp
-                    )
-            ) {
-
-                Row(
-
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-
-                    verticalAlignment =
-                        Alignment.CenterVertically
-                ) {
-
-                    Box(
-
-                        modifier =
-                            Modifier
-                                .size(54.dp)
-                                .clip(
-                                    RoundedCornerShape(16.dp)
-                                )
-                                .background(
-                                    AdminLightGreen
-                                ),
-
-                        contentAlignment =
-                            Alignment.Center
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.Default.Storefront,
-                            contentDescription =
-                                null,
-                            tint =
-                                AdminDarkGreen,
-                            modifier =
-                                Modifier.size(28.dp)
-                        )
-                    }
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(14.dp)
-                    )
-
-                    Column(
-                        modifier =
-                            Modifier.weight(1f)
-                    ) {
-
-                        Text(
-                            text = "Create Your Turf",
-                            color = AdminWhite,
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(5.dp)
-                        )
-
-                        Text(
-                            text =
-                                "Add complete turf details to attract more bookings.",
-                            color =
-                                AdminWhite.copy(
-                                    alpha = 0.82f
-                                ),
-                            fontSize = 12.sp
-                        )
-                    }
-                }
-            }
+            AddTurfIntro()
 
 
             // =================================================
-            // BASIC INFORMATION
+            // STEP 01
             // =================================================
 
-            FormSectionCard(
-                title = "Basic Information",
+            PremiumFormSection(
+                number = "01",
+                title = "Turf Details",
                 subtitle =
-                    "Enter the main details of your turf."
+                    "Give your venue a clear and memorable identity."
             ) {
 
-                OutlinedTextField(
-
+                PremiumTextField(
                     value = name,
-
                     onValueChange = {
 
                         name = it
                         validationMessage = null
                     },
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    label = {
-                        Text("Turf Name *")
-                    },
-
-                    placeholder = {
-                        Text(
-                            "e.g. Green Arena Turf"
-                        )
-                    },
-
-                    singleLine = true
+                    label = "Turf Name",
+                    placeholder =
+                        "e.g. Green Arena Turf",
+                    enabled = !isLoading
                 )
 
 
-                OutlinedTextField(
-
+                PremiumTextField(
                     value = description,
-
                     onValueChange = {
 
                         description = it
                     },
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    label = {
-                        Text("Description")
-                    },
-
-                    placeholder = {
-                        Text(
-                            "Tell customers about your turf..."
-                        )
-                    },
-
-                    minLines = 3,
-
-                    maxLines = 5
+                    label = "Description",
+                    placeholder =
+                        "Describe your turf, facilities and playing experience...",
+                    enabled = !isLoading,
+                    minLines = 4,
+                    maxLines = 6
                 )
             }
 
 
             // =================================================
-            // LOCATION
+            // STEP 02
             // =================================================
 
-            FormSectionCard(
+            PremiumFormSection(
+                number = "02",
                 title = "Location",
                 subtitle =
-                    "Help customers find your turf easily."
+                    "Make it easy for customers to find your venue."
             ) {
 
-                OutlinedTextField(
-
+                PremiumTextField(
                     value = location,
-
                     onValueChange = {
 
                         location = it
                         validationMessage = null
                     },
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    label = {
-                        Text("Location *")
-                    },
-
-                    placeholder = {
-                        Text(
-                            "e.g. Hinjewadi Phase 1"
-                        )
-                    },
-
+                    label = "Location",
+                    placeholder =
+                        "e.g. Hinjewadi Phase 1",
+                    enabled = !isLoading,
                     leadingIcon = {
 
                         Icon(
                             imageVector =
                                 Icons.Default.LocationOn,
                             contentDescription =
-                                null,
-                            tint =
-                                AdminDarkGreen
+                                null
                         )
-                    },
-
-                    singleLine = true
+                    }
                 )
 
 
-                OutlinedTextField(
-
-                    value = city,
-
-                    onValueChange = {
-
-                        city = it
-                        validationMessage = null
-                    },
-
+                Row(
                     modifier =
                         Modifier.fillMaxWidth(),
 
-                    label = {
-                        Text("City *")
-                    },
+                    horizontalArrangement =
+                        Arrangement.spacedBy(10.dp)
+                ) {
 
-                    placeholder = {
-                        Text("e.g. Pune")
-                    },
+                    Box(
+                        modifier =
+                            Modifier.weight(1f)
+                    ) {
 
-                    singleLine = true
-                )
+                        PremiumTextField(
+                            value = city,
+                            onValueChange = {
+
+                                city = it
+                                validationMessage = null
+                            },
+                            label = "City",
+                            placeholder =
+                                "e.g. Pune",
+                            enabled = !isLoading
+                        )
+                    }
+                }
 
 
-                OutlinedTextField(
-
+                PremiumTextField(
                     value = address,
-
                     onValueChange = {
+
                         address = it
                     },
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    label = {
-                        Text("Full Address")
-                    },
-
-                    placeholder = {
-                        Text(
-                            "Enter complete address"
-                        )
-                    },
-
+                    label = "Full Address",
+                    placeholder =
+                        "Enter the complete venue address",
+                    enabled = !isLoading,
                     minLines = 2,
-
                     maxLines = 4
                 )
             }
 
 
             // =================================================
-            // SPORTS
+            // STEP 03
             // =================================================
 
-            FormSectionCard(
+            PremiumFormSection(
+                number = "03",
                 title = "Sports",
                 subtitle =
-                    "Select all sports available at your turf."
+                    "Choose every sport customers can book."
             ) {
+
+                SelectionHeader(
+                    selectedCount =
+                        selectedSports.size,
+                    totalCount =
+                        Sports.size,
+                    selectedLabel =
+                        "sports selected"
+                )
+
 
                 FlowRow(
 
@@ -723,13 +578,19 @@ fun AddTurfScreen(
                     Sports.forEach { sport ->
 
                         val selected =
-                            selectedSports.contains(sport)
+                            selectedSports.contains(
+                                sport
+                            )
 
-                        FilterChip(
-
-                            selected =
-                                selected,
-
+                        PremiumFilterChip(
+                            text = sport,
+                            selected = selected,
+                            icon =
+                                if (selected) {
+                                    Icons.Default.SportsSoccer
+                                } else {
+                                    null
+                                },
                             onClick = {
 
                                 if (selected) {
@@ -746,62 +607,33 @@ fun AddTurfScreen(
                                 }
 
                                 validationMessage = null
-                            },
-
-                            label = {
-                                Text(sport)
-                            },
-
-                            leadingIcon = {
-
-                                if (selected) {
-
-                                    Icon(
-                                        imageVector =
-                                            Icons.Default.SportsSoccer,
-                                        contentDescription =
-                                            null,
-                                        modifier =
-                                            Modifier.size(17.dp),
-                                        tint =
-                                            AdminDarkGreen
-                                    )
-                                }
                             }
                         )
                     }
-                }
-
-
-                if (selectedSports.isNotEmpty()) {
-
-                    Text(
-
-                        text =
-                            "${selectedSports.size} sports selected",
-
-                        color =
-                            AdminForestGreen,
-
-                        fontSize =
-                            12.sp,
-
-                        fontWeight =
-                            FontWeight.Medium
-                    )
                 }
             }
 
 
             // =================================================
-            // AMENITIES
+            // STEP 04
             // =================================================
 
-            FormSectionCard(
+            PremiumFormSection(
+                number = "04",
                 title = "Amenities",
                 subtitle =
-                    "Select the facilities available."
+                    "Highlight the facilities available at your venue."
             ) {
+
+                SelectionHeader(
+                    selectedCount =
+                        selectedAmenities.size,
+                    totalCount =
+                        Amenities.size,
+                    selectedLabel =
+                        "amenities selected"
+                )
+
 
                 FlowRow(
 
@@ -819,11 +651,15 @@ fun AddTurfScreen(
                                 amenity
                             )
 
-                        FilterChip(
-
-                            selected =
-                                selected,
-
+                        PremiumFilterChip(
+                            text = amenity,
+                            selected = selected,
+                            icon =
+                                if (selected) {
+                                    Icons.Default.CheckCircle
+                                } else {
+                                    null
+                                },
                             onClick = {
 
                                 if (selected) {
@@ -838,27 +674,6 @@ fun AddTurfScreen(
                                         amenity
                                     )
                                 }
-                            },
-
-                            label = {
-                                Text(amenity)
-                            },
-
-                            leadingIcon = {
-
-                                if (selected) {
-
-                                    Icon(
-                                        imageVector =
-                                            Icons.Default.CheckCircle,
-                                        contentDescription =
-                                            null,
-                                        modifier =
-                                            Modifier.size(17.dp),
-                                        tint =
-                                            AdminForestGreen
-                                    )
-                                }
                             }
                         )
                     }
@@ -867,270 +682,117 @@ fun AddTurfScreen(
 
 
             // =================================================
-            // TURF PHOTOS
+            // STEP 05
             // =================================================
 
-            FormSectionCard(
+            PremiumFormSection(
+                number = "05",
                 title = "Turf Photos",
                 subtitle =
-                    "Add up to 8 clear photos of your turf."
+                    "Add high-quality photos to showcase your venue."
             ) {
 
-                Card(
+                PremiumPhotoUploader(
+                    selectedImages =
+                        selectedImages,
 
-                    modifier =
-                        Modifier.fillMaxWidth(),
+                    isLoading =
+                        isLoading,
 
-                    shape =
-                        RoundedCornerShape(16.dp),
+                    onChoosePhotos = {
 
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                AdminOffWhite
-                        )
-                ) {
-
-                    Column(
-
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(18.dp),
-
-                        horizontalAlignment =
-                            Alignment.CenterHorizontally
-                    ) {
-
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(58.dp)
-                                    .clip(
-                                        RoundedCornerShape(16.dp)
-                                    )
-                                    .background(
-                                        AdminLightGreen.copy(
-                                            alpha = 0.22f
-                                        )
-                                    ),
-
-                            contentAlignment =
-                                Alignment.Center
-                        ) {
-
-                            Icon(
-                                imageVector =
-                                    Icons.Default.AddPhotoAlternate,
-                                contentDescription =
-                                    null,
-                                tint =
-                                    AdminDarkGreen,
-                                modifier =
-                                    Modifier.size(30.dp)
+                        imagePicker.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts
+                                    .PickVisualMedia
+                                    .ImageOnly
                             )
-                        }
-
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(10.dp)
                         )
+                    },
 
+                    onRemovePhoto = { uri ->
 
-                        Text(
-
-                            text =
-                                if (
-                                    selectedImages.isEmpty()
-                                ) {
-                                    "No photos selected"
-                                } else {
-                                    "${selectedImages.size}/$MAX_IMAGES photos selected"
-                                },
-
-                            fontWeight =
-                                FontWeight.Bold,
-
-                            color =
-                                AdminDarkCharcoal
+                        selectedImages.remove(
+                            uri
                         )
-
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(4.dp)
-                        )
-
-
-                        Text(
-
-                            text =
-                                "Show your turf, ground, facilities and surroundings.",
-
-                            color =
-                                AdminGray,
-
-                            fontSize =
-                                12.sp
-                        )
-
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(12.dp)
-                        )
-
-
-                        OutlinedButton(
-
-                            onClick = {
-
-                                imagePicker.launch(
-                                    PickVisualMediaRequest(
-                                        ActivityResultContracts
-                                            .PickVisualMedia
-                                            .ImageOnly
-                                    )
-                                )
-                            },
-
-                            enabled =
-                                !isLoading &&
-                                        selectedImages.size <
-                                        MAX_IMAGES,
-
-                            shape =
-                                RoundedCornerShape(12.dp)
-                        ) {
-
-                            Icon(
-                                imageVector =
-                                    Icons.Default.AddPhotoAlternate,
-                                contentDescription =
-                                    null
-                            )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.width(7.dp)
-                            )
-
-                            Text(
-                                text =
-                                    if (
-                                        selectedImages.isEmpty()
-                                    ) {
-                                        "Choose Photos"
-                                    } else {
-                                        "Add More Photos"
-                                    }
-                            )
-                        }
                     }
-                }
-
-
-                // =================================================
-                // IMAGE PREVIEW
-                // =================================================
-
-                if (selectedImages.isNotEmpty()) {
-
-                    Text(
-
-                        text =
-                            "Selected Photos",
-
-                        fontWeight =
-                            FontWeight.SemiBold,
-
-                        fontSize =
-                            14.sp,
-
-                        color =
-                            AdminDarkCharcoal
-                    )
-
-
-                    FlowRow(
-
-                        horizontalArrangement =
-                            Arrangement.spacedBy(10.dp),
-
-                        verticalArrangement =
-                            Arrangement.spacedBy(10.dp)
-                    ) {
-
-                        selectedImages.forEach { uri ->
-
-                            TurfImagePreview(
-
-                                uri = uri,
-
-                                onRemove = {
-
-                                    selectedImages.remove(
-                                        uri
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
+                )
             }
 
 
             // =================================================
-            // PRICING
+            // STEP 06
             // =================================================
 
-            FormSectionCard(
+            PremiumFormSection(
+                number = "06",
                 title = "Pricing",
                 subtitle =
-                    "Set your standard price per slot."
+                    "Set the standard amount customers pay per slot."
             ) {
 
-                OutlinedTextField(
-
+                PremiumTextField(
                     value = price,
-
                     onValueChange = {
 
                         price = it
                         validationMessage = null
                     },
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    label = {
-                        Text("Price per Slot *")
-                    },
-
-                    placeholder = {
-                        Text("e.g. 650")
-                    },
-
+                    label = "Price per Slot",
+                    placeholder = "e.g. 650",
+                    enabled = !isLoading,
+                    keyboardType =
+                        KeyboardType.Decimal,
                     leadingIcon = {
 
                         Text(
                             text = "₹",
-                            fontWeight =
-                                FontWeight.Bold,
                             color =
-                                AdminDarkCharcoal
+                                LightGreen,
+                            fontSize =
+                                18.sp,
+                            fontWeight =
+                                FontWeight.Bold
                         )
-                    },
-
-                    keyboardOptions =
-                        KeyboardOptions(
-                            keyboardType =
-                                KeyboardType.Decimal
-                        ),
-
-                    singleLine = true
+                    }
                 )
+
+
+                Spacer(
+                    modifier =
+                        Modifier.height(2.dp)
+                )
+
+
+                Surface(
+                    modifier =
+                        Modifier.fillMaxWidth(),
+                    shape =
+                        RoundedCornerShape(12.dp),
+                    color =
+                        SurfaceHighlight
+                ) {
+
+                    Row(
+                        modifier =
+                            Modifier.padding(
+                                horizontal = 13.dp,
+                                vertical = 10.dp
+                            ),
+                        verticalAlignment =
+                            Alignment.CenterVertically
+                    ) {
+
+                        Text(
+                            text =
+                                "Customers will see this as your standard slot price.",
+                            color =
+                                MutedText,
+                            fontSize =
+                                11.sp
+                        )
+                    }
+                }
             }
 
 
@@ -1140,70 +802,20 @@ fun AddTurfScreen(
 
             validationMessage?.let { message ->
 
-                Card(
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                Color(0xFFFFF1F2)
-                        ),
-
-                    shape =
-                        RoundedCornerShape(14.dp)
-                ) {
-
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(14.dp),
-                        verticalAlignment =
-                            Alignment.CenterVertically
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.Default.Close,
-                            contentDescription =
-                                null,
-                            tint =
-                                Color(0xFFBE123C),
-                            modifier =
-                                Modifier.size(18.dp)
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.width(8.dp)
-                        )
-
-                        Text(
-
-                            text =
-                                message,
-
-                            color =
-                                Color(0xFFBE123C),
-
-                            fontSize =
-                                13.sp,
-
-                            fontWeight =
-                                FontWeight.Medium
-                        )
-                    }
-                }
+                ValidationBanner(
+                    message = message
+                )
             }
 
 
             // =================================================
-            // CREATE TURF
+            // CREATE ACTION
             // =================================================
 
-            Button(
+            CreateTurfAction(
+
+                isLoading =
+                    isLoading,
 
                 onClick = {
 
@@ -1251,32 +863,39 @@ fun AddTurfScreen(
 
                         else -> {
 
-                            validationMessage = null
+                            validationMessage =
+                                null
 
                             scope.launch {
 
                                 // =================================
-                                // 1. IMAGE PROCESSING
+                                // IMAGE PROCESSING
                                 // =================================
 
                                 val multipartParts =
-                                    withContext(Dispatchers.IO) {
+                                    withContext(
+                                        Dispatchers.IO
+                                    ) {
 
                                         selectedImages.mapNotNull { uri ->
 
                                             uriToMultipart(
-                                                context = context,
-                                                uri = uri
+                                                context =
+                                                    context,
+                                                uri =
+                                                    uri
                                             )
                                         }
                                     }
 
 
                                 // =================================
-                                // 2. IMAGE PROCESSING FAILED
+                                // IMAGE PROCESSING FAILED
                                 // =================================
 
-                                if (multipartParts.isEmpty()) {
+                                if (
+                                    multipartParts.isEmpty()
+                                ) {
 
                                     validationMessage =
                                         "Unable to process selected images."
@@ -1286,7 +905,7 @@ fun AddTurfScreen(
 
 
                                 // =================================
-                                // 3. CREATE TURF FIRST
+                                // CREATE TURF
                                 // =================================
 
                                 val request =
@@ -1315,9 +934,11 @@ fun AddTurfScreen(
                                                     null
                                                 },
 
-                                        latitude = null,
+                                        latitude =
+                                            null,
 
-                                        longitude = null,
+                                        longitude =
+                                            null,
 
                                         sportsTypes =
                                             selectedSports.toList(),
@@ -1338,145 +959,79 @@ fun AddTurfScreen(
 
                                 viewModel.createTurf(
 
-                                    token = token,
+                                    token =
+                                        token,
 
-                                    request = request,
+                                    request =
+                                        request,
 
-                                    onSuccess = { turfResponse ->
+                                    onSuccess =
+                                        { turfResponse ->
 
-                                        // =================================
-                                        // 4. CREATED TURF ID
-                                        // =================================
+                                            // =========================
+                                            // TURF ID
+                                            // =========================
 
-                                        val turfId =
-                                            turfResponse
-                                                .data
-                                                ?.turf
-                                                ?.id
+                                            val turfId =
+                                                turfResponse
+                                                    .data
+                                                    ?.turf
+                                                    ?.id
 
-                                        if (turfId == null) {
+                                            if (
+                                                turfId == null
+                                            ) {
 
-                                            scope.launch {
+                                                scope.launch {
 
-                                                snackbarHostState
-                                                    .showSnackbar(
-                                                        "Turf created, but Turf ID was not returned."
-                                                    )
-                                            }
-
-                                        } else {
-
-                                            // =================================
-                                            // 5. UPLOAD IMAGES
-                                            // =================================
-
-                                            viewModel.uploadTurfImages(
-
-                                                token = token,
-
-                                                turfId = turfId,
-
-                                                images = multipartParts,
-
-                                                onSuccess = {
-
-                                                    scope.launch {
-
-                                                        snackbarHostState
-                                                            .showSnackbar(
-                                                                "Turf created successfully."
-                                                            )
-
-                                                        onSuccess()
-                                                    }
+                                                    snackbarHostState
+                                                        .showSnackbar(
+                                                            "Turf created, but Turf ID was not returned."
+                                                        )
                                                 }
-                                            )
+
+                                            } else {
+
+                                                // =========================
+                                                // UPLOAD IMAGES
+                                                // =========================
+
+                                                viewModel.uploadTurfImages(
+
+                                                    token =
+                                                        token,
+
+                                                    turfId =
+                                                        turfId,
+
+                                                    images =
+                                                        multipartParts,
+
+                                                    onSuccess = {
+
+                                                        scope.launch {
+
+                                                            snackbarHostState
+                                                                .showSnackbar(
+                                                                    "Turf created successfully."
+                                                                )
+
+                                                            onSuccess()
+                                                        }
+                                                    }
+                                                )
+                                            }
                                         }
-                                    }
                                 )
                             }
                         }
                     }
-                },
-
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-
-                enabled =
-                    !isLoading,
-
-                shape =
-                    RoundedCornerShape(16.dp),
-
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor =
-                            AdminDarkGreen,
-
-                        contentColor =
-                            AdminWhite,
-
-                        disabledContainerColor =
-                            AdminDarkGreen.copy(
-                                alpha = 0.45f
-                            )
-                    )
-            ) {
-
-                if (isLoading) {
-
-                    CircularProgressIndicator(
-
-                        modifier =
-                            Modifier.size(22.dp),
-
-                        color =
-                            AdminWhite,
-
-                        strokeWidth =
-                            2.5.dp
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(10.dp)
-                    )
-
-                    Text(
-                        text =
-                            "Creating & Uploading...",
-                        fontWeight =
-                            FontWeight.Bold
-                    )
-
-                } else {
-
-                    Icon(
-                        imageVector =
-                            Icons.Default.Save,
-                        contentDescription =
-                            null
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(8.dp)
-                    )
-
-                    Text(
-                        text =
-                            "Create Turf",
-                        fontWeight =
-                            FontWeight.Bold
-                    )
                 }
-            }
+            )
 
 
             // =================================================
-            // BOTTOM INFO
+            // FOOTER
             // =================================================
 
             Row(
@@ -1486,7 +1041,7 @@ fun AddTurfScreen(
                         .fillMaxWidth()
                         .padding(
                             top = 2.dp,
-                            bottom = 20.dp
+                            bottom = 12.dp
                         ),
 
                 horizontalArrangement =
@@ -1497,18 +1052,14 @@ fun AddTurfScreen(
             ) {
 
                 Icon(
-
                     imageVector =
                         Icons.Default.CheckCircle,
-
                     contentDescription =
                         null,
-
                     tint =
-                        AdminForestGreen,
-
+                        PrimaryGreen,
                     modifier =
-                        Modifier.size(16.dp)
+                        Modifier.size(15.dp)
                 )
 
                 Spacer(
@@ -1517,13 +1068,10 @@ fun AddTurfScreen(
                 )
 
                 Text(
-
                     text =
                         "Your turf will be available after successful creation.",
-
                     color =
-                        AdminGray,
-
+                        MutedText,
                     fontSize =
                         11.sp
                 )
@@ -1534,73 +1082,928 @@ fun AddTurfScreen(
 
 
 // =============================================================
-// FORM SECTION CARD
+// INTRO HEADER
 // =============================================================
 
 @Composable
-private fun FormSectionCard(
+private fun AddTurfIntro() {
+
+    Column(
+        modifier =
+            Modifier.fillMaxWidth()
+    ) {
+
+        Row(
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+
+            Surface(
+                modifier =
+                    Modifier.size(42.dp),
+
+                shape =
+                    RoundedCornerShape(13.dp),
+
+                color =
+                    SurfaceHighlight
+            ) {
+
+                Box(
+                    contentAlignment =
+                        Alignment.Center
+                ) {
+
+                    Icon(
+                        imageVector =
+                            Icons.Default.Storefront,
+
+                        contentDescription =
+                            null,
+
+                        tint =
+                            LightGreen,
+
+                        modifier =
+                            Modifier.size(21.dp)
+                    )
+                }
+            }
+
+
+            Spacer(
+                modifier =
+                    Modifier.width(12.dp)
+            )
+
+
+            Column {
+
+                Text(
+                    text =
+                        "NEW VENUE",
+
+                    color =
+                        PrimaryGreen,
+
+                    fontSize =
+                        10.sp,
+
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    letterSpacing =
+                        1.4.sp
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.height(2.dp)
+                )
+
+                Text(
+                    text =
+                        "Create a new turf",
+
+                    color =
+                        PrimaryText,
+
+                    fontSize =
+                        24.sp,
+
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    letterSpacing =
+                        (-0.5).sp
+                )
+            }
+        }
+
+
+        Spacer(
+            modifier =
+                Modifier.height(12.dp)
+        )
+
+
+        Text(
+            text =
+                "Set up your venue details, facilities, photos and pricing to make it ready for bookings.",
+
+            color =
+                SecondaryText,
+
+            fontSize =
+                13.sp,
+
+            lineHeight =
+                20.sp
+        )
+    }
+}
+
+
+// =============================================================
+// PREMIUM FORM SECTION
+// =============================================================
+
+@Composable
+private fun PremiumFormSection(
+    number: String,
     title: String,
     subtitle: String,
     content: @Composable () -> Unit
 ) {
 
-    Card(
+    Column(
+        modifier =
+            Modifier.fillMaxWidth()
+    ) {
+
+        Row(
+            verticalAlignment =
+                Alignment.Top
+        ) {
+
+            Surface(
+                modifier =
+                    Modifier.size(34.dp),
+
+                shape =
+                    CircleShape,
+
+                color =
+                    SurfaceHighlight,
+
+                border =
+                    BorderStroke(
+                        1.dp,
+                        Border
+                    )
+            ) {
+
+                Box(
+                    contentAlignment =
+                        Alignment.Center
+                ) {
+
+                    Text(
+                        text =
+                            number,
+
+                        color =
+                            LightGreen,
+
+                        fontSize =
+                            11.sp,
+
+                        fontWeight =
+                            FontWeight.Bold
+                    )
+                }
+            }
+
+
+            Spacer(
+                modifier =
+                    Modifier.width(12.dp)
+            )
+
+
+            Column(
+                modifier =
+                    Modifier.weight(1f)
+            ) {
+
+                Text(
+                    text =
+                        title,
+
+                    color =
+                        PrimaryText,
+
+                    fontSize =
+                        17.sp,
+
+                    fontWeight =
+                        FontWeight.Bold
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.height(3.dp)
+                )
+
+                Text(
+                    text =
+                        subtitle,
+
+                    color =
+                        MutedText,
+
+                    fontSize =
+                        11.sp,
+
+                    lineHeight =
+                        16.sp
+                )
+            }
+        }
+
+
+        Spacer(
+            modifier =
+                Modifier.height(13.dp)
+        )
+
+
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            colors =
+                                listOf(
+                                    Border,
+                                    PrimaryGreen.copy(
+                                        alpha = 0.12f
+                                    ),
+                                    Border
+                                )
+                        )
+                    )
+        )
+
+
+        Spacer(
+            modifier =
+                Modifier.height(15.dp)
+        )
+
+
+        content()
+    }
+}
+
+
+// =============================================================
+// SELECTION HEADER
+// =============================================================
+
+@Composable
+private fun SelectionHeader(
+    selectedCount: Int,
+    totalCount: Int,
+    selectedLabel: String
+) {
+
+    Row(
+        modifier =
+            Modifier.fillMaxWidth(),
+        horizontalArrangement =
+            Arrangement.SpaceBetween,
+        verticalAlignment =
+            Alignment.CenterVertically
+    ) {
+
+        Text(
+            text =
+                if (selectedCount == 0) {
+                    "Choose from available options"
+                } else {
+                    "$selectedCount $selectedLabel"
+                },
+
+            color =
+                if (selectedCount > 0) {
+                    PrimaryGreen
+                } else {
+                    MutedText
+                },
+
+            fontSize =
+                11.sp,
+
+            fontWeight =
+                FontWeight.Medium
+        )
+
+
+        Text(
+            text =
+                "$totalCount available",
+
+            color =
+                MutedText,
+
+            fontSize =
+                10.sp
+        )
+    }
+
+
+    Spacer(
+        modifier =
+            Modifier.height(7.dp)
+    )
+}
+
+
+// =============================================================
+// PREMIUM FILTER CHIP
+// =============================================================
+
+@Composable
+private fun PremiumFilterChip(
+    text: String,
+    selected: Boolean,
+    icon: androidx.compose.ui.graphics.vector.ImageVector?,
+    onClick: () -> Unit
+) {
+
+    FilterChip(
+
+        selected =
+            selected,
+
+        onClick =
+            onClick,
+
+        label = {
+
+            Text(
+                text =
+                    text,
+
+                fontSize =
+                    11.sp,
+
+                fontWeight =
+                    if (selected) {
+                        FontWeight.SemiBold
+                    } else {
+                        FontWeight.Normal
+                    }
+            )
+        },
+
+        leadingIcon = {
+
+            if (icon != null) {
+
+                Icon(
+                    imageVector =
+                        icon,
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.size(15.dp)
+                )
+            }
+        },
+
+        shape =
+            RoundedCornerShape(11.dp),
+
+        border =
+            FilterChipDefaults.filterChipBorder(
+                enabled = true,
+                selected = selected,
+                borderColor =
+                    Border,
+                selectedBorderColor =
+                    PrimaryGreen.copy(
+                        alpha = 0.50f
+                    ),
+                borderWidth = 1.dp,
+                selectedBorderWidth = 1.dp
+            ),
+
+        colors =
+            FilterChipDefaults.filterChipColors(
+
+                containerColor =
+                    SurfaceElevated,
+
+                labelColor =
+                    SecondaryText,
+
+                iconColor =
+                    SecondaryText,
+
+                selectedContainerColor =
+                    PrimaryGreen.copy(
+                        alpha = 0.15f
+                    ),
+
+                selectedLabelColor =
+                    LightGreen,
+
+                selectedLeadingIconColor =
+                    LightGreen
+            )
+    )
+}
+
+
+// =============================================================
+// PREMIUM TEXT FIELD
+// =============================================================
+
+@Composable
+private fun PremiumTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    enabled: Boolean,
+    minLines: Int = 1,
+    maxLines: Int = 1,
+    keyboardType: KeyboardType =
+        KeyboardType.Text,
+    leadingIcon:
+    (@Composable (() -> Unit))? =
+        null
+) {
+
+    OutlinedTextField(
+
+        value =
+            value,
+
+        onValueChange =
+            onValueChange,
+
+        modifier =
+            Modifier.fillMaxWidth(),
+
+        enabled =
+            enabled,
+
+        label = {
+
+            Text(
+                text =
+                    label
+            )
+        },
+
+        placeholder = {
+
+            Text(
+                text =
+                    placeholder
+            )
+        },
+
+        leadingIcon =
+            leadingIcon,
+
+        minLines =
+            minLines,
+
+        maxLines =
+            maxLines,
+
+        singleLine =
+            minLines == 1 &&
+                    maxLines == 1,
+
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType =
+                    keyboardType
+            ),
+
+        shape =
+            RoundedCornerShape(14.dp),
+
+        colors =
+            OutlinedTextFieldDefaults.colors(
+
+                focusedTextColor =
+                    PrimaryText,
+
+                unfocusedTextColor =
+                    PrimaryText,
+
+                disabledTextColor =
+                    MutedText,
+
+                focusedContainerColor =
+                    SurfaceElevated,
+
+                unfocusedContainerColor =
+                    SurfaceElevated,
+
+                disabledContainerColor =
+                    SurfaceHighlight,
+
+                focusedBorderColor =
+                    PrimaryGreen,
+
+                unfocusedBorderColor =
+                    Border,
+
+                disabledBorderColor =
+                    Border,
+
+                focusedLabelColor =
+                    LightGreen,
+
+                unfocusedLabelColor =
+                    SecondaryText,
+
+                disabledLabelColor =
+                    MutedText,
+
+                focusedLeadingIconColor =
+                    PrimaryGreen,
+
+                unfocusedLeadingIconColor =
+                    SecondaryText,
+
+                disabledLeadingIconColor =
+                    MutedText,
+
+                focusedPlaceholderColor =
+                    MutedText,
+
+                unfocusedPlaceholderColor =
+                    MutedText
+            )
+    )
+}
+
+
+// =============================================================
+// PHOTO UPLOADER
+// =============================================================
+
+@Composable
+private fun PremiumPhotoUploader(
+    selectedImages: List<Uri>,
+    isLoading: Boolean,
+    onChoosePhotos: () -> Unit,
+    onRemovePhoto: (Uri) -> Unit
+) {
+
+    Column(
+        modifier =
+            Modifier.fillMaxWidth()
+    ) {
+
+        Surface(
+
+            modifier =
+                Modifier.fillMaxWidth(),
+
+            shape =
+                RoundedCornerShape(16.dp),
+
+            color =
+                SurfaceDark,
+
+            border =
+                BorderStroke(
+                    1.dp,
+                    Border
+                )
+        ) {
+
+            Column(
+                modifier =
+                    Modifier.padding(16.dp)
+            ) {
+
+                Row(
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+
+                    Surface(
+                        modifier =
+                            Modifier.size(42.dp),
+
+                        shape =
+                            RoundedCornerShape(12.dp),
+
+                        color =
+                            SurfaceHighlight
+                    ) {
+
+                        Box(
+                            contentAlignment =
+                                Alignment.Center
+                        ) {
+
+                            Icon(
+                                imageVector =
+                                    Icons.Default.AddPhotoAlternate,
+
+                                contentDescription =
+                                    null,
+
+                                tint =
+                                    LightGreen,
+
+                                modifier =
+                                    Modifier.size(21.dp)
+                            )
+                        }
+                    }
+
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(11.dp)
+                    )
+
+
+                    Column(
+                        modifier =
+                            Modifier.weight(1f)
+                    ) {
+
+                        Text(
+                            text =
+                                "Venue gallery",
+
+                            color =
+                                PrimaryText,
+
+                            fontSize =
+                                14.sp,
+
+                            fontWeight =
+                                FontWeight.SemiBold
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.height(2.dp)
+                        )
+
+                        Text(
+                            text =
+                                "${selectedImages.size}/$MAX_IMAGES photos",
+
+                            color =
+                                if (
+                                    selectedImages.isNotEmpty()
+                                ) {
+                                    PrimaryGreen
+                                } else {
+                                    MutedText
+                                },
+
+                            fontSize =
+                                11.sp
+                        )
+                    }
+
+
+                    OutlinedButton(
+
+                        onClick =
+                            onChoosePhotos,
+
+                        enabled =
+                            !isLoading &&
+                                    selectedImages.size <
+                                    MAX_IMAGES,
+
+                        shape =
+                            RoundedCornerShape(11.dp),
+
+                        border =
+                            BorderStroke(
+                                1.dp,
+                                PrimaryGreen.copy(
+                                    alpha = 0.45f
+                                )
+                            )
+                    ) {
+
+                        Text(
+                            text =
+                                if (
+                                    selectedImages.isEmpty()
+                                ) {
+                                    "Add"
+                                } else {
+                                    "Add More"
+                                },
+
+                            color =
+                                LightGreen,
+
+                            fontSize =
+                                11.sp,
+
+                            fontWeight =
+                                FontWeight.SemiBold
+                        )
+                    }
+                }
+
+
+                Spacer(
+                    modifier =
+                        Modifier.height(15.dp)
+                )
+
+
+                if (selectedImages.isEmpty()) {
+
+                    EmptyPhotoState(
+                        onChoosePhotos =
+                            onChoosePhotos,
+
+                        enabled =
+                            !isLoading
+                    )
+
+                } else {
+
+                    FlowRow(
+
+                        horizontalArrangement =
+                            Arrangement.spacedBy(9.dp),
+
+                        verticalArrangement =
+                            Arrangement.spacedBy(9.dp)
+                    ) {
+
+                        selectedImages.forEachIndexed { index, uri ->
+
+                            TurfImagePreview(
+
+                                uri =
+                                    uri,
+
+                                isPrimary =
+                                    index == 0,
+
+                                onRemove = {
+
+                                    onRemovePhoto(
+                                        uri
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(10.dp)
+                    )
+
+
+                    Text(
+                        text =
+                            "The first photo will be used as the primary gallery image.",
+
+                        color =
+                            MutedText,
+
+                        fontSize =
+                            10.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+// =============================================================
+// EMPTY PHOTO STATE
+// =============================================================
+
+@Composable
+private fun EmptyPhotoState(
+    onChoosePhotos: () -> Unit,
+    enabled: Boolean
+) {
+
+    Surface(
 
         modifier =
             Modifier.fillMaxWidth(),
 
         shape =
-            RoundedCornerShape(18.dp),
+            RoundedCornerShape(14.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
-
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 1.dp
-            )
+        color =
+            SurfaceElevated
     ) {
 
         Column(
 
             modifier =
-                Modifier.padding(17.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(22.dp),
 
-            verticalArrangement =
-                Arrangement.spacedBy(11.dp)
+            horizontalAlignment =
+                Alignment.CenterHorizontally
         ) {
 
             Text(
-
                 text =
-                    title,
+                    "No venue photos yet",
 
                 color =
-                    AdminDarkCharcoal,
+                    PrimaryText,
 
                 fontSize =
-                    17.sp,
+                    13.sp,
 
                 fontWeight =
-                    FontWeight.Bold
+                    FontWeight.SemiBold
             )
+
+
+            Spacer(
+                modifier =
+                    Modifier.height(5.dp)
+            )
+
 
             Text(
-
                 text =
-                    subtitle,
+                    "Add clear photos of the playing area and facilities.",
 
                 color =
-                    AdminGray,
+                    MutedText,
 
                 fontSize =
-                    12.sp
+                    11.sp
             )
 
-            content()
+
+            Spacer(
+                modifier =
+                    Modifier.height(12.dp)
+            )
+
+
+            OutlinedButton(
+
+                onClick =
+                    onChoosePhotos,
+
+                enabled =
+                    enabled,
+
+                shape =
+                    RoundedCornerShape(11.dp),
+
+                border =
+                    BorderStroke(
+                        1.dp,
+                        Border
+                    )
+            ) {
+
+                Icon(
+                    imageVector =
+                        Icons.Default.AddPhotoAlternate,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        LightGreen,
+
+                    modifier =
+                        Modifier.size(17.dp)
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.width(7.dp)
+                )
+
+                Text(
+                    text =
+                        "Choose Photos",
+
+                    color =
+                        LightGreen,
+
+                    fontSize =
+                        11.sp
+                )
+            }
         }
     }
 }
@@ -1613,6 +2016,7 @@ private fun FormSectionCard(
 @Composable
 private fun TurfImagePreview(
     uri: Uri,
+    isPrimary: Boolean,
     onRemove: () -> Unit
 ) {
 
@@ -1635,7 +2039,10 @@ private fun TurfImagePreview(
 
     if (bitmap != null) {
 
-        Box {
+        Box(
+            modifier =
+                Modifier.size(104.dp)
+        ) {
 
             Image(
 
@@ -1647,14 +2054,60 @@ private fun TurfImagePreview(
 
                 modifier =
                     Modifier
-                        .size(100.dp)
+                        .fillMaxSize()
                         .clip(
-                            RoundedCornerShape(14.dp)
+                            RoundedCornerShape(13.dp)
                         ),
 
                 contentScale =
                     ContentScale.Crop
             )
+
+
+            if (isPrimary) {
+
+                Surface(
+
+                    modifier =
+                        Modifier
+                            .align(
+                                Alignment.BottomStart
+                            )
+                            .padding(6.dp),
+
+                    shape =
+                        RoundedCornerShape(7.dp),
+
+                    color =
+                        Background.copy(
+                            alpha = 0.88f
+                        )
+                ) {
+
+                    Text(
+                        text =
+                            "PRIMARY",
+
+                        color =
+                            LightGreen,
+
+                        fontSize =
+                            8.sp,
+
+                        fontWeight =
+                            FontWeight.Bold,
+
+                        letterSpacing =
+                            0.6.sp,
+
+                        modifier =
+                            Modifier.padding(
+                                horizontal = 6.dp,
+                                vertical = 3.dp
+                            )
+                    )
+                }
+            }
 
 
             IconButton(
@@ -1664,17 +2117,18 @@ private fun TurfImagePreview(
 
                 modifier =
                     Modifier
-                        .size(30.dp)
+                        .size(28.dp)
                         .align(
                             Alignment.TopEnd
                         )
+                        .padding(3.dp)
                         .background(
                             color =
                                 Color.Black.copy(
-                                    alpha = 0.65f
+                                    alpha = 0.72f
                                 ),
                             shape =
-                                RoundedCornerShape(50)
+                                CircleShape
                         )
             ) {
 
@@ -1687,10 +2141,494 @@ private fun TurfImagePreview(
                         "Remove photo",
 
                     tint =
-                        AdminWhite,
+                        PrimaryText,
 
                     modifier =
-                        Modifier.size(17.dp)
+                        Modifier.size(15.dp)
+                )
+            }
+        }
+    }
+}
+
+
+// =============================================================
+// VALIDATION BANNER
+// =============================================================
+
+@Composable
+private fun ValidationBanner(
+    message: String
+) {
+
+    Surface(
+
+        modifier =
+            Modifier.fillMaxWidth(),
+
+        shape =
+            RoundedCornerShape(13.dp),
+
+        color =
+            ErrorRed.copy(
+                alpha = 0.07f
+            ),
+
+        border =
+            BorderStroke(
+                1.dp,
+                ErrorRed.copy(
+                    alpha = 0.25f
+                )
+            )
+    ) {
+
+        Row(
+
+            modifier =
+                Modifier.padding(13.dp),
+
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+
+            Surface(
+
+                modifier =
+                    Modifier.size(28.dp),
+
+                shape =
+                    CircleShape,
+
+                color =
+                    ErrorRed.copy(
+                        alpha = 0.12f
+                    )
+            ) {
+
+                Box(
+                    contentAlignment =
+                        Alignment.Center
+                ) {
+
+                    Icon(
+                        imageVector =
+                            Icons.Default.Close,
+
+                        contentDescription =
+                            null,
+
+                        tint =
+                            ErrorRed,
+
+                        modifier =
+                            Modifier.size(15.dp)
+                    )
+                }
+            }
+
+
+            Spacer(
+                modifier =
+                    Modifier.width(10.dp)
+            )
+
+
+            Text(
+                text =
+                    message,
+
+                color =
+                    ErrorRed,
+
+                fontSize =
+                    12.sp,
+
+                fontWeight =
+                    FontWeight.Medium
+            )
+        }
+    }
+}
+
+
+// =============================================================
+// CREATE TURF ACTION
+// =============================================================
+
+@Composable
+private fun CreateTurfAction(
+    isLoading: Boolean,
+    onClick: () -> Unit
+) {
+
+    Surface(
+
+        modifier =
+            Modifier.fillMaxWidth(),
+
+        shape =
+            RoundedCornerShape(18.dp),
+
+        color =
+            SurfaceDark,
+
+        border =
+            BorderStroke(
+                1.dp,
+                Border
+            )
+    ) {
+
+        Column(
+
+            modifier =
+                Modifier.padding(15.dp)
+        ) {
+
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
+
+                    Text(
+                        text =
+                            "Ready to publish?",
+
+                        color =
+                            PrimaryText,
+
+                        fontSize =
+                            14.sp,
+
+                        fontWeight =
+                            FontWeight.SemiBold
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(3.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Create the venue and upload its gallery.",
+
+                        color =
+                            MutedText,
+
+                        fontSize =
+                            10.sp
+                    )
+                }
+
+
+                Surface(
+
+                    modifier =
+                        Modifier.size(34.dp),
+
+                    shape =
+                        CircleShape,
+
+                    color =
+                        SurfaceHighlight
+                ) {
+
+                    Box(
+                        contentAlignment =
+                            Alignment.Center
+                    ) {
+
+                        Icon(
+                            imageVector =
+                                Icons.Default.Check,
+
+                            contentDescription =
+                                null,
+
+                            tint =
+                                PrimaryGreen,
+
+                            modifier =
+                                Modifier.size(17.dp)
+                        )
+                    }
+                }
+            }
+
+
+            Spacer(
+                modifier =
+                    Modifier.height(13.dp)
+            )
+
+
+            Button(
+
+                onClick =
+                    onClick,
+
+                enabled =
+                    !isLoading,
+
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+
+                shape =
+                    RoundedCornerShape(14.dp),
+
+                colors =
+                    ButtonDefaults.buttonColors(
+
+                        containerColor =
+                            PrimaryGreen,
+
+                        contentColor =
+                            Background,
+
+                        disabledContainerColor =
+                            PrimaryGreen.copy(
+                                alpha = 0.35f
+                            ),
+
+                        disabledContentColor =
+                            Background.copy(
+                                alpha = 0.55f
+                            )
+                    )
+            ) {
+
+                if (isLoading) {
+
+                    CircularProgressIndicator(
+
+                        modifier =
+                            Modifier.size(21.dp),
+
+                        color =
+                            Background,
+
+                        strokeWidth =
+                            2.5.dp
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(10.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Creating & Uploading...",
+
+                        fontWeight =
+                            FontWeight.Bold,
+
+                        fontSize =
+                            13.sp
+                    )
+
+                } else {
+
+                    Icon(
+                        imageVector =
+                            Icons.Default.Save,
+
+                        contentDescription =
+                            null,
+
+                        modifier =
+                            Modifier.size(19.dp)
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(8.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Create Turf",
+
+                        fontWeight =
+                            FontWeight.Bold,
+
+                        fontSize =
+                            14.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+// =============================================================
+// TOP BAR
+// =============================================================
+
+@Composable
+private fun PremiumAddTurfTopBar(
+    onBack: () -> Unit,
+    enabled: Boolean
+) {
+
+    Surface(
+        color =
+            Background,
+
+        shadowElevation =
+            0.dp
+    ) {
+
+        Box(
+
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors =
+                                listOf(
+                                    Color(0xFF020907),
+                                    Color(0xFF071810),
+                                    Color(0xFF020907)
+                                )
+                        )
+                    )
+        ) {
+
+            Column {
+
+                Row(
+
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = 14.dp,
+                                end = 14.dp,
+                                top = 36.dp,
+                                bottom = 14.dp
+                            ),
+
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+
+                    Surface(
+
+                        modifier =
+                            Modifier.size(42.dp),
+
+                        shape =
+                            RoundedCornerShape(14.dp),
+
+                        color =
+                            SurfaceElevated
+                    ) {
+
+                        IconButton(
+
+                            onClick =
+                                onBack,
+
+                            enabled =
+                                enabled
+                        ) {
+
+                            Icon(
+
+                                imageVector =
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+
+                                contentDescription =
+                                    "Back",
+
+                                tint =
+                                    PrimaryText,
+
+                                modifier =
+                                    Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(14.dp)
+                    )
+
+
+                    Column {
+
+                        Text(
+                            text =
+                                "BookMyTurf",
+
+                            color =
+                                PrimaryText,
+
+                            fontSize =
+                                20.sp,
+
+                            fontWeight =
+                                FontWeight.Bold,
+
+                            letterSpacing =
+                                (-0.3).sp
+                        )
+
+
+                        Spacer(
+                            modifier =
+                                Modifier.height(2.dp)
+                        )
+
+
+                        Text(
+                            text =
+                                "Add Turf",
+
+                            color =
+                                MutedText,
+
+                            fontSize =
+                                11.sp
+                        )
+                    }
+                }
+
+
+                Box(
+
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors =
+                                        listOf(
+                                            Color.Transparent,
+                                            Border,
+                                            PrimaryGreen.copy(
+                                                alpha = 0.18f
+                                            ),
+                                            Border,
+                                            Color.Transparent
+                                        )
+                                )
+                            )
                 )
             }
         }
@@ -1707,7 +2645,9 @@ private suspend fun uriToMultipart(
     uri: Uri
 ): MultipartBody.Part? {
 
-    return withContext(Dispatchers.IO) {
+    return withContext(
+        Dispatchers.IO
+    ) {
 
         try {
 
@@ -1747,7 +2687,8 @@ private suspend fun uriToMultipart(
             val outputStream =
                 ByteArrayOutputStream()
 
-            var quality = 85
+            var quality =
+                85
 
             resizedBitmap.compress(
                 Bitmap.CompressFormat.JPEG,
@@ -1776,6 +2717,7 @@ private suspend fun uriToMultipart(
 
             val imageBytes =
                 outputStream.toByteArray()
+
 
             if (imageBytes.isEmpty()) {
 
@@ -1888,7 +2830,8 @@ private fun getFileName(
     uri: Uri
 ): String? {
 
-    var fileName: String? = null
+    var fileName: String? =
+        null
 
     context.contentResolver
         .query(
@@ -1912,7 +2855,9 @@ private fun getFileName(
                 if (index >= 0) {
 
                     fileName =
-                        cursor.getString(index)
+                        cursor.getString(
+                            index
+                        )
                 }
             }
         }

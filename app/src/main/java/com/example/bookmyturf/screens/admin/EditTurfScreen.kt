@@ -5,7 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.graphics.Color
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,12 +20,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.BorderStroke
+
+import androidx.compose.foundation.text.KeyboardOptions
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -40,23 +45,19 @@ import androidx.compose.material.icons.filled.Storefront
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -70,14 +71,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-import androidx.compose.foundation.text.KeyboardOptions
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -87,21 +87,36 @@ import com.example.bookmyturf.data.model.turf.Turf
 import com.example.bookmyturf.data.model.turf.UpdateTurfRequest
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminRepository
-import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
-import com.example.bookmyturf.ui.theme.AdminDarkGreen
-import com.example.bookmyturf.ui.theme.AdminForestGreen
-import com.example.bookmyturf.ui.theme.AdminGray
-import com.example.bookmyturf.ui.theme.AdminLightGreen
-import com.example.bookmyturf.ui.theme.AdminOffWhite
-import com.example.bookmyturf.ui.theme.AdminWhite
 import com.example.bookmyturf.viewmodel.AdminViewModel
+
+
+// =============================================================
+// PREMIUM ADMIN COLORS
+// Same design system as:
+// Subscription / Dashboard / Turfs / Bookings / Profile
+// =============================================================
+
+private val Background = Color(0xFF020907)
+private val SurfaceDark = Color(0xFF06110D)
+private val SurfaceElevated = Color(0xFF091711)
+private val SurfaceHighlight = Color(0xFF0D2017)
+
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
+private val Border = Color(0xFF183027)
+
+private val ErrorRed = Color(0xFFFF6B6B)
+private val WarningOrange = Color(0xFFFFB454)
 
 
 // =============================================================
 // EDIT TURF SCREEN
 // =============================================================
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTurfScreen(
     token: String,
@@ -371,16 +386,19 @@ fun EditTurfScreen(
                 turf.status.uppercase()
 
             selectedSports.clear()
+
             selectedSports.addAll(
                 turf.sportsTypes
             )
 
             selectedAmenities.clear()
+
             selectedAmenities.addAll(
                 turf.amenities
             )
 
             existingImages.clear()
+
             existingImages.addAll(
                 turf.imageUrls
             )
@@ -404,6 +422,7 @@ fun EditTurfScreen(
         }
     }
 
+
     LaunchedEffect(successMessage) {
 
         if (!successMessage.isNullOrBlank()) {
@@ -422,7 +441,7 @@ fun EditTurfScreen(
     Scaffold(
 
         containerColor =
-            AdminOffWhite,
+            Background,
 
         snackbarHost = {
 
@@ -434,66 +453,9 @@ fun EditTurfScreen(
 
         topBar = {
 
-            TopAppBar(
-
-                title = {
-
-                    Column(
-                        verticalArrangement =
-                            Arrangement.spacedBy(1.dp)
-                    ) {
-
-                        Text(
-                            text = "Edit Turf",
-                            color =
-                                AdminDarkCharcoal,
-                            fontWeight =
-                                FontWeight.Bold,
-                            fontSize =
-                                19.sp
-                        )
-
-                        Text(
-                            text =
-                                "Update your turf details",
-                            color =
-                                AdminGray,
-                            fontSize =
-                                11.sp
-                        )
-                    }
-                },
-
-                navigationIcon = {
-
-                    IconButton(
-                        onClick = onBack,
-                        enabled = !isLoading
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons
-                                    .AutoMirrored
-                                    .Filled
-                                    .ArrowBack,
-                            contentDescription =
-                                "Back",
-                            tint =
-                                AdminDarkGreen
-                        )
-                    }
-                },
-
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor =
-                            AdminWhite,
-                        titleContentColor =
-                            AdminDarkCharcoal,
-                        navigationIconContentColor =
-                            AdminDarkGreen
-                    )
+            EditTurfTopBar(
+                onBackClick = onBack,
+                enabled = !isLoading
             )
         }
 
@@ -509,7 +471,7 @@ fun EditTurfScreen(
                         rememberScrollState()
                     )
                     .padding(
-                        horizontal = 16.dp,
+                        horizontal = 20.dp,
                         vertical = 14.dp
                     ),
 
@@ -522,108 +484,11 @@ fun EditTurfScreen(
             // HEADER
             // =================================================
 
-            Card(
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                shape =
-                    RoundedCornerShape(22.dp),
-
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            AdminDarkGreen
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation = 2.dp
-                    )
-            ) {
-
-                Row(
-
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-
-                    verticalAlignment =
-                        Alignment.CenterVertically
-                ) {
-
-                    Box(
-
-                        modifier =
-                            Modifier
-                                .size(54.dp)
-                                .clip(
-                                    RoundedCornerShape(16.dp)
-                                )
-                                .background(
-                                    AdminLightGreen
-                                ),
-
-                        contentAlignment =
-                            Alignment.Center
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.Default.Storefront,
-                            contentDescription =
-                                null,
-                            tint =
-                                AdminDarkGreen,
-                            modifier =
-                                Modifier.size(28.dp)
-                        )
-                    }
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(14.dp)
-                    )
-
-                    Column(
-                        modifier =
-                            Modifier.weight(1f)
-                    ) {
-
-                        Text(
-                            text =
-                                "Turf Information",
-                            color =
-                                AdminWhite,
-                            fontSize =
-                                19.sp,
-                            fontWeight =
-                                FontWeight.Bold
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(4.dp)
-                        )
-
-                        Text(
-                            text =
-                                "Update your turf, facilities and photos.",
-                            color =
-                                AdminWhite.copy(
-                                    alpha = 0.82f
-                                ),
-                            fontSize =
-                                12.sp
-                        )
-                    }
-                }
-            }
+            EditTurfHeroCard()
 
 
             // =================================================
-            // TURF IMAGES
+            // TURF PHOTOS
             // =================================================
 
             EditSectionCard(
@@ -635,6 +500,7 @@ fun EditTurfScreen(
                 Row(
                     modifier =
                         Modifier.fillMaxWidth(),
+
                     verticalAlignment =
                         Alignment.CenterVertically
                 ) {
@@ -647,25 +513,37 @@ fun EditTurfScreen(
                         Text(
                             text =
                                 "${existingImages.size + newImageUris.size} image(s)",
+
                             color =
-                                AdminDarkCharcoal,
+                                PrimaryText,
+
                             fontSize =
                                 15.sp,
+
                             fontWeight =
                                 FontWeight.Bold
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.height(3.dp)
                         )
 
                         Text(
                             text =
                                 "Current + new photos",
+
                             color =
-                                AdminGray,
+                                MutedText,
+
                             fontSize =
                                 11.sp
                         )
                     }
 
+
                     OutlinedButton(
+
                         onClick = {
 
                             imagePicker.launch(
@@ -676,16 +554,38 @@ fun EditTurfScreen(
                                 )
                             )
                         },
-                        enabled = !isLoading,
+
+                        enabled =
+                            !isLoading,
+
                         shape =
-                            RoundedCornerShape(12.dp)
+                            RoundedCornerShape(11.dp),
+
+                        border =
+                            BorderStroke(
+                                1.dp,
+                                Border
+                            ),
+
+                        colors =
+                            androidx.compose.material3.ButtonDefaults
+                                .outlinedButtonColors(
+                                    containerColor =
+                                        SurfaceElevated,
+                                    contentColor =
+                                        PrimaryText
+                                )
                     ) {
 
                         Icon(
                             imageVector =
                                 Icons.Default.Add,
+
                             contentDescription =
-                                null
+                                null,
+
+                            modifier =
+                                Modifier.size(17.dp)
                         )
 
                         Spacer(
@@ -693,7 +593,10 @@ fun EditTurfScreen(
                                 Modifier.width(5.dp)
                         )
 
-                        Text("Add")
+                        Text(
+                            text = "Add",
+                            fontSize = 12.sp
+                        )
                     }
                 }
 
@@ -702,13 +605,19 @@ fun EditTurfScreen(
 
                     Text(
                         text =
-                            "Current Images",
+                            "CURRENT IMAGES",
+
                         color =
-                            AdminDarkCharcoal,
+                            MutedText,
+
                         fontWeight =
-                            FontWeight.SemiBold,
+                            FontWeight.Bold,
+
                         fontSize =
-                            13.sp
+                            9.sp,
+
+                        letterSpacing =
+                            0.8.sp
                     )
 
                     LazyRow(
@@ -717,8 +626,12 @@ fun EditTurfScreen(
                     ) {
 
                         items(
-                            items = existingImages,
-                            key = { it }
+                            items =
+                                existingImages,
+
+                            key = {
+                                it
+                            }
                         ) { imageUrl ->
 
                             TurfImageItem(
@@ -726,6 +639,7 @@ fun EditTurfScreen(
                                     buildImageUrl(
                                         imageUrl
                                     ),
+
                                 onRemove = {
 
                                     existingImages.remove(
@@ -742,13 +656,19 @@ fun EditTurfScreen(
 
                     Text(
                         text =
-                            "New Images",
+                            "NEW IMAGES",
+
                         color =
-                            AdminDarkCharcoal,
+                            MutedText,
+
                         fontWeight =
-                            FontWeight.SemiBold,
+                            FontWeight.Bold,
+
                         fontSize =
-                            13.sp
+                            9.sp,
+
+                        letterSpacing =
+                            0.8.sp
                     )
 
                     LazyRow(
@@ -757,7 +677,9 @@ fun EditTurfScreen(
                     ) {
 
                         items(
-                            items = newImageUris,
+                            items =
+                                newImageUris,
+
                             key = {
                                 it.toString()
                             }
@@ -766,6 +688,7 @@ fun EditTurfScreen(
                             TurfImageItem(
                                 imageModel =
                                     uri,
+
                                 onRemove = {
 
                                     newImageUris.remove(
@@ -784,47 +707,52 @@ fun EditTurfScreen(
             // =================================================
 
             EditSectionCard(
-                title = "Basic Information",
+                title =
+                    "Basic Information",
+
                 subtitle =
                     "Update the main information of your turf."
             ) {
 
-                OutlinedTextField(
-                    value = name,
+                PremiumTextField(
+                    value =
+                        name,
+
                     onValueChange = {
 
                         name = it
                         validationError = null
                     },
-                    modifier =
-                        Modifier.fillMaxWidth(),
-                    label = {
-                        Text("Turf Name")
-                    },
-                    placeholder = {
-                        Text("Enter turf name")
-                    },
-                    singleLine = true
+
+                    label =
+                        "Turf Name",
+
+                    placeholder =
+                        "Enter turf name"
                 )
 
 
-                OutlinedTextField(
-                    value = description,
+                PremiumTextField(
+                    value =
+                        description,
+
                     onValueChange = {
 
                         description = it
                         validationError = null
                     },
-                    modifier =
-                        Modifier.fillMaxWidth(),
-                    label = {
-                        Text("Description")
-                    },
-                    placeholder = {
-                        Text("Describe your turf")
-                    },
-                    minLines = 3,
-                    maxLines = 5
+
+                    label =
+                        "Description",
+
+                    placeholder =
+                        "Describe your turf",
+
+                    minLines =
+                        3,
+
+                    maxLines =
+                        5
                 )
             }
 
@@ -834,77 +762,73 @@ fun EditTurfScreen(
             // =================================================
 
             EditSectionCard(
-                title = "Location",
+                title =
+                    "Location",
+
                 subtitle =
                     "Keep your turf location information accurate."
             ) {
 
-                OutlinedTextField(
-                    value = location,
+                PremiumTextField(
+                    value =
+                        location,
+
                     onValueChange = {
 
                         location = it
                         validationError = null
                     },
-                    modifier =
-                        Modifier.fillMaxWidth(),
-                    label = {
-                        Text("Location")
-                    },
-                    placeholder = {
-                        Text("Area / Locality")
-                    },
-                    leadingIcon = {
 
-                        Icon(
-                            imageVector =
-                                Icons.Default.LocationOn,
-                            contentDescription =
-                                null,
-                            tint =
-                                AdminDarkGreen
-                        )
-                    },
-                    singleLine = true
+                    label =
+                        "Location",
+
+                    placeholder =
+                        "Area / Locality",
+
+                    leadingIcon =
+                        Icons.Default.LocationOn
                 )
 
 
-                OutlinedTextField(
-                    value = city,
+                PremiumTextField(
+                    value =
+                        city,
+
                     onValueChange = {
 
                         city = it
                         validationError = null
                     },
-                    modifier =
-                        Modifier.fillMaxWidth(),
-                    label = {
-                        Text("City")
-                    },
-                    placeholder = {
-                        Text("Enter city")
-                    },
-                    singleLine = true
+
+                    label =
+                        "City",
+
+                    placeholder =
+                        "Enter city"
                 )
 
 
-                OutlinedTextField(
-                    value = address,
+                PremiumTextField(
+                    value =
+                        address,
+
                     onValueChange = {
 
                         address = it
                         validationError = null
                     },
-                    modifier =
-                        Modifier.fillMaxWidth(),
-                    label = {
-                        Text("Full Address")
-                    },
-                    placeholder = {
-                        Text("Enter complete address")
-                    },
-                    minLines = 2,
-                    maxLines = 4
+
+                    label =
+                        "Full Address",
+
+                    placeholder =
+                        "Enter complete address",
+
+                    minLines =
+                        2,
+
+                    maxLines =
+                        4
                 )
             }
 
@@ -914,7 +838,9 @@ fun EditTurfScreen(
             // =================================================
 
             EditSectionCard(
-                title = "Map Coordinates",
+                title =
+                    "Map Coordinates",
+
                 subtitle =
                     "Optional latitude and longitude."
             ) {
@@ -922,45 +848,46 @@ fun EditTurfScreen(
                 Row(
                     modifier =
                         Modifier.fillMaxWidth(),
+
                     horizontalArrangement =
                         Arrangement.spacedBy(10.dp)
                 ) {
 
-                    OutlinedTextField(
-                        value = latitude,
+                    PremiumTextField(
+                        value =
+                            latitude,
+
                         onValueChange = {
                             latitude = it
                         },
+
+                        label =
+                            "Latitude",
+
                         modifier =
                             Modifier.weight(1f),
-                        label = {
-                            Text("Latitude")
-                        },
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType =
-                                    KeyboardType.Decimal
-                            ),
-                        singleLine = true
+
+                        keyboardType =
+                            KeyboardType.Decimal
                     )
 
 
-                    OutlinedTextField(
-                        value = longitude,
+                    PremiumTextField(
+                        value =
+                            longitude,
+
                         onValueChange = {
                             longitude = it
                         },
+
+                        label =
+                            "Longitude",
+
                         modifier =
                             Modifier.weight(1f),
-                        label = {
-                            Text("Longitude")
-                        },
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType =
-                                    KeyboardType.Decimal
-                            ),
-                        singleLine = true
+
+                        keyboardType =
+                            KeyboardType.Decimal
                     )
                 }
             }
@@ -971,7 +898,9 @@ fun EditTurfScreen(
             // =================================================
 
             EditSectionCard(
-                title = "Sports Available",
+                title =
+                    "Sports Available",
+
                 subtitle =
                     "Select all sports available at this turf."
             ) {
@@ -979,6 +908,7 @@ fun EditTurfScreen(
                 FlowRow(
                     horizontalArrangement =
                         Arrangement.spacedBy(8.dp),
+
                     verticalArrangement =
                         Arrangement.spacedBy(8.dp)
                 ) {
@@ -990,7 +920,7 @@ fun EditTurfScreen(
                                 sport
                             )
 
-                        FilterChip(
+                        PremiumFilterChip(
                             selected =
                                 selected,
 
@@ -1009,29 +939,19 @@ fun EditTurfScreen(
                                     )
                                 }
 
-                                validationError = null
+                                validationError =
+                                    null
                             },
 
-                            label = {
-                                Text(sport)
-                            },
+                            label =
+                                sport,
 
-                            leadingIcon = {
-
+                            icon =
                                 if (selected) {
-
-                                    Icon(
-                                        imageVector =
-                                            Icons.Default.SportsSoccer,
-                                        contentDescription =
-                                            null,
-                                        modifier =
-                                            Modifier.size(17.dp),
-                                        tint =
-                                            AdminDarkGreen
-                                    )
+                                    Icons.Default.SportsSoccer
+                                } else {
+                                    null
                                 }
-                            }
                         )
                     }
                 }
@@ -1043,7 +963,9 @@ fun EditTurfScreen(
             // =================================================
 
             EditSectionCard(
-                title = "Amenities",
+                title =
+                    "Amenities",
+
                 subtitle =
                     "Select the facilities available."
             ) {
@@ -1051,6 +973,7 @@ fun EditTurfScreen(
                 FlowRow(
                     horizontalArrangement =
                         Arrangement.spacedBy(8.dp),
+
                     verticalArrangement =
                         Arrangement.spacedBy(8.dp)
                 ) {
@@ -1062,7 +985,7 @@ fun EditTurfScreen(
                                 amenity
                             )
 
-                        FilterChip(
+                        PremiumFilterChip(
                             selected =
                                 selected,
 
@@ -1082,26 +1005,15 @@ fun EditTurfScreen(
                                 }
                             },
 
-                            label = {
-                                Text(amenity)
-                            },
+                            label =
+                                amenity,
 
-                            leadingIcon = {
-
+                            icon =
                                 if (selected) {
-
-                                    Icon(
-                                        imageVector =
-                                            Icons.Default.CheckCircle,
-                                        contentDescription =
-                                            null,
-                                        modifier =
-                                            Modifier.size(17.dp),
-                                        tint =
-                                            AdminForestGreen
-                                    )
+                                    Icons.Default.CheckCircle
+                                } else {
+                                    null
                                 }
-                            }
                         )
                     }
                 }
@@ -1113,42 +1025,34 @@ fun EditTurfScreen(
             // =================================================
 
             EditSectionCard(
-                title = "Pricing",
+                title =
+                    "Pricing",
+
                 subtitle =
                     "Set the standard price per slot."
             ) {
 
-                OutlinedTextField(
-                    value = price,
+                PremiumTextField(
+                    value =
+                        price,
+
                     onValueChange = {
 
                         price = it
                         validationError = null
                     },
-                    modifier =
-                        Modifier.fillMaxWidth(),
-                    label = {
-                        Text("Price per Slot")
-                    },
-                    placeholder = {
-                        Text("e.g. 650")
-                    },
-                    leadingIcon = {
 
-                        Text(
-                            text = "₹",
-                            color =
-                                AdminDarkCharcoal,
-                            fontWeight =
-                                FontWeight.Bold
-                        )
-                    },
-                    keyboardOptions =
-                        KeyboardOptions(
-                            keyboardType =
-                                KeyboardType.Decimal
-                        ),
-                    singleLine = true
+                    label =
+                        "Price per Slot",
+
+                    placeholder =
+                        "e.g. 650",
+
+                    prefix =
+                        "₹",
+
+                    keyboardType =
+                        KeyboardType.Decimal
                 )
             }
 
@@ -1158,7 +1062,9 @@ fun EditTurfScreen(
             // =================================================
 
             EditSectionCard(
-                title = "Turf Status",
+                title =
+                    "Turf Status",
+
                 subtitle =
                     "Control whether customers can view this turf."
             ) {
@@ -1168,26 +1074,43 @@ fun EditTurfScreen(
                         Arrangement.spacedBy(8.dp)
                 ) {
 
-                    FilterChip(
+                    PremiumFilterChip(
                         selected =
                             status == "ACTIVE",
+
                         onClick = {
                             status = "ACTIVE"
                         },
-                        label = {
-                            Text("Active")
-                        }
+
+                        label =
+                            "Active",
+
+                        icon =
+                            if (status == "ACTIVE") {
+                                Icons.Default.CheckCircle
+                            } else {
+                                null
+                            }
                     )
 
-                    FilterChip(
+
+                    PremiumFilterChip(
                         selected =
                             status == "INACTIVE",
+
                         onClick = {
                             status = "INACTIVE"
                         },
-                        label = {
-                            Text("Inactive")
-                        }
+
+                        label =
+                            "Inactive",
+
+                        icon =
+                            if (status == "INACTIVE") {
+                                Icons.Default.Close
+                            } else {
+                                null
+                            }
                     )
                 }
             }
@@ -1199,51 +1122,89 @@ fun EditTurfScreen(
 
             validationError?.let { message ->
 
-                Card(
+                Surface(
+
                     modifier =
                         Modifier.fillMaxWidth(),
+
                     shape =
                         RoundedCornerShape(14.dp),
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor =
-                                Color(
-                                    0xFFFFF1F2
-                                )
+
+                    color =
+                        ErrorRed.copy(
+                            alpha = 0.08f
+                        ),
+
+                    border =
+                        BorderStroke(
+                            1.dp,
+                            ErrorRed.copy(
+                                alpha = 0.20f
+                            )
                         )
                 ) {
 
                     Row(
+
                         modifier =
                             Modifier
                                 .fillMaxWidth()
                                 .padding(14.dp),
+
                         verticalAlignment =
                             Alignment.CenterVertically
                     ) {
 
-                        Icon(
-                            imageVector =
-                                Icons.Default.Close,
-                            contentDescription =
-                                null,
-                            tint =
-                                Color(0xFFBE123C),
+                        Surface(
+
                             modifier =
-                                Modifier.size(18.dp)
-                        )
+                                Modifier.size(34.dp),
+
+                            shape =
+                                CircleShape,
+
+                            color =
+                                ErrorRed.copy(
+                                    alpha = 0.10f
+                                )
+                        ) {
+
+                            Box(
+                                contentAlignment =
+                                    Alignment.Center
+                            ) {
+
+                                Icon(
+                                    imageVector =
+                                        Icons.Default.Close,
+
+                                    contentDescription =
+                                        null,
+
+                                    tint =
+                                        ErrorRed,
+
+                                    modifier =
+                                        Modifier.size(17.dp)
+                                )
+                            }
+                        }
 
                         Spacer(
                             modifier =
-                                Modifier.width(8.dp)
+                                Modifier.width(9.dp)
                         )
 
                         Text(
-                            text = message,
+                            text =
+                                message,
+
                             color =
-                                Color(0xFFBE123C),
+                                ErrorRed,
+
                             fontSize =
-                                13.sp,
+                                12.sp,
+
                             fontWeight =
                                 FontWeight.Medium
                         )
@@ -1253,14 +1214,15 @@ fun EditTurfScreen(
 
 
             // =================================================
-            // SAVE
+            // SAVE BUTTON
             // =================================================
 
             Button(
 
                 onClick = {
 
-                    validationError = null
+                    validationError =
+                        null
 
                     val cleanName =
                         name.trim()
@@ -1380,11 +1342,14 @@ fun EditTurfScreen(
 
                     viewModel.updateTurf(
 
-                        token = token,
+                        token =
+                            token,
 
-                        turfId = turfId,
+                        turfId =
+                            turfId,
 
-                        request = request,
+                        request =
+                            request,
 
                         onSuccess = {
 
@@ -1408,23 +1373,34 @@ fun EditTurfScreen(
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
-                            AdminDarkGreen,
+                            PrimaryGreen,
+
                         contentColor =
-                            AdminWhite,
+                            Color(0xFF061008),
+
                         disabledContainerColor =
-                            AdminDarkGreen.copy(
-                                alpha = 0.45f
-                            )
+                            PrimaryGreen.copy(
+                                alpha = 0.35f
+                            ),
+
+                        disabledContentColor =
+                            Color(0xFF061008)
+                                .copy(
+                                    alpha = 0.55f
+                                )
                     )
             ) {
 
                 if (isLoading) {
 
                     CircularProgressIndicator(
+
                         modifier =
-                            Modifier.size(22.dp),
+                            Modifier.size(21.dp),
+
                         color =
-                            AdminWhite,
+                            Color(0xFF061008),
+
                         strokeWidth =
                             2.5.dp
                     )
@@ -1437,6 +1413,7 @@ fun EditTurfScreen(
                     Text(
                         text =
                             "Saving Changes...",
+
                         fontWeight =
                             FontWeight.Bold
                     )
@@ -1446,8 +1423,12 @@ fun EditTurfScreen(
                     Icon(
                         imageVector =
                             Icons.Default.Save,
+
                         contentDescription =
-                            null
+                            null,
+
+                        modifier =
+                            Modifier.size(19.dp)
                     )
 
                     Spacer(
@@ -1458,6 +1439,7 @@ fun EditTurfScreen(
                     Text(
                         text =
                             "Save Changes",
+
                         fontWeight =
                             FontWeight.Bold
                     )
@@ -1470,14 +1452,17 @@ fun EditTurfScreen(
             // =================================================
 
             Row(
+
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(
                             bottom = 20.dp
                         ),
+
                 horizontalArrangement =
                     Arrangement.Center,
+
                 verticalAlignment =
                     Alignment.CenterVertically
             ) {
@@ -1485,12 +1470,15 @@ fun EditTurfScreen(
                 Icon(
                     imageVector =
                         Icons.Default.CheckCircle,
+
                     contentDescription =
                         null,
+
                     tint =
-                        AdminForestGreen,
+                        PrimaryGreen,
+
                     modifier =
-                        Modifier.size(16.dp)
+                        Modifier.size(15.dp)
                 )
 
                 Spacer(
@@ -1501,11 +1489,324 @@ fun EditTurfScreen(
                 Text(
                     text =
                         "Changes are saved to your turf listing.",
+
                     color =
-                        AdminGray,
+                        MutedText,
+
                     fontSize =
-                        11.sp
+                        10.sp
                 )
+            }
+        }
+    }
+}
+
+
+// =============================================================
+// EDIT TURF TOP BAR
+// Matches Subscription screen top bar
+// =============================================================
+
+@Composable
+private fun EditTurfTopBar(
+    onBackClick: () -> Unit,
+    enabled: Boolean
+) {
+
+    Surface(
+        color =
+            Background,
+
+        shadowElevation =
+            0.dp
+    ) {
+
+        Box(
+
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors =
+                                listOf(
+                                    Color(0xFF020907),
+                                    Color(0xFF071810),
+                                    Color(0xFF020907)
+                                )
+                        )
+                    )
+        ) {
+
+            Column {
+
+                Row(
+
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = 14.dp,
+                                end = 14.dp,
+                                top = 42.dp,
+                                bottom = 14.dp
+                            ),
+
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+
+                    Surface(
+
+                        modifier =
+                            Modifier.size(42.dp),
+
+                        shape =
+                            RoundedCornerShape(14.dp),
+
+                        color =
+                            SurfaceElevated
+                    ) {
+
+                        IconButton(
+
+                            onClick =
+                                onBackClick,
+
+                            enabled =
+                                enabled
+                        ) {
+
+                            Icon(
+
+                                imageVector =
+                                    Icons
+                                        .AutoMirrored
+                                        .Filled
+                                        .ArrowBack,
+
+                                contentDescription =
+                                    "Back",
+
+                                tint =
+                                    if (enabled) {
+                                        PrimaryText
+                                    } else {
+                                        MutedText
+                                    },
+
+                                modifier =
+                                    Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(14.dp)
+                    )
+
+
+                    Column {
+
+                        Text(
+                            text =
+                                "BookMyTurf",
+
+                            color =
+                                PrimaryText,
+
+                            fontSize =
+                                20.sp,
+
+                            fontWeight =
+                                FontWeight.Bold,
+
+                            letterSpacing =
+                                (-0.3).sp
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.height(2.dp)
+                        )
+
+                        Text(
+                            text =
+                                "Edit Turf",
+
+                            color =
+                                MutedText,
+
+                            fontSize =
+                                10.sp
+                        )
+                    }
+                }
+
+
+                Box(
+
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors =
+                                        listOf(
+                                            Color.Transparent,
+                                            Border,
+                                            PrimaryGreen.copy(
+                                                alpha = 0.18f
+                                            ),
+                                            Border,
+                                            Color.Transparent
+                                        )
+                                )
+                            )
+                )
+            }
+        }
+    }
+}
+
+
+// =============================================================
+// HERO CARD
+// =============================================================
+
+@Composable
+private fun EditTurfHeroCard() {
+
+    Surface(
+
+        modifier =
+            Modifier.fillMaxWidth(),
+
+        shape =
+            RoundedCornerShape(20.dp),
+
+        color =
+            SurfaceDark,
+
+        border =
+            BorderStroke(
+                1.dp,
+                Border
+            )
+    ) {
+
+        Box {
+
+            Box(
+
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(110.dp)
+                        .background(
+                            Brush.horizontalGradient(
+                                colors =
+                                    listOf(
+                                        Color(0xFF071810),
+                                        Color(0xFF0D2017),
+                                        Color(0xFF06110D)
+                                    )
+                            )
+                        )
+            )
+
+
+            Row(
+
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Surface(
+
+                    modifier =
+                        Modifier.size(54.dp),
+
+                    shape =
+                        RoundedCornerShape(16.dp),
+
+                    color =
+                        PrimaryGreen.copy(
+                            alpha = 0.12f
+                        )
+                ) {
+
+                    Box(
+                        contentAlignment =
+                            Alignment.Center
+                    ) {
+
+                        Icon(
+                            imageVector =
+                                Icons.Default.Storefront,
+
+                            contentDescription =
+                                null,
+
+                            tint =
+                                LightGreen,
+
+                            modifier =
+                                Modifier.size(27.dp)
+                        )
+                    }
+                }
+
+
+                Spacer(
+                    modifier =
+                        Modifier.width(14.dp)
+                )
+
+
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
+
+                    Text(
+                        text =
+                            "Turf Information",
+
+                        color =
+                            PrimaryText,
+
+                        fontSize =
+                            19.sp,
+
+                        fontWeight =
+                            FontWeight.Bold
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(4.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Update your turf, facilities and photos.",
+
+                        color =
+                            SecondaryText,
+
+                        fontSize =
+                            11.sp
+                    )
+                }
             }
         }
     }
@@ -1523,50 +1824,302 @@ private fun EditSectionCard(
     content: @Composable () -> Unit
 ) {
 
-    Card(
+    Surface(
+
         modifier =
             Modifier.fillMaxWidth(),
+
         shape =
             RoundedCornerShape(18.dp),
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+
+        color =
+            SurfaceDark,
+
+        border =
+            BorderStroke(
+                1.dp,
+                Border
             )
     ) {
 
         Column(
+
             modifier =
                 Modifier.padding(17.dp),
+
             verticalArrangement =
                 Arrangement.spacedBy(10.dp)
         ) {
 
-            Text(
-                text = title,
-                color =
-                    AdminDarkCharcoal,
-                fontSize =
-                    17.sp,
-                fontWeight =
-                    FontWeight.Bold
-            )
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Box(
+
+                    modifier =
+                        Modifier
+                            .width(3.dp)
+                            .height(20.dp)
+                            .clip(
+                                RoundedCornerShape(10.dp)
+                            )
+                            .background(
+                                PrimaryGreen
+                            )
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.width(9.dp)
+                )
+
+                Text(
+                    text =
+                        title,
+
+                    color =
+                        PrimaryText,
+
+                    fontSize =
+                        16.sp,
+
+                    fontWeight =
+                        FontWeight.Bold
+                )
+            }
+
 
             Text(
-                text = subtitle,
+                text =
+                    subtitle,
+
                 color =
-                    AdminGray,
+                    MutedText,
+
                 fontSize =
-                    12.sp
+                    11.sp
             )
+
+
+            HorizontalDivider(
+                color =
+                    Border.copy(
+                        alpha = 0.65f
+                    )
+            )
+
 
             content()
         }
     }
+}
+
+
+// =============================================================
+// PREMIUM TEXT FIELD
+// =============================================================
+
+@Composable
+private fun PremiumTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String? = null,
+    modifier: Modifier = Modifier,
+    minLines: Int = 1,
+    maxLines: Int = 1,
+    leadingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    prefix: String? = null,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
+
+    OutlinedTextField(
+
+        value =
+            value,
+
+        onValueChange =
+            onValueChange,
+
+        modifier =
+            modifier.fillMaxWidth(),
+
+        label = {
+            Text(
+                text =
+                    label,
+                fontSize =
+                    12.sp
+            )
+        },
+
+        placeholder = {
+
+            if (placeholder != null) {
+
+                Text(
+                    text =
+                        placeholder,
+
+                    fontSize =
+                        12.sp
+                )
+            }
+        },
+
+        leadingIcon = {
+
+            if (leadingIcon != null) {
+
+                Icon(
+                    imageVector =
+                        leadingIcon,
+
+                    contentDescription =
+                        null,
+
+                    tint =
+                        PrimaryGreen,
+
+                    modifier =
+                        Modifier.size(19.dp)
+                )
+            }
+        },
+
+        prefix = {
+
+            if (prefix != null) {
+
+                Text(
+                    text =
+                        prefix,
+
+                    color =
+                        PrimaryText,
+
+                    fontWeight =
+                        FontWeight.Bold
+                )
+            }
+        },
+
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType =
+                    keyboardType
+            ),
+
+        minLines =
+            minLines,
+
+        maxLines =
+            maxLines,
+
+        singleLine =
+            maxLines == 1,
+
+        shape =
+            RoundedCornerShape(12.dp),
+
+        colors =
+            androidx.compose.material3.OutlinedTextFieldDefaults
+                .colors(
+
+                    focusedTextColor =
+                        PrimaryText,
+
+                    unfocusedTextColor =
+                        PrimaryText,
+
+                    focusedBorderColor =
+                        PrimaryGreen,
+
+                    unfocusedBorderColor =
+                        Border,
+
+                    focusedLabelColor =
+                        LightGreen,
+
+                    unfocusedLabelColor =
+                        SecondaryText,
+
+                    cursorColor =
+                        PrimaryGreen,
+
+                    focusedPlaceholderColor =
+                        MutedText,
+
+                    unfocusedPlaceholderColor =
+                        MutedText,
+
+                    focusedLeadingIconColor =
+                        PrimaryGreen,
+
+                    unfocusedLeadingIconColor =
+                        MutedText
+                )
+    )
+}
+
+
+// =============================================================
+// PREMIUM FILTER CHIP
+// =============================================================
+
+@Composable
+private fun PremiumFilterChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+) {
+
+    FilterChip(
+
+        selected =
+            selected,
+
+        onClick =
+            onClick,
+
+        label = {
+
+            Text(
+                text =
+                    label,
+
+                fontSize =
+                    11.sp
+            )
+        },
+
+        leadingIcon = {
+
+            if (icon != null) {
+
+                Icon(
+                    imageVector =
+                        icon,
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.size(16.dp),
+
+                    tint =
+                        if (selected) {
+                            LightGreen
+                        } else {
+                            SecondaryText
+                        }
+                )
+            }
+        }
+    )
 }
 
 
@@ -1581,6 +2134,7 @@ private fun TurfImageItem(
 ) {
 
     Box(
+
         modifier =
             Modifier
                 .size(
@@ -1591,47 +2145,65 @@ private fun TurfImageItem(
                     RoundedCornerShape(14.dp)
                 )
                 .background(
-                    AdminOffWhite
+                    SurfaceElevated
                 )
     ) {
 
         AsyncImage(
-            model = imageModel,
-            contentDescription = "Turf image",
+
+            model =
+                imageModel,
+
+            contentDescription =
+                "Turf image",
+
             modifier =
                 Modifier.fillMaxSize(),
+
             contentScale =
                 ContentScale.Crop
         )
 
 
-        IconButton(
-            onClick = onRemove,
+        Surface(
+
             modifier =
                 Modifier
                     .align(
                         Alignment.TopEnd
                     )
-                    .padding(4.dp)
-                    .size(30.dp)
-                    .background(
-                        Color.Black.copy(
-                            alpha = 0.65f
-                        ),
-                        RoundedCornerShape(50)
-                    )
+                    .padding(6.dp)
+                    .size(30.dp),
+
+            shape =
+                CircleShape,
+
+            color =
+                Color.Black.copy(
+                    alpha = 0.65f
+                )
         ) {
 
-            Icon(
-                imageVector =
-                    Icons.Default.Close,
-                contentDescription =
-                    "Remove image",
-                tint =
-                    AdminWhite,
-                modifier =
-                    Modifier.size(17.dp)
-            )
+            IconButton(
+                onClick =
+                    onRemove
+            ) {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.Close,
+
+                    contentDescription =
+                        "Remove image",
+
+                    tint =
+                        Color.White,
+
+                    modifier =
+                        Modifier.size(16.dp)
+                )
+            }
         }
     }
 }

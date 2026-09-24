@@ -1,5 +1,6 @@
 package com.example.bookmyturf.screens.admin
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,13 +22,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,8 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -48,30 +50,32 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bookmyturf.data.model.booking.Booking
 import com.example.bookmyturf.data.remote.RetrofitClient
 import com.example.bookmyturf.data.repository.AdminBookingRepository
-import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
-import com.example.bookmyturf.ui.theme.AdminDarkGreen
-import com.example.bookmyturf.ui.theme.AdminForestGreen
-import com.example.bookmyturf.ui.theme.AdminGray
-import com.example.bookmyturf.ui.theme.AdminLightGreen
-import com.example.bookmyturf.ui.theme.AdminOffWhite
-import com.example.bookmyturf.ui.theme.AdminWhite
 import com.example.bookmyturf.viewmodel.AdminBookingViewModel
 import com.example.bookmyturf.viewmodel.AdminBookingViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 // =============================================================
-// LOCAL STATUS COLORS
+// PREMIUM ADMIN COLORS
+// Same visual system as Subscription + Dashboard + Turfs
 // =============================================================
 
-private val AdminRed = Color(0xFFB91C1C)
-private val AdminRedBackground = Color(0xFFFFF1F2)
+private val Background = Color(0xFF020907)
+private val SurfaceDark = Color(0xFF06110D)
+private val SurfaceElevated = Color(0xFF091711)
+private val SurfaceHighlight = Color(0xFF0D2017)
 
-private val AdminOrange = Color(0xFFB45309)
-private val AdminOrangeBackground = Color(0xFFFFF7ED)
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
 
-private val AdminBlue = Color(0xFF1D4ED8)
-private val AdminBlueBackground = Color(0xFFEFF6FF)
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
+private val Border = Color(0xFF183027)
+
+private val ErrorRed = Color(0xFFFF6B6B)
+private val WarningOrange = Color(0xFFFFB454)
+private val InfoBlue = Color(0xFF75A9FF)
 
 
 // =============================================================
@@ -136,7 +140,7 @@ fun AdminBookingsContent(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(AdminOffWhite)
+            .background(Background)
     ) {
 
         when {
@@ -158,9 +162,13 @@ fun AdminBookingsContent(
                     bookingsResponse == null -> {
 
                 BookingErrorState(
-                    message =
-                        error
-                            ?: "Something went wrong."
+                    message = error
+                        ?: "Something went wrong.",
+                    onRetry = {
+                        if (token.isNotBlank()) {
+                            viewModel.loadAdminBookings(token)
+                        }
+                    }
                 )
             }
 
@@ -213,14 +221,14 @@ private fun BookingList(
         modifier = Modifier.fillMaxSize(),
 
         contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
-            top = 16.dp,
+            start = 20.dp,
+            end = 20.dp,
+            top = 14.dp,
             bottom = 30.dp
         ),
 
         verticalArrangement =
-            Arrangement.spacedBy(14.dp)
+            Arrangement.spacedBy(16.dp)
     ) {
 
         // =====================================================
@@ -233,32 +241,30 @@ private fun BookingList(
 
                 Text(
                     text = "Bookings",
-                    style =
-                        MaterialTheme.typography.headlineSmall,
+                    color = PrimaryText,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = AdminDarkCharcoal
+                    letterSpacing = (-0.3).sp
                 )
 
                 Spacer(
-                    modifier = Modifier.height(4.dp)
+                    modifier = Modifier.height(5.dp)
                 )
 
                 Surface(
                     shape = RoundedCornerShape(50.dp),
-                    color = AdminLightGreen.copy(
-                        alpha = 0.18f
-                    )
+                    color = PrimaryGreen.copy(alpha = 0.10f)
                 ) {
 
                     Text(
                         text = "$bookingCount total bookings",
 
                         modifier = Modifier.padding(
-                            horizontal = 10.dp,
+                            horizontal = 11.dp,
                             vertical = 6.dp
                         ),
 
-                        color = AdminForestGreen,
+                        color = LightGreen,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -298,18 +304,32 @@ private fun LoadingBookings() {
             Arrangement.Center
     ) {
 
-        CircularProgressIndicator(
-            color = AdminForestGreen
-        )
+        Surface(
+            modifier = Modifier.size(62.dp),
+            shape = RoundedCornerShape(18.dp),
+            color = SurfaceElevated
+        ) {
+
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+
+                CircularProgressIndicator(
+                    modifier = Modifier.size(28.dp),
+                    color = PrimaryGreen,
+                    strokeWidth = 2.5.dp
+                )
+            }
+        }
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(13.dp)
         )
 
         Text(
             text = "Loading bookings...",
-            color = AdminGray,
-            fontSize = 14.sp
+            color = SecondaryText,
+            fontSize = 12.sp
         )
     }
 }
@@ -321,7 +341,8 @@ private fun LoadingBookings() {
 
 @Composable
 private fun BookingErrorState(
-    message: String
+    message: String,
+    onRetry: () -> Unit
 ) {
 
     Column(
@@ -337,66 +358,77 @@ private fun BookingErrorState(
     ) {
 
         Surface(
-            modifier = Modifier.size(76.dp),
-            shape = CircleShape,
-            color = AdminRedBackground
+            modifier = Modifier.size(64.dp),
+            shape = RoundedCornerShape(18.dp),
+            color = ErrorRed.copy(alpha = 0.08f)
         ) {
 
             Box(
-                contentAlignment =
-                    Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
 
                 Icon(
-                    imageVector =
-                        Icons.Default.Warning,
-
-                    contentDescription =
-                        null,
-
-                    modifier =
-                        Modifier.size(34.dp),
-
-                    tint =
-                        AdminRed
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = ErrorRed
                 )
             }
         }
 
         Spacer(
-            modifier =
-                Modifier.height(16.dp)
+            modifier = Modifier.height(15.dp)
         )
 
         Text(
-            text =
-                "Unable to load bookings",
-
-            style =
-                MaterialTheme.typography.titleMedium,
-
-            fontWeight =
-                FontWeight.Bold,
-
-            color =
-                AdminDarkCharcoal
+            text = "Unable to load bookings",
+            color = PrimaryText,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
         )
 
         Spacer(
-            modifier =
-                Modifier.height(6.dp)
+            modifier = Modifier.height(6.dp)
         )
 
         Text(
-            text =
-                message,
-
-            color =
-                AdminGray,
-
-            fontSize =
-                13.sp
+            text = message,
+            color = SecondaryText,
+            fontSize = 12.sp
         )
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        OutlinedButton(
+            onClick = onRetry,
+            shape = RoundedCornerShape(11.dp),
+            border = BorderStroke(
+                1.dp,
+                Border
+            ),
+            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                containerColor = SurfaceElevated,
+                contentColor = PrimaryText
+            )
+        ) {
+
+            Icon(
+                imageVector = Icons.Default.Refresh,
+                contentDescription = null,
+                modifier = Modifier.size(17.dp)
+            )
+
+            Spacer(
+                modifier = Modifier.width(7.dp)
+            )
+
+            Text(
+                text = "Retry",
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 
@@ -421,16 +453,9 @@ private fun EmptyBookingsState() {
     ) {
 
         Surface(
-            modifier =
-                Modifier.size(84.dp),
-
-            shape =
-                CircleShape,
-
-            color =
-                AdminLightGreen.copy(
-                    alpha = 0.20f
-                )
+            modifier = Modifier.size(76.dp),
+            shape = RoundedCornerShape(20.dp),
+            color = SurfaceElevated
         ) {
 
             Box(
@@ -446,31 +471,31 @@ private fun EmptyBookingsState() {
                         null,
 
                     modifier =
-                        Modifier.size(40.dp),
+                        Modifier.size(34.dp),
 
                     tint =
-                        AdminForestGreen
+                        PrimaryGreen
                 )
             }
         }
 
         Spacer(
             modifier =
-                Modifier.height(18.dp)
+                Modifier.height(17.dp)
         )
 
         Text(
             text =
                 "No Bookings Yet",
 
+            color =
+                PrimaryText,
+
             style =
                 MaterialTheme.typography.titleLarge,
 
             fontWeight =
-                FontWeight.Bold,
-
-            color =
-                AdminDarkCharcoal
+                FontWeight.Bold
         )
 
         Spacer(
@@ -483,10 +508,10 @@ private fun EmptyBookingsState() {
                 "Bookings for your turfs will appear here.",
 
             color =
-                AdminGray,
+                SecondaryText,
 
             fontSize =
-                14.sp
+                12.sp
         )
     }
 }
@@ -551,23 +576,20 @@ private fun AdminBookingCard(
             .replace("_", " ")
             .uppercase()
 
-    Card(
+    Surface(
         modifier =
             Modifier.fillMaxWidth(),
 
         shape =
             RoundedCornerShape(18.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
+        color =
+            SurfaceDark,
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    2.dp
+        border =
+            BorderStroke(
+                1.dp,
+                Border
             )
     ) {
 
@@ -596,8 +618,8 @@ private fun AdminBookingCard(
                         CircleShape,
 
                     color =
-                        AdminLightGreen.copy(
-                            alpha = 0.20f
+                        PrimaryGreen.copy(
+                            alpha = 0.10f
                         )
                 ) {
 
@@ -617,7 +639,7 @@ private fun AdminBookingCard(
                                 Modifier.size(23.dp),
 
                             tint =
-                                AdminForestGreen
+                                PrimaryGreen
                         )
                     }
                 }
@@ -637,7 +659,7 @@ private fun AdminBookingCard(
                             customerName,
 
                         color =
-                            AdminDarkCharcoal,
+                            PrimaryText,
 
                         fontSize =
                             16.sp,
@@ -661,15 +683,49 @@ private fun AdminBookingCard(
                                 email,
 
                             color =
-                                AdminGray,
+                                SecondaryText,
 
                             fontSize =
-                                12.sp,
+                                11.sp,
 
                             maxLines =
                                 1
                         )
                     }
+                }
+
+                Spacer(
+                    modifier =
+                        Modifier.width(8.dp)
+                )
+
+                Surface(
+                    shape =
+                        RoundedCornerShape(8.dp),
+
+                    color =
+                        SurfaceElevated
+                ) {
+
+                    Text(
+                        text =
+                            "#${booking.id}",
+
+                        modifier =
+                            Modifier.padding(
+                                horizontal = 8.dp,
+                                vertical = 5.dp
+                            ),
+
+                        color =
+                            MutedText,
+
+                        fontSize =
+                            10.sp,
+
+                        fontWeight =
+                            FontWeight.SemiBold
+                    )
                 }
             }
 
@@ -687,7 +743,7 @@ private fun AdminBookingCard(
                     Icons.Default.SportsSoccer,
 
                 title =
-                    "Turf",
+                    "TURF",
 
                 value =
                     turfName
@@ -707,7 +763,7 @@ private fun AdminBookingCard(
                     Icons.Default.CalendarMonth,
 
                 title =
-                    "Booking Date",
+                    "BOOKING DATE",
 
                 value =
                     formatBookingDate(
@@ -729,7 +785,7 @@ private fun AdminBookingCard(
                     Icons.Default.CalendarMonth,
 
                 title =
-                    "Time Slot",
+                    "TIME SLOT",
 
                 value =
                     slotTime
@@ -742,7 +798,7 @@ private fun AdminBookingCard(
 
             HorizontalDivider(
                 color =
-                    AdminOffWhite
+                    Border
             )
 
             Spacer(
@@ -769,18 +825,24 @@ private fun AdminBookingCard(
 
                     Text(
                         text =
-                            "Total Amount",
+                            "TOTAL AMOUNT",
 
                         color =
-                            AdminGray,
+                            MutedText,
 
                         fontSize =
-                            11.sp
+                            9.sp,
+
+                        fontWeight =
+                            FontWeight.Bold,
+
+                        letterSpacing =
+                            0.8.sp
                     )
 
                     Spacer(
                         modifier =
-                            Modifier.height(2.dp)
+                            Modifier.height(3.dp)
                     )
 
                     Text(
@@ -790,42 +852,13 @@ private fun AdminBookingCard(
                             )}",
 
                         color =
-                            AdminDarkGreen,
+                            PrimaryText,
 
                         fontSize =
                             20.sp,
 
                         fontWeight =
                             FontWeight.Bold
-                    )
-                }
-
-                Surface(
-                    shape =
-                        RoundedCornerShape(8.dp),
-
-                    color =
-                        AdminOffWhite
-                ) {
-
-                    Text(
-                        text =
-                            "#${booking.id}",
-
-                        modifier =
-                            Modifier.padding(
-                                horizontal = 8.dp,
-                                vertical = 5.dp
-                            ),
-
-                        color =
-                            AdminGray,
-
-                        fontSize =
-                            10.sp,
-
-                        fontWeight =
-                            FontWeight.SemiBold
                     )
                 }
             }
@@ -885,90 +918,108 @@ private fun BookingInfoRow(
     value: String
 ) {
 
-    Row(
+    Surface(
         modifier =
             Modifier.fillMaxWidth(),
 
-        verticalAlignment =
-            Alignment.CenterVertically
+        shape =
+            RoundedCornerShape(12.dp),
+
+        color =
+            SurfaceElevated
     ) {
 
-        Surface(
+        Row(
             modifier =
-                Modifier.size(36.dp),
+                Modifier.padding(11.dp),
 
-            shape =
-                RoundedCornerShape(10.dp),
-
-            color =
-                AdminLightGreen.copy(
-                    alpha = 0.18f
-                )
+            verticalAlignment =
+                Alignment.CenterVertically
         ) {
 
-            Box(
-                contentAlignment =
-                    Alignment.Center
-            ) {
+            Surface(
+                modifier =
+                    Modifier.size(36.dp),
 
-                Icon(
-                    imageVector =
-                        icon,
-
-                    contentDescription =
-                        null,
-
-                    modifier =
-                        Modifier.size(18.dp),
-
-                    tint =
-                        AdminForestGreen
-                )
-            }
-        }
-
-        Spacer(
-            modifier =
-                Modifier.width(10.dp)
-        )
-
-        Column(
-            modifier =
-                Modifier.weight(1f)
-        ) {
-
-            Text(
-                text =
-                    title,
+                shape =
+                    RoundedCornerShape(10.dp),
 
                 color =
-                    AdminGray,
+                    PrimaryGreen.copy(
+                        alpha = 0.10f
+                    )
+            ) {
 
-                fontSize =
-                    11.sp
-            )
+                Box(
+                    contentAlignment =
+                        Alignment.Center
+                ) {
+
+                    Icon(
+                        imageVector =
+                            icon,
+
+                        contentDescription =
+                            null,
+
+                        modifier =
+                            Modifier.size(18.dp),
+
+                        tint =
+                            PrimaryGreen
+                    )
+                }
+            }
 
             Spacer(
                 modifier =
-                    Modifier.height(2.dp)
+                    Modifier.width(10.dp)
             )
 
-            Text(
-                text =
-                    value,
+            Column(
+                modifier =
+                    Modifier.weight(1f)
+            ) {
 
-                color =
-                    AdminDarkCharcoal,
+                Text(
+                    text =
+                        title,
 
-                fontSize =
-                    13.sp,
+                    color =
+                        MutedText,
 
-                fontWeight =
-                    FontWeight.SemiBold,
+                    fontSize =
+                        9.sp,
 
-                maxLines =
-                    2
-            )
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    letterSpacing =
+                        0.7.sp
+                )
+
+                Spacer(
+                    modifier =
+                        Modifier.height(3.dp)
+                )
+
+                Text(
+                    text =
+                        value,
+
+                    color =
+                        PrimaryText,
+
+                    fontSize =
+                        12.sp,
+
+                    fontWeight =
+                        FontWeight.Medium,
+
+                    maxLines =
+                        2
+                )
+            }
         }
     }
 }
@@ -1001,12 +1052,12 @@ private fun BookingStatusBadge(
                 normalizedStatus.contains("SUCCESS") -> {
 
             backgroundColor =
-                AdminLightGreen.copy(
-                    alpha = 0.18f
+                PrimaryGreen.copy(
+                    alpha = 0.10f
                 )
 
             contentColor =
-                AdminForestGreen
+                LightGreen
 
             icon =
                 Icons.Default.CheckCircle
@@ -1017,10 +1068,12 @@ private fun BookingStatusBadge(
                 normalizedStatus.contains("REFUNDED") -> {
 
             backgroundColor =
-                AdminRedBackground
+                ErrorRed.copy(
+                    alpha = 0.08f
+                )
 
             contentColor =
-                AdminRed
+                ErrorRed
 
             icon =
                 Icons.Default.Warning
@@ -1030,10 +1083,12 @@ private fun BookingStatusBadge(
                 normalizedStatus.contains("ELIGIBLE") -> {
 
             backgroundColor =
-                AdminOrangeBackground
+                WarningOrange.copy(
+                    alpha = 0.08f
+                )
 
             contentColor =
-                AdminOrange
+                WarningOrange
 
             icon =
                 Icons.Default.Warning
@@ -1042,10 +1097,12 @@ private fun BookingStatusBadge(
         else -> {
 
             backgroundColor =
-                AdminBlueBackground
+                InfoBlue.copy(
+                    alpha = 0.08f
+                )
 
             contentColor =
-                AdminBlue
+                InfoBlue
 
             icon =
                 Icons.Default.CalendarMonth
@@ -1100,7 +1157,7 @@ private fun BookingStatusBadge(
                         label,
 
                     color =
-                        AdminGray,
+                        MutedText,
 
                     fontSize =
                         9.sp
@@ -1243,4 +1300,3 @@ private fun formatAmount(
         )
     }
 }
-

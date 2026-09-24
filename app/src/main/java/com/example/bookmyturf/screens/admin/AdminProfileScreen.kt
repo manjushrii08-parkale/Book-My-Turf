@@ -1,5 +1,5 @@
 package com.example.bookmyturf.screens.admin
-
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,41 +12,48 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-
 import androidx.compose.foundation.lazy.LazyColumn
-
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-
 import androidx.compose.runtime.Composable
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.draw.clip
-import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
-import com.example.bookmyturf.ui.theme.AdminDarkGreen
-import com.example.bookmyturf.ui.theme.AdminForestGreen
-import com.example.bookmyturf.ui.theme.AdminGray
-import com.example.bookmyturf.ui.theme.AdminLightGreen
-import com.example.bookmyturf.ui.theme.AdminOffWhite
-import com.example.bookmyturf.ui.theme.AdminWhite
+
+
+// =============================================================
+// PREMIUM ADMIN COLORS
+// Same design system as:
+// Subscription / Dashboard / Turfs / Bookings
+// =============================================================
+
+private val Background = Color(0xFF020907)
+private val SurfaceDark = Color(0xFF06110D)
+private val SurfaceElevated = Color(0xFF091711)
+private val SurfaceHighlight = Color(0xFF0D2017)
+
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
+private val Border = Color(0xFF183027)
 
 
 // =============================================================
@@ -55,12 +62,13 @@ import com.example.bookmyturf.ui.theme.AdminWhite
 //
 // NOTE:
 // This screen does NOT contain Scaffold.
+//
 // AdminHomeScreen already provides:
 // - AdminTopBar
 // - AdminBottomBar
 //
-// modifier receives the Scaffold paddingValues so the content
-// stays between the TopBar and BottomBar.
+// modifier receives Scaffold paddingValues so the content
+// remains between TopBar and BottomBar.
 // =============================================================
 
 @Composable
@@ -83,17 +91,13 @@ fun AdminProfileScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(
-                    AdminOffWhite
-                )
+                .background(Background)
                 .padding(
-                    horizontal = 16.dp
+                    horizontal = 20.dp
                 ),
 
         verticalArrangement =
-            Arrangement.spacedBy(
-                16.dp
-            )
+            Arrangement.spacedBy(16.dp)
     ) {
 
         // =====================================================
@@ -115,7 +119,7 @@ fun AdminProfileScreen(
 
         item {
 
-            Card(
+            Surface(
 
                 modifier =
                     Modifier.fillMaxWidth(),
@@ -123,173 +127,212 @@ fun AdminProfileScreen(
                 shape =
                     RoundedCornerShape(20.dp),
 
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            AdminWhite
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation =
-                            3.dp
-                    )
-
+                color =
+                    SurfaceDark
             ) {
 
-                Column(
-
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally
-
-                ) {
+                Box {
 
                     // -----------------------------------------
-                    // AVATAR
+                    // SUBTLE TOP GRADIENT
                     // -----------------------------------------
 
                     Box(
-
                         modifier =
                             Modifier
-                                .size(82.dp)
-                                .clip(CircleShape)
+                                .fillMaxWidth()
+                                .height(100.dp)
                                 .background(
-                                    AdminDarkGreen
-                                ),
-
-                        contentAlignment =
-                            Alignment.Center
-
-                    ) {
-
-                        Text(
-
-                            text =
-                                adminName
-                                    .trim()
-                                    .take(1)
-                                    .uppercase()
-                                    .ifBlank {
-                                        "A"
-                                    },
-
-                            color =
-                                Color.White,
-
-                            fontSize =
-                                30.sp,
-
-                            fontWeight =
-                                FontWeight.Bold
-                        )
-                    }
-
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(14.dp)
-                    )
-
-
-                    // -----------------------------------------
-                    // ADMIN NAME
-                    // -----------------------------------------
-
-                    Text(
-
-                        text =
-                            adminName.ifBlank {
-                                "Admin"
-                            },
-
-                        color =
-                            AdminDarkCharcoal,
-
-                        fontSize =
-                            22.sp,
-
-                        fontWeight =
-                            FontWeight.Bold
-                    )
-
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(4.dp)
-                    )
-
-
-                    // -----------------------------------------
-                    // EMAIL
-                    // -----------------------------------------
-
-                    Text(
-
-                        text =
-                            adminEmail.ifBlank {
-                                "No email available"
-                            },
-
-                        color =
-                            AdminGray,
-
-                        fontSize =
-                            13.sp
-                    )
-
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(10.dp)
-                    )
-
-
-                    // -----------------------------------------
-                    // ROLE BADGE
-                    // -----------------------------------------
-
-                    Box(
-
-                        modifier =
-                            Modifier
-                                .clip(
-                                    RoundedCornerShape(50.dp)
-                                )
-                                .background(
-                                    AdminLightGreen.copy(
-                                        alpha = 0.18f
+                                    Brush.horizontalGradient(
+                                        colors =
+                                            listOf(
+                                                Color(0xFF071810),
+                                                Color(0xFF0D2017),
+                                                Color(0xFF06110D)
+                                            )
                                     )
                                 )
+                    )
+
+
+                    Column(
+
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
                                 .padding(
-                                    horizontal = 14.dp,
-                                    vertical = 7.dp
-                                )
+                                    top = 30.dp,
+                                    bottom = 24.dp,
+                                    start = 20.dp,
+                                    end = 20.dp
+                                ),
+
+                        horizontalAlignment =
+                            Alignment.CenterHorizontally
 
                     ) {
+
+                        // -------------------------------------
+                        // AVATAR
+                        // -------------------------------------
+
+                        Box(
+
+                            modifier =
+                                Modifier
+                                    .size(84.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        PrimaryGreen.copy(
+                                            alpha = 0.12f
+                                        )
+                                    ),
+
+                            contentAlignment =
+                                Alignment.Center
+
+                        ) {
+
+                            Box(
+
+                                modifier =
+                                    Modifier
+                                        .size(70.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            SurfaceHighlight
+                                        ),
+
+                                contentAlignment =
+                                    Alignment.Center
+
+                            ) {
+
+                                Text(
+
+                                    text =
+                                        adminName
+                                            .trim()
+                                            .take(1)
+                                            .uppercase()
+                                            .ifBlank {
+                                                "A"
+                                            },
+
+                                    color =
+                                        LightGreen,
+
+                                    fontSize =
+                                        28.sp,
+
+                                    fontWeight =
+                                        FontWeight.Bold
+                                )
+                            }
+                        }
+
+
+                        Spacer(
+                            modifier =
+                                Modifier.height(16.dp)
+                        )
+
+
+                        // -------------------------------------
+                        // ADMIN NAME
+                        // -------------------------------------
 
                         Text(
 
                             text =
-                                "TURF OWNER",
+                                adminName.ifBlank {
+                                    "Admin"
+                                },
 
                             color =
-                                AdminForestGreen,
+                                PrimaryText,
 
                             fontSize =
-                                11.sp,
+                                22.sp,
 
                             fontWeight =
                                 FontWeight.Bold,
 
                             letterSpacing =
-                                0.8.sp
+                                (-0.3).sp
                         )
+
+
+                        Spacer(
+                            modifier =
+                                Modifier.height(5.dp)
+                        )
+
+
+                        // -------------------------------------
+                        // EMAIL
+                        // -------------------------------------
+
+                        Text(
+
+                            text =
+                                adminEmail.ifBlank {
+                                    "No email available"
+                                },
+
+                            color =
+                                SecondaryText,
+
+                            fontSize =
+                                12.sp
+                        )
+
+
+                        Spacer(
+                            modifier =
+                                Modifier.height(12.dp)
+                        )
+
+
+                        // -------------------------------------
+                        // ROLE BADGE
+                        // -------------------------------------
+
+                        Surface(
+
+                            shape =
+                                RoundedCornerShape(50.dp),
+
+                            color =
+                                PrimaryGreen.copy(
+                                    alpha = 0.10f
+                                )
+                        ) {
+
+                            Text(
+
+                                text =
+                                    "TURF OWNER",
+
+                                modifier =
+                                    Modifier.padding(
+                                        horizontal = 14.dp,
+                                        vertical = 7.dp
+                                    ),
+
+                                color =
+                                    LightGreen,
+
+                                fontSize =
+                                    10.sp,
+
+                                fontWeight =
+                                    FontWeight.Bold,
+
+                                letterSpacing =
+                                    0.9.sp
+                            )
+                        }
                     }
                 }
             }
@@ -297,7 +340,7 @@ fun AdminProfileScreen(
 
 
         // =====================================================
-        // PROFILE INFORMATION
+        // PROFILE INFORMATION TITLE
         // =====================================================
 
         item {
@@ -394,7 +437,7 @@ fun AdminProfileScreen(
 
         item {
 
-            Card(
+            Surface(
 
                 modifier =
                     Modifier
@@ -406,18 +449,8 @@ fun AdminProfileScreen(
                 shape =
                     RoundedCornerShape(16.dp),
 
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            AdminWhite
-                    ),
-
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation =
-                            2.dp
-                    )
-
+                color =
+                    SurfaceDark
             ) {
 
                 Row(
@@ -433,48 +466,49 @@ fun AdminProfileScreen(
                 ) {
 
                     // -----------------------------------------
-                    // ICON
+                    // EDIT ICON
                     // -----------------------------------------
 
-                    Box(
+                    Surface(
 
                         modifier =
-                            Modifier
-                                .size(44.dp)
-                                .clip(
-                                    RoundedCornerShape(12.dp)
-                                )
-                                .background(
-                                    AdminLightGreen.copy(
-                                        alpha = 0.18f
-                                    )
-                                ),
+                            Modifier.size(44.dp),
 
-                        contentAlignment =
-                            Alignment.Center
+                        shape =
+                            RoundedCornerShape(12.dp),
 
+                        color =
+                            PrimaryGreen.copy(
+                                alpha = 0.10f
+                            )
                     ) {
 
-                        Icon(
+                        Box(
+                            contentAlignment =
+                                Alignment.Center
+                        ) {
 
-                            imageVector =
-                                Icons.Default.Edit,
+                            Icon(
 
-                            contentDescription =
-                                "Edit Profile",
+                                imageVector =
+                                    Icons.Default.Edit,
 
-                            tint =
-                                AdminForestGreen,
+                                contentDescription =
+                                    "Edit Profile",
 
-                            modifier =
-                                Modifier.size(22.dp)
-                        )
+                                tint =
+                                    LightGreen,
+
+                                modifier =
+                                    Modifier.size(21.dp)
+                            )
+                        }
                     }
 
 
                     Spacer(
                         modifier =
-                            Modifier.size(14.dp)
+                            Modifier.width(14.dp)
                     )
 
 
@@ -495,7 +529,7 @@ fun AdminProfileScreen(
                                 "Edit Profile",
 
                             color =
-                                AdminDarkCharcoal,
+                                PrimaryText,
 
                             fontSize =
                                 15.sp,
@@ -517,12 +551,32 @@ fun AdminProfileScreen(
                                 "Update your profile information",
 
                             color =
-                                AdminGray,
+                                SecondaryText,
 
                             fontSize =
-                                12.sp
+                                11.sp
                         )
                     }
+
+
+                    // -----------------------------------------
+                    // SMALL ARROW / ACCENT
+                    // -----------------------------------------
+
+                    Text(
+
+                        text =
+                            "›",
+
+                        color =
+                            MutedText,
+
+                        fontSize =
+                            25.sp,
+
+                        fontWeight =
+                            FontWeight.Light
+                    )
                 }
             }
         }
@@ -536,22 +590,20 @@ fun AdminProfileScreen(
 
             Spacer(
                 modifier =
-                    Modifier.height(12.dp)
+                    Modifier.height(10.dp)
             )
 
 
             HorizontalDivider(
 
                 color =
-                    Color.LightGray.copy(
-                        alpha = 0.7f
-                    )
+                    Border
             )
 
 
             Spacer(
                 modifier =
-                    Modifier.height(14.dp)
+                    Modifier.height(18.dp)
             )
 
 
@@ -571,7 +623,7 @@ fun AdminProfileScreen(
                         "BookMyTurf",
 
                     color =
-                        AdminDarkGreen,
+                        LightGreen,
 
                     fontSize =
                         14.sp,
@@ -583,7 +635,7 @@ fun AdminProfileScreen(
 
                 Spacer(
                     modifier =
-                        Modifier.height(3.dp)
+                        Modifier.height(4.dp)
                 )
 
 
@@ -593,7 +645,7 @@ fun AdminProfileScreen(
                         "Manage your turf business with ease",
 
                     color =
-                        AdminGray,
+                        MutedText,
 
                     fontSize =
                         11.sp
@@ -625,24 +677,27 @@ private fun AdminProfileSectionTitle(
             title,
 
         color =
-            AdminDarkGreen,
+            PrimaryText,
 
         fontSize =
-            16.sp,
+            14.sp,
 
         fontWeight =
             FontWeight.Bold,
 
+        letterSpacing =
+            0.2.sp,
+
         modifier =
             Modifier.padding(
-                start = 4.dp
+                start = 2.dp
             )
     )
 }
 
 
 // =============================================================
-// INFORMATION ROW
+// PROFILE INFORMATION ROW
 // =============================================================
 
 @Composable
@@ -656,7 +711,7 @@ private fun AdminProfileInfoRow(
 
 ) {
 
-    Card(
+    Surface(
 
         modifier =
             Modifier.fillMaxWidth(),
@@ -664,18 +719,8 @@ private fun AdminProfileInfoRow(
         shape =
             RoundedCornerShape(16.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
-
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    2.dp
-            )
-
+        color =
+            SurfaceDark
     ) {
 
         Row(
@@ -683,81 +728,95 @@ private fun AdminProfileInfoRow(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(15.dp),
 
             verticalAlignment =
                 Alignment.CenterVertically
 
         ) {
 
-            // -----------------------------------------------
+            // =================================================
             // ICON
-            // -----------------------------------------------
+            // =================================================
 
-            Box(
+            Surface(
 
                 modifier =
-                    Modifier
-                        .size(44.dp)
-                        .clip(
-                            RoundedCornerShape(12.dp)
-                        )
-                        .background(
-                            AdminLightGreen.copy(
-                                alpha = 0.18f
-                            )
-                        ),
+                    Modifier.size(44.dp),
 
-                contentAlignment =
-                    Alignment.Center
+                shape =
+                    RoundedCornerShape(12.dp),
 
+                color =
+                    PrimaryGreen.copy(
+                        alpha = 0.10f
+                    )
             ) {
 
-                Icon(
+                Box(
 
-                    imageVector =
-                        icon,
+                    contentAlignment =
+                        Alignment.Center
 
-                    contentDescription =
-                        title,
+                ) {
 
-                    tint =
-                        AdminForestGreen,
+                    Icon(
 
-                    modifier =
-                        Modifier.size(21.dp)
-                )
+                        imageVector =
+                            icon,
+
+                        contentDescription =
+                            title,
+
+                        tint =
+                            LightGreen,
+
+                        modifier =
+                            Modifier.size(21.dp)
+                    )
+                }
             }
 
 
             Spacer(
                 modifier =
-                    Modifier.size(14.dp)
+                    Modifier.width(14.dp)
             )
 
 
-            // -----------------------------------------------
+            // =================================================
             // TEXT
-            // -----------------------------------------------
+            // =================================================
 
-            Column {
+            Column(
+
+                modifier =
+                    Modifier.weight(1f)
+
+            ) {
 
                 Text(
 
                     text =
-                        title,
+                        title.uppercase(),
 
                     color =
-                        AdminGray,
+                        MutedText,
 
                     fontSize =
-                        12.sp
+                        9.sp,
+
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    letterSpacing =
+                        0.8.sp
                 )
 
 
                 Spacer(
                     modifier =
-                        Modifier.height(3.dp)
+                        Modifier.height(4.dp)
                 )
 
 
@@ -767,7 +826,7 @@ private fun AdminProfileInfoRow(
                         value,
 
                     color =
-                        AdminDarkCharcoal,
+                        PrimaryText,
 
                     fontSize =
                         14.sp,
@@ -779,4 +838,3 @@ private fun AdminProfileInfoRow(
         }
     }
 }
-

@@ -1,8 +1,10 @@
 package com.example.bookmyturf.screens.admin
 
-import android.widget.Toast
 import android.util.Log
+import android.widget.Toast
+
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,28 +16,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.WorkspacePremium
-
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,44 +43,54 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 import com.example.bookmyturf.MainActivity
-import com.example.bookmyturf.ui.theme.AdminDarkCharcoal
-import com.example.bookmyturf.ui.theme.AdminDarkGreen
-import com.example.bookmyturf.ui.theme.AdminForestGreen
-import com.example.bookmyturf.ui.theme.AdminGray
-import com.example.bookmyturf.ui.theme.AdminLightGreen
-import com.example.bookmyturf.ui.theme.AdminOffWhite
-import com.example.bookmyturf.ui.theme.AdminWhite
 import com.example.bookmyturf.viewmodel.AdminViewModel
 
 import kotlinx.coroutines.flow.collectLatest
 
 
 // =============================================================
+// PREMIUM BOOKMYTURF COLORS
+// =============================================================
+
+private val Background = Color(0xFF020907)
+
+private val SurfaceDark = Color(0xFF06110D)
+private val SurfaceElevated = Color(0xFF091711)
+private val SurfaceHighlight = Color(0xFF0D2017)
+
+private val PrimaryGreen = Color(0xFF7DBB4A)
+private val LightGreen = Color(0xFFA8D86E)
+private val BrightGreen = Color(0xFFC5F58B)
+
+private val PrimaryText = Color(0xFFF5F8F6)
+private val SecondaryText = Color(0xFFA1AEA8)
+private val MutedText = Color(0xFF687871)
+
+private val Border = Color(0xFF183027)
+
+private val ErrorRed = Color(0xFFFF6B6B)
+
+
+// =============================================================
 // ADMIN PAID PLANS SCREEN
 // =============================================================
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPaidPlansScreen(
     token: String,
@@ -93,8 +103,7 @@ fun AdminPaidPlansScreen(
     // CONTEXT
     // =========================================================
 
-    val context =
-        LocalContext.current
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     val activity =
         context as? MainActivity
@@ -166,8 +175,8 @@ fun AdminPaidPlansScreen(
 
 
     // =========================================================
-// SELECT PLAN
-// =========================================================
+    // SELECT PLAN
+    // =========================================================
 
     fun selectPlan(
         plan: String
@@ -225,7 +234,8 @@ fun AdminPaidPlansScreen(
                     "message = ${response.message}"
                 )
 
-                val data = response.data
+                val data =
+                    response.data
 
                 if (data == null) {
 
@@ -280,7 +290,8 @@ fun AdminPaidPlansScreen(
                     }"
                 )
 
-                val currentActivity = activity
+                val currentActivity =
+                    activity
 
                 if (currentActivity == null) {
 
@@ -329,68 +340,13 @@ fun AdminPaidPlansScreen(
     Scaffold(
 
         containerColor =
-            AdminOffWhite,
+            Background,
 
         topBar = {
 
-            TopAppBar(
-
-                navigationIcon = {
-
-                    IconButton(
-                        onClick =
-                            onBackClick
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.Default.ArrowBack,
-
-                            contentDescription =
-                                "Back",
-
-                            tint =
-                                AdminDarkGreen
-                        )
-                    }
-                },
-
-                title = {
-
-                    Column {
-
-                        Text(
-                            text =
-                                "PRO Plans",
-
-                            color =
-                                AdminDarkCharcoal,
-
-                            fontSize =
-                                18.sp,
-
-                            fontWeight =
-                                FontWeight.Bold
-                        )
-
-                        Text(
-                            text =
-                                "Choose your subscription",
-
-                            color =
-                                AdminGray,
-
-                            fontSize =
-                                10.sp
-                        )
-                    }
-                },
-
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor =
-                            AdminWhite
-                    )
+            PremiumPaidPlansTopBar(
+                onBackClick =
+                    onBackClick
             )
         }
 
@@ -406,12 +362,12 @@ fun AdminPaidPlansScreen(
                         rememberScrollState()
                     )
                     .padding(
-                        horizontal = 18.dp,
-                        vertical = 18.dp
+                        horizontal = 20.dp,
+                        vertical = 14.dp
                     ),
 
             verticalArrangement =
-                Arrangement.spacedBy(16.dp)
+                Arrangement.spacedBy(20.dp)
         ) {
 
             // =================================================
@@ -422,37 +378,60 @@ fun AdminPaidPlansScreen(
 
 
             // =================================================
-            // TITLE
+            // SECTION TITLE
             // =================================================
 
             Column(
                 verticalArrangement =
-                    Arrangement.spacedBy(3.dp)
+                    Arrangement.spacedBy(5.dp)
             ) {
 
                 Text(
                     text =
-                        "Choose your plan",
+                        "CHOOSE YOUR PLAN",
 
                     color =
-                        AdminDarkCharcoal,
+                        PrimaryGreen,
 
                     fontSize =
-                        20.sp,
+                        9.sp,
 
                     fontWeight =
-                        FontWeight.Bold
+                        FontWeight.Bold,
+
+                    letterSpacing =
+                        1.7.sp
                 )
 
                 Text(
                     text =
-                        "Upgrade your turf business with full management access.",
+                        "Upgrade your business",
 
                     color =
-                        AdminGray,
+                        PrimaryText,
 
                     fontSize =
-                        12.sp
+                        25.sp,
+
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    letterSpacing =
+                        (-0.5).sp
+                )
+
+                Text(
+                    text =
+                        "Get full management access for your turf business.",
+
+                    color =
+                        SecondaryText,
+
+                    fontSize =
+                        12.sp,
+
+                    lineHeight =
+                        18.sp
                 )
             }
 
@@ -463,43 +442,21 @@ fun AdminPaidPlansScreen(
 
             if (!error.isNullOrBlank()) {
 
-                Surface(
-
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    shape =
-                        RoundedCornerShape(12.dp),
-
-                    color =
-                        Color(0xFFFFEBEE)
-                ) {
-
-                    Text(
-                        text =
-                            error ?: "",
-
-                        modifier =
-                            Modifier.padding(12.dp),
-
-                        color =
-                            Color(0xFFC62828),
-
-                        fontSize =
-                            12.sp
-                    )
-                }
+                SubscriptionErrorBanner(
+                    message =
+                        error ?: ""
+                )
             }
 
 
             // =================================================
-            // MONTHLY
+            // MONTHLY PLAN
             // =================================================
 
-            AdminPlanCard(
+            PremiumPlanCard(
 
                 title =
-                    "Monthly Plan",
+                    "Monthly",
 
                 price =
                     "₹499",
@@ -536,13 +493,13 @@ fun AdminPaidPlansScreen(
 
 
             // =================================================
-            // YEARLY
+            // YEARLY PLAN
             // =================================================
 
-            AdminPlanCard(
+            PremiumPlanCard(
 
                 title =
-                    "Yearly Plan",
+                    "Yearly",
 
                 price =
                     "₹4,999",
@@ -579,7 +536,7 @@ fun AdminPaidPlansScreen(
 
 
             // =================================================
-            // INCLUDED
+            // INCLUDED FEATURES
             // =================================================
 
             IncludedFeaturesCard()
@@ -594,8 +551,153 @@ fun AdminPaidPlansScreen(
 
             Spacer(
                 modifier =
-                    Modifier.height(5.dp)
+                    Modifier.height(6.dp)
             )
+        }
+    }
+}
+
+
+// =============================================================
+// PREMIUM TOP BAR
+// =============================================================
+
+@Composable
+private fun PremiumPaidPlansTopBar(
+    onBackClick: () -> Unit
+) {
+
+    Surface(
+        color =
+            Background,
+
+        shadowElevation =
+            0.dp
+    ) {
+
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors =
+                                listOf(
+                                    Color(0xFF020907),
+                                    Color(0xFF071810),
+                                    Color(0xFF020907)
+                                )
+                        )
+                    )
+                    .statusBarsPadding()
+        ) {
+
+            Column {
+
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(68.dp)
+                ) {
+
+                    // -------------------------------------------------
+                    // BACK BUTTON
+                    // -------------------------------------------------
+
+                    Surface(
+                        modifier =
+                            Modifier
+                                .align(
+                                    Alignment.CenterStart
+                                )
+                                .padding(
+                                    start = 14.dp
+                                )
+                                .size(42.dp),
+
+                        shape =
+                            RoundedCornerShape(14.dp),
+
+                        color =
+                            SurfaceElevated
+                    ) {
+
+                        IconButton(
+                            onClick =
+                                onBackClick
+                        ) {
+
+                            Icon(
+                                imageVector =
+                                    Icons.Default.ArrowBack,
+
+                                contentDescription =
+                                    "Back",
+
+                                tint =
+                                    PrimaryText,
+
+                                modifier =
+                                    Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+
+                    // -------------------------------------------------
+                    // CENTER TITLE
+                    // -------------------------------------------------
+
+                    Text(
+                        text =
+                            "BookMyTurf",
+
+                        modifier =
+                            Modifier.align(
+                                Alignment.Center
+                            ),
+
+                        color =
+                            PrimaryText,
+
+                        fontSize =
+                            20.sp,
+
+                        fontWeight =
+                            FontWeight.Bold,
+
+                        letterSpacing =
+                            (-0.3).sp
+                    )
+                }
+
+
+                // -------------------------------------------------
+                // DIVIDER
+                // -------------------------------------------------
+
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors =
+                                        listOf(
+                                            Color.Transparent,
+                                            Border,
+                                            PrimaryGreen.copy(
+                                                alpha = 0.18f
+                                            ),
+                                            Border,
+                                            Color.Transparent
+                                        )
+                                )
+                            )
+                )
+            }
         }
     }
 }
@@ -608,51 +710,70 @@ fun AdminPaidPlansScreen(
 @Composable
 private fun ProHeroCard() {
 
-    Card(
+    Surface(
 
         modifier =
             Modifier.fillMaxWidth(),
 
         shape =
-            RoundedCornerShape(22.dp),
+            RoundedCornerShape(27.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminDarkGreen
-            ),
+        color =
+            SurfaceDark,
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    3.dp
+        border =
+            BorderStroke(
+                1.dp,
+                PrimaryGreen.copy(
+                    alpha = 0.28f
+                )
             )
     ) {
 
-        Row(
-
+        Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(19.dp),
-
-            verticalAlignment =
-                Alignment.CenterVertically
+                    .background(
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    Color(0xFF10271B),
+                                    SurfaceDark,
+                                    Background
+                                )
+                        )
+                    )
         ) {
 
-            Surface(
+            Row(
 
                 modifier =
-                    Modifier.size(48.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(21.dp),
 
-                shape =
-                    RoundedCornerShape(14.dp),
-
-                color =
-                    AdminLightGreen
+                verticalAlignment =
+                    Alignment.CenterVertically
             ) {
 
+                // -------------------------------------------------
+                // ICON
+                // -------------------------------------------------
+
                 Box(
+                    modifier =
+                        Modifier
+                            .size(58.dp)
+                            .clip(
+                                RoundedCornerShape(18.dp)
+                            )
+                            .background(
+                                PrimaryGreen.copy(
+                                    alpha = 0.14f
+                                )
+                            ),
+
                     contentAlignment =
                         Alignment.Center
                 ) {
@@ -666,64 +787,84 @@ private fun ProHeroCard() {
                             null,
 
                         modifier =
-                            Modifier.size(26.dp),
+                            Modifier.size(29.dp),
 
                         tint =
-                            AdminDarkGreen
+                            BrightGreen
                     )
                 }
-            }
-
-
-            Spacer(
-                modifier =
-                    Modifier.width(12.dp)
-            )
-
-
-            Column(
-                modifier =
-                    Modifier.weight(1f)
-            ) {
-
-                Text(
-
-                    text =
-                        "Unlock PRO",
-
-                    color =
-                        AdminWhite,
-
-                    fontSize =
-                        16.sp,
-
-                    fontWeight =
-                        FontWeight.Bold
-                )
 
 
                 Spacer(
                     modifier =
-                        Modifier.height(3.dp)
+                        Modifier.width(15.dp)
                 )
 
 
-                Text(
+                // -------------------------------------------------
+                // HERO TEXT
+                // -------------------------------------------------
 
-                    text =
-                        "Manage more turfs and grow your business.",
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
 
-                    color =
-                        AdminWhite.copy(
-                            alpha = 0.75f
-                        ),
+                    Text(
+                        text =
+                            "PRO ACCESS",
 
-                    fontSize =
-                        11.sp,
+                        color =
+                            PrimaryGreen,
 
-                    lineHeight =
-                        16.sp
-                )
+                        fontSize =
+                            9.sp,
+
+                        fontWeight =
+                            FontWeight.Bold,
+
+                        letterSpacing =
+                            1.4.sp
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(4.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Unlock PRO",
+
+                        color =
+                            PrimaryText,
+
+                        fontSize =
+                            19.sp,
+
+                        fontWeight =
+                            FontWeight.Bold
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(3.dp)
+                    )
+
+                    Text(
+                        text =
+                            "Manage more turfs and grow your business.",
+
+                        color =
+                            SecondaryText,
+
+                        fontSize =
+                            11.sp,
+
+                        lineHeight =
+                            16.sp
+                    )
+                }
             }
         }
     }
@@ -731,11 +872,11 @@ private fun ProHeroCard() {
 
 
 // =============================================================
-// PLAN CARD
+// PREMIUM PLAN CARD
 // =============================================================
 
 @Composable
-private fun AdminPlanCard(
+private fun PremiumPlanCard(
 
     title: String,
 
@@ -756,7 +897,7 @@ private fun AdminPlanCard(
     onClick: () -> Unit
 ) {
 
-    Card(
+    Surface(
 
         modifier =
             Modifier
@@ -766,14 +907,16 @@ private fun AdminPlanCard(
                     if (isRecommended) {
 
                         Modifier.border(
-                            width = 1.5.dp,
+                            width = 1.dp,
 
                             color =
-                                AdminForestGreen,
+                                PrimaryGreen.copy(
+                                    alpha = 0.48f
+                                ),
 
                             shape =
                                 RoundedCornerShape(
-                                    20.dp
+                                    25.dp
                                 )
                         )
 
@@ -784,45 +927,38 @@ private fun AdminPlanCard(
                 ),
 
         shape =
-            RoundedCornerShape(20.dp),
+            RoundedCornerShape(25.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
-
-        elevation =
-            CardDefaults.cardElevation(
-
-                defaultElevation =
-                    if (isRecommended) {
-                        4.dp
-                    } else {
-                        1.dp
-                    }
-            )
+        color =
+            if (isRecommended) {
+                SurfaceHighlight
+            } else {
+                SurfaceDark
+            }
     ) {
 
         Column(
 
             modifier =
-                Modifier.padding(19.dp)
+                Modifier.padding(21.dp),
+
+            verticalArrangement =
+                Arrangement.spacedBy(16.dp)
         ) {
 
-            // =================================================
-            // BADGE
-            // =================================================
+            // =====================================================
+            // RECOMMENDED BADGE
+            // =====================================================
 
             if (isRecommended) {
 
                 Surface(
 
                     shape =
-                        RoundedCornerShape(50.dp),
+                        RoundedCornerShape(9.dp),
 
                     color =
-                        AdminDarkGreen
+                        PrimaryGreen
                 ) {
 
                     Row(
@@ -846,18 +982,16 @@ private fun AdminPlanCard(
                                 null,
 
                             modifier =
-                                Modifier.size(14.dp),
+                                Modifier.size(13.dp),
 
                             tint =
-                                AdminLightGreen
+                                Color(0xFF071008)
                         )
-
 
                         Spacer(
                             modifier =
                                 Modifier.width(5.dp)
                         )
-
 
                         Text(
 
@@ -865,31 +999,25 @@ private fun AdminPlanCard(
                                 "BEST VALUE",
 
                             color =
-                                AdminWhite,
+                                Color(0xFF071008),
 
                             fontSize =
-                                9.sp,
+                                8.sp,
 
                             fontWeight =
                                 FontWeight.Bold,
 
                             letterSpacing =
-                                0.8.sp
+                                0.9.sp
                         )
                     }
                 }
-
-
-                Spacer(
-                    modifier =
-                        Modifier.height(12.dp)
-                )
             }
 
 
-            // =================================================
+            // =====================================================
             // HEADER
-            // =================================================
+            // =====================================================
 
             Row(
 
@@ -901,18 +1029,16 @@ private fun AdminPlanCard(
             ) {
 
                 Column(
-
                     modifier =
                         Modifier.weight(1f)
                 ) {
 
                     Text(
-
                         text =
                             title,
 
                         color =
-                            AdminDarkCharcoal,
+                            PrimaryText,
 
                         fontSize =
                             19.sp,
@@ -921,23 +1047,23 @@ private fun AdminPlanCard(
                             FontWeight.Bold
                     )
 
-
                     Spacer(
                         modifier =
-                            Modifier.height(3.dp)
+                            Modifier.height(4.dp)
                     )
 
-
                     Text(
-
                         text =
                             description,
 
                         color =
-                            AdminGray,
+                            SecondaryText,
 
                         fontSize =
-                            11.sp
+                            11.sp,
+
+                        lineHeight =
+                            16.sp
                     )
                 }
 
@@ -950,8 +1076,8 @@ private fun AdminPlanCard(
                             RoundedCornerShape(8.dp),
 
                         color =
-                            AdminLightGreen.copy(
-                                alpha = 0.20f
+                            PrimaryGreen.copy(
+                                alpha = 0.12f
                             )
                     ) {
 
@@ -967,7 +1093,7 @@ private fun AdminPlanCard(
                                 ),
 
                             color =
-                                AdminForestGreen,
+                                LightGreen,
 
                             fontSize =
                                 8.sp,
@@ -980,86 +1106,66 @@ private fun AdminPlanCard(
             }
 
 
-            Spacer(
-                modifier =
-                    Modifier.height(16.dp)
-            )
-
-
-            // =================================================
+            // =====================================================
             // PRICE
-            // =================================================
+            // =====================================================
 
             Row(
-
                 verticalAlignment =
                     Alignment.Bottom
             ) {
 
                 Text(
-
                     text =
                         price,
 
                     color =
-                        AdminDarkGreen,
+                        PrimaryText,
 
                     fontSize =
-                        32.sp,
+                        33.sp,
 
                     fontWeight =
-                        FontWeight.Bold
-                )
+                        FontWeight.Bold,
 
+                    letterSpacing =
+                        (-0.7).sp
+                )
 
                 Spacer(
                     modifier =
-                        Modifier.width(5.dp)
+                        Modifier.width(6.dp)
                 )
 
-
                 Text(
-
                     text =
                         period,
 
                     modifier =
                         Modifier.padding(
-                            bottom = 5.dp
+                            bottom = 6.dp
                         ),
 
                     color =
-                        AdminGray,
+                        MutedText,
 
                     fontSize =
-                        12.sp
+                        11.sp
                 )
             }
 
 
-            Spacer(
-                modifier =
-                    Modifier.height(15.dp)
-            )
-
-
             HorizontalDivider(
                 color =
-                    Color(0xFFE7ECE7)
+                    Border
             )
 
 
-            Spacer(
-                modifier =
-                    Modifier.height(11.dp)
-            )
-
-
-            // =================================================
+            // =====================================================
             // FEATURES
-            // =================================================
+            // =====================================================
 
-            PlanFeature(
+            PremiumPlanFeature(
                 icon =
                     Icons.Default.SportsSoccer,
 
@@ -1067,8 +1173,7 @@ private fun AdminPlanCard(
                     "Manage your turfs"
             )
 
-
-            PlanFeature(
+            PremiumPlanFeature(
                 icon =
                     Icons.Default.Timer,
 
@@ -1076,8 +1181,7 @@ private fun AdminPlanCard(
                     "Create and manage slots"
             )
 
-
-            PlanFeature(
+            PremiumPlanFeature(
                 icon =
                     Icons.Default.CalendarMonth,
 
@@ -1085,8 +1189,7 @@ private fun AdminPlanCard(
                     "View customer bookings"
             )
 
-
-            PlanFeature(
+            PremiumPlanFeature(
                 icon =
                     Icons.Default.Groups,
 
@@ -1095,15 +1198,9 @@ private fun AdminPlanCard(
             )
 
 
-            Spacer(
-                modifier =
-                    Modifier.height(16.dp)
-            )
-
-
-            // =================================================
+            // =====================================================
             // BUTTON
-            // =================================================
+            // =====================================================
 
             if (isRecommended) {
 
@@ -1118,30 +1215,80 @@ private fun AdminPlanCard(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(49.dp),
+                            .height(53.dp),
 
                     shape =
-                        RoundedCornerShape(12.dp),
+                        RoundedCornerShape(16.dp),
 
                     colors =
                         ButtonDefaults.buttonColors(
 
                             containerColor =
-                                AdminDarkGreen,
+                                PrimaryGreen,
 
                             contentColor =
-                                AdminWhite
+                                Color(0xFF061008),
+
+                            disabledContainerColor =
+                                PrimaryGreen.copy(
+                                    alpha = 0.45f
+                                ),
+
+                            disabledContentColor =
+                                Color(0xFF061008).copy(
+                                    alpha = 0.65f
+                                )
                         )
                 ) {
 
-                    Text(
+                    if (isLoadingIndicator(buttonText)) {
 
+                        CircularProgressIndicator(
+                            modifier =
+                                Modifier.size(18.dp),
+
+                            color =
+                                Color(0xFF061008),
+
+                            strokeWidth =
+                                2.dp
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(9.dp)
+                        )
+                    }
+
+                    Text(
                         text =
                             buttonText,
+
+                        fontSize =
+                            13.sp,
 
                         fontWeight =
                             FontWeight.Bold
                     )
+
+                    if (!isLoadingIndicator(buttonText)) {
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(8.dp)
+                        )
+
+                        Icon(
+                            imageVector =
+                                Icons.Default.ArrowForward,
+
+                            contentDescription =
+                                null,
+
+                            modifier =
+                                Modifier.size(17.dp)
+                        )
+                    }
                 }
 
             } else {
@@ -1157,31 +1304,81 @@ private fun AdminPlanCard(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(49.dp),
+                            .height(53.dp),
 
                     shape =
-                        RoundedCornerShape(12.dp),
+                        RoundedCornerShape(16.dp),
 
                     border =
                         BorderStroke(
                             1.dp,
-                            AdminForestGreen.copy(
+                            PrimaryGreen.copy(
                                 alpha = 0.55f
                             )
+                        ),
+
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+
+                            contentColor =
+                                PrimaryText,
+
+                            disabledContentColor =
+                                MutedText
                         )
                 ) {
 
-                    Text(
+                    if (isLoadingIndicator(buttonText)) {
 
+                        CircularProgressIndicator(
+                            modifier =
+                                Modifier.size(18.dp),
+
+                            color =
+                                PrimaryGreen,
+
+                            strokeWidth =
+                                2.dp
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(9.dp)
+                        )
+                    }
+
+                    Text(
                         text =
                             buttonText,
 
-                        color =
-                            AdminForestGreen,
+                        fontSize =
+                            13.sp,
 
                         fontWeight =
                             FontWeight.SemiBold
                     )
+
+                    if (!isLoadingIndicator(buttonText)) {
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(8.dp)
+                        )
+
+                        Icon(
+                            imageVector =
+                                Icons.Default.ArrowForward,
+
+                            contentDescription =
+                                null,
+
+                            modifier =
+                                Modifier.size(17.dp),
+
+                            tint =
+                                LightGreen
+                        )
+                    }
                 }
             }
         }
@@ -1190,11 +1387,22 @@ private fun AdminPlanCard(
 
 
 // =============================================================
+// LOADING TEXT CHECK
+// =============================================================
+
+private fun isLoadingIndicator(
+    text: String
+): Boolean {
+    return text == "Processing..."
+}
+
+
+// =============================================================
 // PLAN FEATURE
 // =============================================================
 
 @Composable
-private fun PlanFeature(
+private fun PremiumPlanFeature(
     icon: ImageVector,
     text: String
 ) {
@@ -1202,56 +1410,48 @@ private fun PlanFeature(
     Row(
 
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    vertical = 4.dp
-                ),
+            Modifier.fillMaxWidth(),
 
         verticalAlignment =
             Alignment.CenterVertically
     ) {
 
-        Surface(
+        Box(
 
             modifier =
-                Modifier.size(23.dp),
+                Modifier
+                    .size(27.dp)
+                    .clip(CircleShape)
+                    .background(
+                        PrimaryGreen.copy(
+                            alpha = 0.10f
+                        )
+                    ),
 
-            shape =
-                CircleShape,
-
-            color =
-                AdminLightGreen.copy(
-                    alpha = 0.18f
-                )
+            contentAlignment =
+                Alignment.Center
         ) {
 
-            Box(
-                contentAlignment =
-                    Alignment.Center
-            ) {
+            Icon(
 
-                Icon(
+                imageVector =
+                    icon,
 
-                    imageVector =
-                        icon,
+                contentDescription =
+                    null,
 
-                    contentDescription =
-                        null,
+                modifier =
+                    Modifier.size(14.dp),
 
-                    modifier =
-                        Modifier.size(14.dp),
-
-                    tint =
-                        AdminForestGreen
-                )
-            }
+                tint =
+                    LightGreen
+            )
         }
 
 
         Spacer(
             modifier =
-                Modifier.width(9.dp)
+                Modifier.width(10.dp)
         )
 
 
@@ -1261,7 +1461,7 @@ private fun PlanFeature(
                 text,
 
             color =
-                AdminDarkCharcoal,
+                SecondaryText,
 
             fontSize =
                 12.sp
@@ -1277,64 +1477,126 @@ private fun PlanFeature(
 @Composable
 private fun IncludedFeaturesCard() {
 
-    Card(
+    Surface(
 
         modifier =
             Modifier.fillMaxWidth(),
 
         shape =
-            RoundedCornerShape(19.dp),
+            RoundedCornerShape(23.dp),
 
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    AdminWhite
-            ),
+        color =
+            SurfaceDark,
 
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    1.dp
+        border =
+            BorderStroke(
+                1.dp,
+                Border
             )
     ) {
 
         Column(
 
             modifier =
-                Modifier.padding(18.dp)
+                Modifier.padding(20.dp)
         ) {
 
-            Text(
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
 
-                text =
-                    "What's included",
+                Box(
 
-                color =
-                    AdminDarkCharcoal,
+                    modifier =
+                        Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(
+                                PrimaryGreen.copy(
+                                    alpha = 0.10f
+                                )
+                            ),
 
-                fontSize =
-                    15.sp,
+                    contentAlignment =
+                        Alignment.Center
+                ) {
 
-                fontWeight =
-                    FontWeight.Bold
-            )
+                    Icon(
+
+                        imageVector =
+                            Icons.Default.CheckCircle,
+
+                        contentDescription =
+                            null,
+
+                        modifier =
+                            Modifier.size(19.dp),
+
+                        tint =
+                            LightGreen
+                    )
+                }
+
+
+                Spacer(
+                    modifier =
+                        Modifier.width(11.dp)
+                )
+
+
+                Column {
+
+                    Text(
+
+                        text =
+                            "What's included",
+
+                        color =
+                            PrimaryText,
+
+                        fontSize =
+                            15.sp,
+
+                        fontWeight =
+                            FontWeight.Bold
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(2.dp)
+                    )
+
+                    Text(
+
+                        text =
+                            "Everything you need to manage your business",
+
+                        color =
+                            MutedText,
+
+                        fontSize =
+                            10.sp
+                    )
+                }
+            }
 
 
             Spacer(
                 modifier =
-                    Modifier.height(11.dp)
+                    Modifier.height(15.dp)
             )
 
 
             HorizontalDivider(
                 color =
-                    Color(0xFFE8ECE8)
+                    Border
             )
 
 
             Spacer(
                 modifier =
-                    Modifier.height(7.dp)
+                    Modifier.height(8.dp)
             )
 
 
@@ -1399,37 +1661,53 @@ private fun IncludedFeature(
             Modifier
                 .fillMaxWidth()
                 .padding(
-                    vertical = 7.dp
+                    vertical = 8.dp
                 ),
 
         verticalAlignment =
             Alignment.Top
     ) {
 
-        Icon(
-
-            imageVector =
-                Icons.Default.CheckCircle,
-
-            contentDescription =
-                null,
+        Box(
 
             modifier =
-                Modifier.size(18.dp),
+                Modifier
+                    .size(22.dp)
+                    .clip(CircleShape)
+                    .background(
+                        PrimaryGreen.copy(
+                            alpha = 0.10f
+                        )
+                    ),
 
-            tint =
-                AdminForestGreen
-        )
+            contentAlignment =
+                Alignment.Center
+        ) {
+
+            Icon(
+
+                imageVector =
+                    Icons.Default.Check,
+
+                contentDescription =
+                    null,
+
+                modifier =
+                    Modifier.size(13.dp),
+
+                tint =
+                    LightGreen
+            )
+        }
 
 
         Spacer(
             modifier =
-                Modifier.width(9.dp)
+                Modifier.width(10.dp)
         )
 
 
         Column(
-
             modifier =
                 Modifier.weight(1f)
         ) {
@@ -1440,7 +1718,7 @@ private fun IncludedFeature(
                     title,
 
                 color =
-                    AdminDarkCharcoal,
+                    PrimaryText,
 
                 fontSize =
                     12.sp,
@@ -1462,13 +1740,111 @@ private fun IncludedFeature(
                     description,
 
                 color =
-                    AdminGray,
+                    SecondaryText,
 
                 fontSize =
                     10.sp,
 
                 lineHeight =
                     15.sp
+            )
+        }
+    }
+}
+
+
+// =============================================================
+// ERROR BANNER
+// =============================================================
+
+@Composable
+private fun SubscriptionErrorBanner(
+    message: String
+) {
+
+    Surface(
+
+        modifier =
+            Modifier.fillMaxWidth(),
+
+        shape =
+            RoundedCornerShape(17.dp),
+
+        color =
+            ErrorRed.copy(
+                alpha = 0.08f
+            ),
+
+        border =
+            BorderStroke(
+                1.dp,
+                ErrorRed.copy(
+                    alpha = 0.20f
+                )
+            )
+    ) {
+
+        Row(
+
+            modifier =
+                Modifier.padding(14.dp),
+
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+
+            Box(
+
+                modifier =
+                    Modifier
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .background(
+                            ErrorRed.copy(
+                                alpha = 0.10f
+                            )
+                        ),
+
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Icon(
+
+                    imageVector =
+                        Icons.Default.Lock,
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.size(15.dp),
+
+                    tint =
+                        ErrorRed
+                )
+            }
+
+
+            Spacer(
+                modifier =
+                    Modifier.width(10.dp)
+            )
+
+
+            Text(
+
+                text =
+                    message,
+
+                color =
+                    PrimaryText,
+
+                fontSize =
+                    11.sp,
+
+                lineHeight =
+                    16.sp
             )
         }
     }
@@ -1485,7 +1861,11 @@ private fun SecurityNote() {
     Row(
 
         modifier =
-            Modifier.fillMaxWidth(),
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 5.dp
+                ),
 
         horizontalArrangement =
             Arrangement.Center,
@@ -1503,16 +1883,16 @@ private fun SecurityNote() {
                 null,
 
             modifier =
-                Modifier.size(13.dp),
+                Modifier.size(12.dp),
 
             tint =
-                AdminGray
+                MutedText
         )
 
 
         Spacer(
             modifier =
-                Modifier.width(5.dp)
+                Modifier.width(6.dp)
         )
 
 
@@ -1522,7 +1902,7 @@ private fun SecurityNote() {
                 "Payments secured by Razorpay",
 
             color =
-                AdminGray,
+                MutedText,
 
             fontSize =
                 10.sp,
@@ -1532,4 +1912,3 @@ private fun SecurityNote() {
         )
     }
 }
-
