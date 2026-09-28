@@ -154,7 +154,7 @@ fun RoleSelectionScreen(
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp)
                 .padding(
-                    top = 200.dp,
+                    top = 250.dp,
                     bottom = 12.dp
                 ),
 

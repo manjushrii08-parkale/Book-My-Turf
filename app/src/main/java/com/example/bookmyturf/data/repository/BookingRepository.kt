@@ -160,12 +160,26 @@ class BookingRepository {
 
             if (response.success) {
 
-                Result.success(
-                    response.data?.bookings
-                        ?: emptyList()
-                )
+                val bookings =
+                    response.data?.bookings ?: emptyList()
 
-            } else {
+                bookings.forEach { booking ->
+
+                    Log.d(
+                        "BOOKING_REVIEW_DEBUG",
+                        """
+            ID = ${booking.id}
+            Booking Status = ${booking.booking_status}
+            Payment Status = ${booking.payment_status}
+            Review Exists = ${booking.reviewExists}
+            Turf = ${booking.turf?.name}
+            """.trimIndent()
+                    )
+                }
+
+                Result.success(bookings)
+
+            }  else {
 
                 Result.failure(
                     Exception(

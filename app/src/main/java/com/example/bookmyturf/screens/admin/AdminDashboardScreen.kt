@@ -1,16 +1,16 @@
 package com.example.bookmyturf.screens.admin
 import android.app.Activity
-
+import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
-
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-
+import com.example.bookmyturf.ui.theme.AdminLightGreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -965,10 +965,9 @@ fun AdminHomeScreen(
         }
     }
 
-
-    // =========================================================
-    // LOGOUT DIALOG
-    // =========================================================
+// =========================================================
+// PREMIUM LOGOUT DIALOG
+// =========================================================
 
     if (showLogoutDialog) {
 
@@ -979,11 +978,23 @@ fun AdminHomeScreen(
                 showLogoutDialog = false
             },
 
+            containerColor =
+                AdminDarkGreen,
+
             title = {
 
                 Text(
                     text =
-                        "Logout"
+                        "Logout",
+
+                    color =
+                        Color.White,
+
+                    fontSize =
+                        20.sp,
+
+                    fontWeight =
+                        FontWeight.Bold
                 )
             },
 
@@ -991,7 +1002,18 @@ fun AdminHomeScreen(
 
                 Text(
                     text =
-                        "Are you sure you want to logout?"
+                        "Are you sure you want to logout?",
+
+                    color =
+                        Color.White.copy(
+                            alpha = 0.78f
+                        ),
+
+                    fontSize =
+                        14.sp,
+
+                    lineHeight =
+                        20.sp
                 )
             },
 
@@ -1012,7 +1034,13 @@ fun AdminHomeScreen(
                             "Logout",
 
                         color =
-                            AdminDarkGreen
+                            AdminLightGreen,
+
+                        fontSize =
+                            14.sp,
+
+                        fontWeight =
+                            FontWeight.Bold
                     )
                 }
             },
@@ -1029,7 +1057,18 @@ fun AdminHomeScreen(
 
                     Text(
                         text =
-                            "Cancel"
+                            "Cancel",
+
+                        color =
+                            Color.White.copy(
+                                alpha = 0.75f
+                            ),
+
+                        fontSize =
+                            14.sp,
+
+                        fontWeight =
+                            FontWeight.Medium
                     )
                 }
             }

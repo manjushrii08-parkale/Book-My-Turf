@@ -1,17 +1,18 @@
 package com.example.bookmyturf
 
-import android.app.Activity
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-
 import androidx.navigation.compose.rememberNavController
 
 import com.example.bookmyturf.navigation.AppNavigation
@@ -60,14 +61,63 @@ class MainActivity :
             savedInstanceState
         )
 
+        // =====================================================
+        // EDGE TO EDGE
+        // =====================================================
+
         enableEdgeToEdge()
 
-        /*
-         * Preload Razorpay resources early.
-         */
+        // =====================================================
+        // STATUS BAR
+        // =====================================================
+
+        WindowCompat.setDecorFitsSystemWindows(
+            window,
+            true
+        )
+
+        window.statusBarColor =
+            Color.rgb(
+                2,
+                9,
+                7
+            )
+
+        WindowInsetsControllerCompat(
+            window,
+            window.decorView
+        ).isAppearanceLightStatusBars = false
+
+
+        // =====================================================
+        // NAVIGATION BAR
+        // =====================================================
+
+        window.navigationBarColor =
+            Color.rgb(
+                2,
+                9,
+                7
+            )
+
+        WindowInsetsControllerCompat(
+            window,
+            window.decorView
+        ).isAppearanceLightNavigationBars = false
+
+
+        // =====================================================
+        // RAZORPAY PRELOAD
+        // =====================================================
+
         Checkout.preload(
             applicationContext
         )
+
+
+        // =====================================================
+        // COMPOSE
+        // =====================================================
 
         setContent {
 
@@ -90,65 +140,163 @@ class MainActivity :
         }
     }
 
+
+    // =========================================================
+    // RAZORPAY PAYMENT
+    // =========================================================
+
     fun startSubscriptionPayment(
         razorpayKey: String,
         orderId: String,
         amountPaise: Int,
         plan: String
     ) {
+
         try {
-            val checkout = Checkout()
 
-            checkout.setKeyID(razorpayKey)
+            val checkout =
+                Checkout()
 
-            val options = JSONObject()
+            checkout.setKeyID(
+                razorpayKey
+            )
 
-            options.put("name", "BookMyTurf")
+            val options =
+                JSONObject()
+
+            options.put(
+                "name",
+                "BookMyTurf"
+            )
+
             options.put(
                 "description",
                 if (plan == "YEARLY") {
+
                     "BookMyTurf PRO Yearly Subscription"
+
                 } else {
+
                     "BookMyTurf PRO Monthly Subscription"
                 }
             )
 
             // Amount must be in paise
-            options.put("amount", amountPaise)
+            options.put(
+                "amount",
+                amountPaise
+            )
 
-            options.put("currency", "INR")
+            options.put(
+                "currency",
+                "INR"
+            )
 
-            // IMPORTANT: Must be the order_id created by Laravel
-            options.put("order_id", orderId)
+            // Order ID created by Laravel
+            options.put(
+                "order_id",
+                orderId
+            )
 
             // Optional prefill
-            val prefill = JSONObject()
-            prefill.put("email", "")
-            options.put("prefill", prefill)
+            val prefill =
+                JSONObject()
+
+            prefill.put(
+                "email",
+                ""
+            )
+
+            options.put(
+                "prefill",
+                prefill
+            )
 
             // Optional retry settings
-            val retry = JSONObject()
-            retry.put("enabled", true)
-            retry.put("max_count", 4)
-            options.put("retry", retry)
+            val retry =
+                JSONObject()
 
-            // Theme
-            val theme = JSONObject()
-            theme.put("color", "#173D20")
-            options.put("theme", theme)
+            retry.put(
+                "enabled",
+                true
+            )
 
-            Log.d("RAZORPAY", "================================")
-            Log.d("RAZORPAY", "Opening subscription checkout")
-            Log.d("RAZORPAY", "Key = $razorpayKey")
-            Log.d("RAZORPAY", "Order ID = $orderId")
-            Log.d("RAZORPAY", "Amount Paise = $amountPaise")
-            Log.d("RAZORPAY", "Plan = $plan")
-            Log.d("RAZORPAY", "Options = $options")
-            Log.d("RAZORPAY", "================================")
+            retry.put(
+                "max_count",
+                4
+            )
 
-            checkout.open(this, options)
+            options.put(
+                "retry",
+                retry
+            )
+
+            // =================================================
+            // RAZORPAY THEME
+            // =================================================
+
+            val theme =
+                JSONObject()
+
+            theme.put(
+                "color",
+                "#173D20"
+            )
+
+            options.put(
+                "theme",
+                theme
+            )
+
+
+            Log.d(
+                "RAZORPAY",
+                "================================"
+            )
+
+            Log.d(
+                "RAZORPAY",
+                "Opening subscription checkout"
+            )
+
+            Log.d(
+                "RAZORPAY",
+                "Key = $razorpayKey"
+            )
+
+            Log.d(
+                "RAZORPAY",
+                "Order ID = $orderId"
+            )
+
+            Log.d(
+                "RAZORPAY",
+                "Amount Paise = $amountPaise"
+            )
+
+            Log.d(
+                "RAZORPAY",
+                "Plan = $plan"
+            )
+
+            Log.d(
+                "RAZORPAY",
+                "Options = $options"
+            )
+
+            Log.d(
+                "RAZORPAY",
+                "================================"
+            )
+
+
+            checkout.open(
+                this,
+                options
+            )
 
         } catch (e: Exception) {
+
             Log.e(
                 "RAZORPAY",
                 "Error starting Razorpay Checkout",
@@ -156,7 +304,8 @@ class MainActivity :
             )
 
             _paymentError.tryEmit(
-                e.message ?: "Unable to open Razorpay Checkout."
+                e.message
+                    ?: "Unable to open Razorpay Checkout."
             )
         }
     }
@@ -281,6 +430,7 @@ class MainActivity :
             "Payment Data = $paymentData"
         )
 
+
         _paymentError.tryEmit(
             response
                 ?: "Payment failed."
@@ -301,4 +451,3 @@ data class PaymentSuccessData(
 
     val signature: String
 )
-

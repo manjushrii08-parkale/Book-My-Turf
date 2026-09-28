@@ -1,19 +1,23 @@
 package com.example.bookmyturf.screens.user
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,6 +31,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -39,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,20 +54,45 @@ import androidx.compose.ui.unit.sp
 import com.example.bookmyturf.viewmodel.ReviewViewModel
 
 // =============================================================
-// COLORS
+// PREMIUM BOOKMYTURF COLORS
 // =============================================================
 
-private val DarkGreen = Color(0xFF173D20)
-private val ForestGreen = Color(0xFF2E6B35)
-private val LightGreen = Color(0xFF7DBB4A)
+private val Background =
+    Color(0xFF020907)
 
-private val White = Color(0xFFFFFFFF)
-private val OffWhite = Color(0xFFF7F9F5)
+private val SurfaceDark =
+    Color(0xFF06110D)
 
-private val TextGray = Color(0xFF737373)
-private val BorderGray = Color(0xFFE0E0E0)
+private val SurfaceElevated =
+    Color(0xFF091711)
 
-private val ErrorRed = Color(0xFFB3261E)
+private val SurfaceHighlight =
+    Color(0xFF0D2017)
+
+private val PrimaryGreen =
+    Color(0xFF7DBB4A)
+
+private val LightGreen =
+    Color(0xFFA8D86E)
+
+private val BrightGreen =
+    Color(0xFFC5F58B)
+
+private val PrimaryText =
+    Color(0xFFF5F8F6)
+
+private val SecondaryText =
+    Color(0xFFA1AEA8)
+
+private val MutedText =
+    Color(0xFF687871)
+
+private val Border =
+    Color(0xFF183027)
+
+private val ErrorRed =
+    Color(0xFFFF6B6B)
+
 
 // =============================================================
 // RATE & REVIEW SCREEN
@@ -82,6 +114,7 @@ fun RateReviewScreen(
 
     val uiState by reviewViewModel.uiState.collectAsState()
 
+
     // =========================================================
     // RATING STATE
     // =========================================================
@@ -89,6 +122,7 @@ fun RateReviewScreen(
     var selectedRating by remember {
         mutableIntStateOf(0)
     }
+
 
     // =========================================================
     // COMMENT STATE
@@ -98,8 +132,9 @@ fun RateReviewScreen(
         mutableStateOf("")
     }
 
+
     // =========================================================
-    // HANDLE SUCCESS
+    // HANDLE REVIEW SUCCESS
     // =========================================================
 
     LaunchedEffect(uiState.submitSuccess) {
@@ -112,6 +147,7 @@ fun RateReviewScreen(
         }
     }
 
+
     // =========================================================
     // SCREEN
     // =========================================================
@@ -119,24 +155,25 @@ fun RateReviewScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(OffWhite)
+            .background(Background)
+            .navigationBarsPadding()
     ) {
 
         // =====================================================
-        // CUSTOM TOP BAR
+        // TOP BAR
         // =====================================================
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .background(White)
+                .background(SurfaceDark)
         ) {
 
-            // Small visual breathing space
             Spacer(
-                modifier = Modifier.height(6.dp)
+                modifier = Modifier.height(4.dp)
             )
+
 
             Row(
                 modifier = Modifier
@@ -160,10 +197,11 @@ fun RateReviewScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = DarkGreen,
+                        tint = PrimaryText,
                         modifier = Modifier.size(23.dp)
                     )
                 }
+
 
                 // -------------------------------------------------
                 // TITLE
@@ -172,16 +210,14 @@ fun RateReviewScreen(
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(
-                            start = 4.dp
-                        )
+                        .padding(start = 4.dp)
                 ) {
 
                     Text(
                         text = "Rate & Review",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = DarkGreen
+                        color = PrimaryText
                     )
 
                     Spacer(
@@ -191,16 +227,18 @@ fun RateReviewScreen(
                     Text(
                         text = "Share your experience",
                         fontSize = 12.sp,
-                        color = TextGray
+                        color = SecondaryText
                     )
                 }
             }
 
+
             HorizontalDivider(
-                color = BorderGray,
+                color = Border,
                 thickness = 1.dp
             )
         }
+
 
         // =====================================================
         // SCROLLABLE CONTENT
@@ -215,10 +253,38 @@ fun RateReviewScreen(
                 )
                 .padding(
                     horizontal = 20.dp,
-                    vertical = 24.dp
+                    vertical = 26.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            // =================================================
+            // STAR ICON
+            // =================================================
+
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(
+                        PrimaryGreen.copy(alpha = 0.12f)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = PrimaryGreen
+                )
+            }
+
+
+            Spacer(
+                modifier = Modifier.height(18.dp)
+            )
+
 
             // =================================================
             // MAIN TITLE
@@ -228,13 +294,15 @@ fun RateReviewScreen(
                 text = "How was your experience?",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = DarkGreen,
+                color = PrimaryText,
                 textAlign = TextAlign.Center
             )
+
 
             Spacer(
                 modifier = Modifier.height(8.dp)
             )
+
 
             // =================================================
             // TURF NAME
@@ -244,13 +312,15 @@ fun RateReviewScreen(
                 text = turfName,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = ForestGreen,
+                color = LightGreen,
                 textAlign = TextAlign.Center
             )
 
+
             Spacer(
-                modifier = Modifier.height(6.dp)
+                modifier = Modifier.height(7.dp)
             )
+
 
             // =================================================
             // DESCRIPTION
@@ -259,143 +329,263 @@ fun RateReviewScreen(
             Text(
                 text = "Your feedback helps other players choose the right turf.",
                 fontSize = 13.sp,
-                color = TextGray,
+                color = SecondaryText,
+                lineHeight = 19.sp,
                 textAlign = TextAlign.Center
             )
+
 
             Spacer(
                 modifier = Modifier.height(28.dp)
             )
 
+
             // =================================================
-            // RATING CARD
+            // RATING SECTION
             // =================================================
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = Color(0xFFF0F7ED),
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 24.dp
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                color = SurfaceElevated,
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = Border
+                )
             ) {
 
-                Text(
-                    text = when (selectedRating) {
-
-                        0 -> "Tap a star to rate"
-                        1 -> "Poor"
-                        2 -> "Fair"
-                        3 -> "Good"
-                        4 -> "Very Good"
-                        5 -> "Excellent"
-
-                        else -> "Tap a star to rate"
-                    },
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = DarkGreen
-                )
-
-                Spacer(
-                    modifier = Modifier.height(14.dp)
-                )
-
-                // =================================================
-                // STARS
-                // =================================================
-
-                Row(
-                    horizontalArrangement = Arrangement.Center
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 24.dp
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    for (rating in 1..5) {
+                    // -----------------------------------------
+                    // RATING TITLE
+                    // -----------------------------------------
 
-                        Icon(
-                            imageVector =
-                                if (rating <= selectedRating) {
-                                    Icons.Filled.Star
-                                } else {
-                                    Icons.Outlined.StarBorder
-                                },
+                    Text(
+                        text = when (selectedRating) {
 
-                            contentDescription =
-                                "$rating star rating",
+                            0 -> "Tap a star to rate"
+                            1 -> "Poor"
+                            2 -> "Fair"
+                            3 -> "Good"
+                            4 -> "Very Good"
+                            5 -> "Excellent"
 
-                            tint =
-                                if (rating <= selectedRating) {
-                                    LightGreen
-                                } else {
-                                    BorderGray
-                                },
+                            else -> "Tap a star to rate"
+                        },
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (selectedRating > 0) {
+                            LightGreen
+                        } else {
+                            SecondaryText
+                        }
+                    )
 
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clickable {
 
-                                    selectedRating = rating
+                    Spacer(
+                        modifier = Modifier.height(16.dp)
+                    )
 
-                                    reviewViewModel.clearError()
-                                }
-                                .padding(4.dp)
-                        )
+
+                    // -----------------------------------------
+                    // STAR RATING
+                    // -----------------------------------------
+
+                    Row(
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+
+                        for (rating in 1..5) {
+
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clickable {
+
+                                        selectedRating = rating
+
+                                        reviewViewModel.clearError()
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+
+                                Icon(
+                                    imageVector =
+                                        if (rating <= selectedRating) {
+                                            Icons.Filled.Star
+                                        } else {
+                                            Icons.Outlined.StarBorder
+                                        },
+
+                                    contentDescription =
+                                        "$rating star rating",
+
+                                    tint =
+                                        if (rating <= selectedRating) {
+                                            BrightGreen
+                                        } else {
+                                            MutedText
+                                        },
+
+                                    modifier = Modifier.size(34.dp)
+                                )
+                            }
+                        }
                     }
+
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+
+                    // -----------------------------------------
+                    // RATING COUNT
+                    // -----------------------------------------
+
+                    Text(
+                        text =
+                            if (selectedRating == 0) {
+                                "Choose a rating from 1 to 5"
+                            } else {
+                                "$selectedRating out of 5 stars"
+                            },
+                        fontSize = 11.sp,
+                        color = MutedText
+                    )
                 }
             }
+
 
             Spacer(
                 modifier = Modifier.height(24.dp)
             )
 
+
             // =================================================
-            // COMMENT FIELD
+            // REVIEW FIELD TITLE
             // =================================================
 
-            OutlinedTextField(
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
 
-                value = comment,
+                Text(
+                    text = "Your review",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryText
+                )
 
-                onValueChange = {
 
-                    if (it.length <= 1000) {
-                        comment = it
-                    }
-                },
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
 
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
 
-                label = {
-                    Text(
-                        text = "Write a review"
+                // =================================================
+                // REVIEW TEXT FIELD
+                // =================================================
+
+                OutlinedTextField(
+
+                    value = comment,
+
+                    onValueChange = {
+
+                        if (it.length <= 1000) {
+
+                            comment = it
+
+                            reviewViewModel.clearError()
+                        }
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(155.dp),
+
+                    label = {
+                        Text(
+                            text = "Write a review"
+                        )
+                    },
+
+                    placeholder = {
+                        Text(
+                            text =
+                                "Tell us about the turf, ground quality, cleanliness..."
+                        )
+                    },
+
+                    supportingText = {
+
+                        Text(
+                            text = "${comment.length}/1000",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.End
+                        )
+                    },
+
+                    maxLines = 6,
+
+                    shape = RoundedCornerShape(14.dp),
+
+                    colors = OutlinedTextFieldDefaults.colors(
+
+                        focusedTextColor =
+                            PrimaryText,
+
+                        unfocusedTextColor =
+                            PrimaryText,
+
+                        focusedContainerColor =
+                            SurfaceDark,
+
+                        unfocusedContainerColor =
+                            SurfaceDark,
+
+                        disabledContainerColor =
+                            SurfaceDark,
+
+                        focusedBorderColor =
+                            PrimaryGreen,
+
+                        unfocusedBorderColor =
+                            Border,
+
+                        focusedLabelColor =
+                            PrimaryGreen,
+
+                        unfocusedLabelColor =
+                            SecondaryText,
+
+                        cursorColor =
+                            PrimaryGreen,
+
+                        focusedPlaceholderColor =
+                            MutedText,
+
+                        unfocusedPlaceholderColor =
+                            MutedText,
+
+                        focusedSupportingTextColor =
+                            SecondaryText,
+
+                        unfocusedSupportingTextColor =
+                            MutedText
                     )
-                },
+                )
+            }
 
-                placeholder = {
-                    Text(
-                        text = "Tell us about the turf, ground quality, cleanliness..."
-                    )
-                },
-
-                supportingText = {
-
-                    Text(
-                        text = "${comment.length}/1000",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
-                },
-
-                maxLines = 6,
-
-                shape = RoundedCornerShape(14.dp)
-            )
 
             // =================================================
             // ERROR MESSAGE
@@ -409,18 +599,33 @@ fun RateReviewScreen(
                     modifier = Modifier.height(12.dp)
                 )
 
-                Text(
-                    text = uiState.errorMessage.orEmpty(),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = ErrorRed,
-                    modifier = Modifier.fillMaxWidth()
-                )
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    color = ErrorRed.copy(alpha = 0.10f),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = ErrorRed.copy(alpha = 0.25f)
+                    )
+                ) {
+
+                    Text(
+                        text = uiState.errorMessage.orEmpty(),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = ErrorRed,
+                        lineHeight = 19.sp,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
             }
+
 
             Spacer(
                 modifier = Modifier.height(26.dp)
             )
+
 
             // =================================================
             // SUBMIT BUTTON
@@ -454,13 +659,17 @@ fun RateReviewScreen(
 
                 colors = ButtonDefaults.buttonColors(
 
-                    containerColor = DarkGreen,
+                    containerColor =
+                        PrimaryGreen,
+
+                    contentColor =
+                        Color(0xFF10200F),
 
                     disabledContainerColor =
-                        Color(0xFFD6D6D6),
+                        Color(0xFF1A2822),
 
                     disabledContentColor =
-                        Color(0xFF8A8A8A)
+                        MutedText
                 )
             ) {
 
@@ -468,19 +677,25 @@ fun RateReviewScreen(
 
                     CircularProgressIndicator(
 
-                        modifier = Modifier.size(22.dp),
+                        modifier =
+                            Modifier.size(21.dp),
 
                         strokeWidth = 2.dp,
 
-                        color = White
+                        color =
+                            Color(0xFF10200F)
                     )
+
 
                     Spacer(
                         modifier = Modifier.width(10.dp)
                     )
 
+
                     Text(
-                        text = "Submitting..."
+                        text = "Submitting...",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
                     )
 
                 } else {
@@ -493,9 +708,11 @@ fun RateReviewScreen(
                 }
             }
 
+
             Spacer(
                 modifier = Modifier.height(8.dp)
             )
+
 
             // =================================================
             // CANCEL
@@ -505,15 +722,18 @@ fun RateReviewScreen(
 
                 onClick = onBackClick,
 
-                enabled = !uiState.isSubmitting
+                enabled =
+                    !uiState.isSubmitting
             ) {
 
                 Text(
                     text = "Cancel",
-                    color = ForestGreen,
-                    fontWeight = FontWeight.SemiBold
+                    color = SecondaryText,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp
                 )
             }
+
 
             Spacer(
                 modifier = Modifier.height(16.dp)
