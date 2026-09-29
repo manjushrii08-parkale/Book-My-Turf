@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -57,7 +56,7 @@ import java.util.Calendar
 import java.util.Locale
 
 // ============================================================
-// PREMIUM BOOK MY TURF THEME
+// COLORS
 // ============================================================
 
 private val Background = Color(0xFF020C09)
@@ -65,7 +64,6 @@ private val CardBackground = Color(0xFF071713)
 private val SecondarySurface = Color(0xFF102A1F)
 
 private val PrimaryGreen = Color(0xFF7DBB4A)
-private val LightGreen = Color(0xFFA8D86E)
 private val BrightGreen = Color(0xFFB7E77A)
 
 private val PrimaryText = Color(0xFFF5F8F6)
@@ -74,23 +72,24 @@ private val MutedText = Color(0xFF718079)
 
 private val BorderColor = Color(0xFF1B3028)
 
-// Available slot
+// Available
 private val AvailableBackground = Color(0xFF102A20)
 private val AvailableBorder = Color(0xFF315A45)
 private val AvailablePrice = Color(0xFFB7E77A)
 
-// Selected slot
+// Selected
 private val SelectedBackground = Color(0xFF263D20)
 private val SelectedBorder = Color(0xFF9FD765)
 
-// Booked slot
+// Booked
 private val BookedBackground = Color(0xFF261719)
 private val BookedBorder = Color(0xFF4C292D)
 private val BookedText = Color(0xFFFF7479)
 
-// Closed slot
-private val ClosedBackground = Color(0xFF111A17)
-private val ClosedBorder = Color(0xFF26322D)
+// Expired
+private val ExpiredBackground = Color(0xFF171B19)
+private val ExpiredBorder = Color(0xFF303B35)
+private val ExpiredText = Color(0xFF7E8D86)
 
 
 // ============================================================
@@ -131,13 +130,18 @@ fun UserSlotSelectionScreen(
     // ========================================================
 
     val turf by viewModel.turf.collectAsState()
+
     val slots by viewModel.slots.collectAsState()
 
     val isLoading by viewModel.isLoading.collectAsState()
-    val isLoadingSlots by viewModel.isLoadingSlots.collectAsState()
+
+    val isLoadingSlots by
+    viewModel.isLoadingSlots.collectAsState()
 
     val error by viewModel.error.collectAsState()
-    val slotError by viewModel.slotError.collectAsState()
+
+    val slotError by
+    viewModel.slotError.collectAsState()
 
     // ========================================================
     // DATE FORMATTERS
@@ -181,20 +185,26 @@ fun UserSlotSelectionScreen(
 
         val today = Calendar.getInstance()
 
-        val year =
-            today.get(Calendar.YEAR)
+        val year = today.get(
+            Calendar.YEAR
+        )
 
-        val month =
-            today.get(Calendar.MONTH)
+        val month = today.get(
+            Calendar.MONTH
+        )
 
-        val totalDays =
+        val firstDay =
+            today.get(
+                Calendar.DAY_OF_MONTH
+            )
+
+        val lastDay =
             today.getActualMaximum(
                 Calendar.DAY_OF_MONTH
             )
 
         for (
-        day in today.get(Calendar.DAY_OF_MONTH)
-                ..totalDays
+        day in firstDay..lastDay
         ) {
 
             val calendar =
@@ -227,7 +237,6 @@ fun UserSlotSelectionScreen(
     // ========================================================
 
     var selectedDate by remember {
-
         mutableStateOf(
             availableDates.first()
         )
@@ -282,31 +291,111 @@ fun UserSlotSelectionScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(
+                    innerPadding
+                )
         ) {
 
-            // =================================================
-            // TOP SPACE
-            // =================================================
-            // This moves the COMPLETE top bar downward.
-            // It is intentionally outside Scaffold's topBar.
-            // =================================================
-
             Spacer(
-                modifier = Modifier.height(28.dp)
+                modifier = Modifier.height(
+                    20.dp
+                )
             )
 
             // =================================================
-            // PREMIUM TOP BAR
+            // TOP BAR
             // =================================================
 
-            PremiumTopBar(
-                turfName = turf?.name,
-                onBackClick = onBackClick
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 18.dp,
+                        vertical = 10.dp
+                    ),
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .background(
+                            color =
+                                SecondarySurface,
+                            shape =
+                                RoundedCornerShape(
+                                    12.dp
+                                )
+                        )
+                        .clickable {
+                            onBackClick()
+                        },
+                    contentAlignment =
+                        Alignment.Center
+                ) {
+
+                    Icon(
+                        imageVector =
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription =
+                            "Back",
+                        modifier =
+                            Modifier.size(21.dp),
+                        tint =
+                            PrimaryText
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.width(
+                        14.dp
+                    )
+                )
+
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
+
+                    Text(
+                        text =
+                            "Select Date & Slot",
+                        fontSize =
+                            19.sp,
+                        fontWeight =
+                            FontWeight.Bold,
+                        color =
+                            PrimaryText
+                    )
+
+                    if (
+                        !turf?.name.isNullOrBlank()
+                    ) {
+
+                        Spacer(
+                            modifier =
+                                Modifier.height(
+                                    2.dp
+                                )
+                        )
+
+                        Text(
+                            text =
+                                turf?.name ?: "",
+                            fontSize =
+                                11.sp,
+                            color =
+                                SecondaryText,
+                            maxLines =
+                                1
+                        )
+                    }
+                }
+            }
 
             // =================================================
-            // SCROLLABLE CONTENT
+            // CONTENT
             // =================================================
 
             Column(
@@ -323,407 +412,391 @@ fun UserSlotSelectionScreen(
             ) {
 
                 // =================================================
-                // LOADING TURF
+                // TURF LOADING
                 // =================================================
 
                 if (isLoading) {
 
-                    PremiumLoadingBox(
-                        message = "Loading turf..."
+                    LoadingBox(
+                        text =
+                            "Loading turf..."
                     )
 
-                    return@Column
-                }
-
-                // =================================================
-                // ERROR
-                // =================================================
-
-                if (error != null) {
-
-                    PremiumMessageBox(
-                        message =
-                            error
-                                ?: "Unable to load turf.",
-
-                        isError = true
-                    )
-
-                    return@Column
-                }
-
-                // =================================================
-                // DATE SECTION
-                // =================================================
-
-                SectionHeader(
-                    icon = {
-
-                        Icon(
-                            imageVector =
-                                Icons.Default.CalendarMonth,
-
-                            contentDescription = null,
-
-                            modifier =
-                                Modifier.size(18.dp),
-
-                            tint =
-                                PrimaryGreen
-                        )
-                    },
-
-                    title =
-                        "Choose Date",
-
-                    subtitle =
-                        "Select the date you want to play"
-                )
-
-                Spacer(
-                    modifier =
-                        Modifier.height(14.dp)
-                )
-
-                // =================================================
-                // DATE SELECTOR
-                // =================================================
-
-                LazyRow(
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    horizontalArrangement =
-                        Arrangement.spacedBy(10.dp),
-
-                    contentPadding =
-                        PaddingValues(
-                            horizontal = 2.dp
-                        )
+                } else if (
+                    error != null
                 ) {
 
-                    items(
-                        items = availableDates
-                    ) { date ->
+                    MessageBox(
+                        text =
+                            error
+                                ?: "Unable to load turf."
+                    )
 
-                        val dateValue =
-                            apiDateFormat.format(
-                                date.time
+                } else {
+
+                    // =================================================
+                    // DATE
+                    // =================================================
+
+                    SectionHeader(
+                        title =
+                            "Choose Date",
+                        subtitle =
+                            "Select the date you want to play"
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(
+                                14.dp
+                            )
+                    )
+
+                    LazyRow(
+                        modifier =
+                            Modifier.fillMaxWidth(),
+
+                        contentPadding =
+                            PaddingValues(
+                                horizontal =
+                                    2.dp
+                            ),
+
+                        horizontalArrangement =
+                            Arrangement.spacedBy(
+                                10.dp
+                            )
+                    ) {
+
+                        items(
+                            items =
+                                availableDates,
+
+                            key = { date ->
+                                apiDateFormat.format(
+                                    date.time
+                                )
+                            }
+                        ) { date ->
+
+                            val dateString =
+                                apiDateFormat.format(
+                                    date.time
+                                )
+
+                            val selectedString =
+                                apiDateFormat.format(
+                                    selectedDate.time
+                                )
+
+                            DateBox(
+                                date =
+                                    date,
+
+                                isSelected =
+                                    dateString ==
+                                            selectedString,
+
+                                weekdayFormat =
+                                    weekdayFormat,
+
+                                dayFormat =
+                                    dayFormat,
+
+                                monthFormat =
+                                    monthFormat,
+
+                                onClick = {
+
+                                    selectedDate =
+                                        date
+
+                                    selectedSlotId =
+                                        null
+                                }
+                            )
+                        }
+                    }
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(
+                                30.dp
+                            )
+                    )
+
+                    // =================================================
+                    // SLOT HEADER
+                    // =================================================
+
+                    Row(
+                        modifier =
+                            Modifier.fillMaxWidth(),
+
+                        verticalAlignment =
+                            Alignment.CenterVertically
+                    ) {
+
+                        Column(
+                            modifier =
+                                Modifier.weight(
+                                    1f
+                                )
+                        ) {
+
+                            Text(
+                                text =
+                                    "Choose Your Slot",
+                                fontSize =
+                                    19.sp,
+                                fontWeight =
+                                    FontWeight.ExtraBold,
+                                color =
+                                    PrimaryText
                             )
 
-                        val selectedValue =
-                            apiDateFormat.format(
-                                selectedDate.time
+                            Spacer(
+                                modifier =
+                                    Modifier.height(
+                                        3.dp
+                                    )
                             )
 
-                        val isSelected =
-                            dateValue ==
-                                    selectedValue
+                            Text(
+                                text =
+                                    "Timings for $bookingDate",
+                                fontSize =
+                                    11.sp,
+                                color =
+                                    SecondaryText
+                            )
+                        }
 
-                        PremiumDateBox(
-                            date = date,
+                        Box(
+                            modifier =
+                                Modifier
+                                    .background(
+                                        color =
+                                            SecondarySurface,
+                                        shape =
+                                            RoundedCornerShape(
+                                                12.dp
+                                            )
+                                    )
+                                    .border(
+                                        1.dp,
+                                        BorderColor,
+                                        RoundedCornerShape(
+                                            12.dp
+                                        )
+                                    )
+                                    .padding(
+                                        horizontal = 10.dp,
+                                        vertical = 7.dp
+                                    )
+                        ) {
 
-                            isSelected =
-                                isSelected,
+                            Text(
+                                text =
+                                    "${slots.size} SLOTS",
+                                fontSize =
+                                    8.sp,
+                                fontWeight =
+                                    FontWeight.Bold,
+                                color =
+                                    PrimaryGreen,
+                                letterSpacing =
+                                    0.6.sp
+                            )
+                        }
+                    }
 
-                            weekdayFormat =
-                                weekdayFormat,
+                    Spacer(
+                        modifier =
+                            Modifier.height(
+                                14.dp
+                            )
+                    )
 
-                            dayFormat =
-                                dayFormat,
+                    // =================================================
+                    // LEGEND
+                    // =================================================
 
-                            monthFormat =
-                                monthFormat,
+                    SlotLegend()
 
-                            onClick = {
+                    Spacer(
+                        modifier =
+                            Modifier.height(
+                                16.dp
+                            )
+                    )
 
-                                selectedDate =
-                                    date
+                    // =================================================
+                    // SLOT CONTENT
+                    // =================================================
 
-                                selectedSlotId =
-                                    null
+                    if (
+                        isLoadingSlots
+                    ) {
+
+                        LoadingBox(
+                            text =
+                                "Checking slot availability..."
+                        )
+
+                    } else if (
+                        slotError != null
+                    ) {
+
+                        MessageBox(
+                            text =
+                                slotError
+                                    ?: "Unable to load slots."
+                        )
+
+                    } else if (
+                        slots.isEmpty()
+                    ) {
+
+                        EmptySlotsBox()
+
+                    } else {
+
+                        SlotGrid(
+                            slots =
+                                slots,
+
+                            selectedSlotId =
+                                selectedSlotId,
+
+                            onSlotClick = { slot ->
+
+                                if (
+                                    slot.isBookable &&
+                                    !slot.isBooked &&
+                                    !slot.isExpired
+                                ) {
+
+                                    selectedSlotId =
+                                        if (
+                                            selectedSlotId ==
+                                            slot.id
+                                        ) {
+                                            null
+                                        } else {
+                                            slot.id
+                                        }
+                                }
                             }
                         )
                     }
-                }
 
-                Spacer(
-                    modifier =
-                        Modifier.height(30.dp)
-                )
+                    // =================================================
+                    // SELECTED SLOT
+                    // =================================================
 
-                // =================================================
-                // SLOT SECTION HEADER
-                // =================================================
+                    val selectedSlot =
+                        slots.firstOrNull {
+                            it.id ==
+                                    selectedSlotId
+                        }
 
-                Row(
-                    modifier =
-                        Modifier.fillMaxWidth(),
-
-                    verticalAlignment =
-                        Alignment.CenterVertically
-                ) {
-
-                    Column(
-                        modifier =
-                            Modifier.weight(1f)
+                    if (
+                        selectedSlot != null
                     ) {
 
-                        Text(
-                            text =
-                                "Choose Your Slot",
+                        Spacer(
+                            modifier =
+                                Modifier.height(
+                                    24.dp
+                                )
+                        )
 
-                            fontSize =
-                                19.sp,
+                        SelectedSlotCard(
+                            slot =
+                                selectedSlot,
 
-                            fontWeight =
-                                FontWeight.ExtraBold,
-
-                            color =
-                                PrimaryText
+                            bookingDate =
+                                bookingDate
                         )
 
                         Spacer(
                             modifier =
-                                Modifier.height(3.dp)
+                                Modifier.height(
+                                    14.dp
+                                )
                         )
 
-                        Text(
-                            text =
-                                "Available timings for $bookingDate",
+                        Button(
+                            onClick = {
 
-                            fontSize =
-                                11.sp,
+                                if (
+                                    selectedSlot.isBookable &&
+                                    !selectedSlot.isBooked &&
+                                    !selectedSlot.isExpired
+                                ) {
 
-                            color =
-                                SecondaryText
-                        )
-                    }
-
-                    // =================================================
-                    // SLOT COUNT
-                    // =================================================
-
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color =
-                                    SecondarySurface,
-
-                                shape =
-                                    RoundedCornerShape(
-                                        12.dp
+                                    onContinueClick(
+                                        turfId,
+                                        selectedSlot.id,
+                                        bookingDate
                                     )
+                                }
+                            },
+
+                            enabled =
+                                selectedSlot.isBookable &&
+                                        !selectedSlot.isBooked &&
+                                        !selectedSlot.isExpired,
+
+                            modifier =
+                                Modifier.fillMaxWidth(),
+
+                            shape =
+                                RoundedCornerShape(
+                                    15.dp
+                                ),
+
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor =
+                                        PrimaryGreen,
+
+                                    contentColor =
+                                        Background,
+
+                                    disabledContainerColor =
+                                        Color(0xFF24332C),
+
+                                    disabledContentColor =
+                                        MutedText
+                                ),
+
+                            contentPadding =
+                                PaddingValues(
+                                    vertical =
+                                        15.dp
+                                )
+                        ) {
+
+                            Text(
+                                text =
+                                    "Continue to Booking",
+                                fontSize =
+                                    15.sp,
+                                fontWeight =
+                                    FontWeight.ExtraBold
                             )
-                            .border(
-                                width = 1.dp,
-
-                                color =
-                                    BorderColor,
-
-                                shape =
-                                    RoundedCornerShape(
-                                        12.dp
-                                    )
-                            )
-                            .padding(
-                                horizontal = 10.dp,
-                                vertical = 7.dp
-                            )
-                    ) {
-
-                        Text(
-                            text =
-                                "${slots.size} SLOTS",
-
-                            fontSize =
-                                8.sp,
-
-                            fontWeight =
-                                FontWeight.Bold,
-
-                            letterSpacing =
-                                0.7.sp,
-
-                            color =
-                                PrimaryGreen
-                        )
-                    }
-                }
-
-                Spacer(
-                    modifier =
-                        Modifier.height(14.dp)
-                )
-
-                // =================================================
-                // LEGEND
-                // =================================================
-
-                SlotLegend()
-
-                Spacer(
-                    modifier =
-                        Modifier.height(16.dp)
-                )
-
-                // =================================================
-                // SLOT LOADING
-                // =================================================
-
-                if (isLoadingSlots) {
-
-                    PremiumLoadingBox(
-                        message =
-                            "Loading available slots..."
-                    )
-                }
-
-                // =================================================
-                // SLOT ERROR
-                // =================================================
-
-                else if (slotError != null) {
-
-                    PremiumMessageBox(
-                        message =
-                            slotError
-                                ?: "Unable to load slots.",
-
-                        isError = true
-                    )
-                }
-
-                // =================================================
-                // EMPTY
-                // =================================================
-
-                else if (slots.isEmpty()) {
-
-                    PremiumEmptySlotsBox()
-                }
-
-                // =================================================
-                // SLOT GRID
-                // =================================================
-
-                else {
-
-                    PremiumSlotGrid(
-                        slots = slots,
-
-                        selectedSlotId =
-                            selectedSlotId,
-
-                        onSlotClick = { slot ->
-
-                            val isAvailable =
-                                slot.status == "ACTIVE" &&
-                                        !slot.isBooked
-
-                            if (isAvailable) {
-
-                                selectedSlotId =
-                                    if (
-                                        selectedSlotId ==
-                                        slot.id
-                                    ) {
-
-                                        null
-
-                                    } else {
-
-                                        slot.id
-                                    }
-                            }
                         }
-                    )
-                }
-
-                // =================================================
-                // SELECTED SLOT
-                // =================================================
-
-                val selectedSlot =
-                    slots.firstOrNull {
-                        it.id ==
-                                selectedSlotId
                     }
-
-                if (selectedSlot != null) {
 
                     Spacer(
                         modifier =
-                            Modifier.height(24.dp)
-                    )
-
-                    PremiumSelectedSlotCard(
-                        selectedSlot =
-                            selectedSlot,
-
-                        bookingDate =
-                            bookingDate
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(14.dp)
-                    )
-
-                    // =================================================
-                    // CONTINUE BUTTON
-                    // =================================================
-
-                    Button(
-                        onClick = {
-
-                            onContinueClick(
-                                turfId,
-                                selectedSlot.id,
-                                bookingDate
+                            Modifier.height(
+                                30.dp
                             )
-                        },
-
-                        modifier =
-                            Modifier.fillMaxWidth(),
-
-                        shape =
-                            RoundedCornerShape(
-                                16.dp
-                            ),
-
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor =
-                                    PrimaryGreen,
-
-                                contentColor =
-                                    Background
-                            ),
-
-                        contentPadding =
-                            PaddingValues(
-                                vertical = 16.dp
-                            )
-                    ) {
-
-                        Text(
-                            text =
-                                "Continue to Booking",
-
-                            fontSize =
-                                15.sp,
-
-                            fontWeight =
-                                FontWeight.ExtraBold
-                        )
-                    }
+                    )
                 }
-
-                Spacer(
-                    modifier =
-                        Modifier.height(30.dp)
-                )
             }
         }
     }
@@ -731,83 +804,56 @@ fun UserSlotSelectionScreen(
 
 
 // ============================================================
-// PREMIUM TOP BAR
+// SECTION HEADER
 // ============================================================
 
 @Composable
-private fun PremiumTopBar(
-    turfName: String?,
-    onBackClick: () -> Unit
+private fun SectionHeader(
+    title: String,
+    subtitle: String
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = 18.dp,
-                vertical = 12.dp
-            ),
-        verticalAlignment = Alignment.CenterVertically
+
+    Column(
+        modifier =
+            Modifier.fillMaxWidth()
     ) {
 
-        // Back button
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .background(
-                    color = SecondarySurface,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .clickable(
-                    onClick = onBackClick
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                modifier = Modifier.size(21.dp),
-                tint = PrimaryText
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.width(14.dp)
+        Text(
+            text =
+                title,
+            fontSize =
+                18.sp,
+            fontWeight =
+                FontWeight.ExtraBold,
+            color =
+                PrimaryText
         )
 
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            Text(
-                text = "Select Date & Slot",
-                fontSize = 19.sp,
-                fontWeight = FontWeight.Bold,
-                color = PrimaryText
-            )
-
-            if (!turfName.isNullOrBlank()) {
-
-                Spacer(
-                    modifier = Modifier.height(2.dp)
+        Spacer(
+            modifier =
+                Modifier.height(
+                    3.dp
                 )
+        )
 
-                Text(
-                    text = turfName,
-                    fontSize = 11.sp,
-                    color = SecondaryText,
-                    maxLines = 1
-                )
-            }
-        }
+        Text(
+            text =
+                subtitle,
+            fontSize =
+                10.sp,
+            color =
+                SecondaryText
+        )
     }
 }
+
 
 // ============================================================
 // DATE BOX
 // ============================================================
 
 @Composable
-private fun PremiumDateBox(
+private fun DateBox(
     date: Calendar,
     isSelected: Boolean,
     weekdayFormat: SimpleDateFormat,
@@ -817,48 +863,58 @@ private fun PremiumDateBox(
 ) {
 
     Column(
-        modifier = Modifier
-            .width(70.dp)
-            .background(
-                color =
-                    if (isSelected) {
-                        SecondarySurface
-                    } else {
-                        CardBackground
-                    },
+        modifier =
+            Modifier
+                .width(
+                    70.dp
+                )
+                .background(
+                    color =
+                        if (
+                            isSelected
+                        ) {
+                            SecondarySurface
+                        } else {
+                            CardBackground
+                        },
 
-                shape =
-                    RoundedCornerShape(
-                        17.dp
-                    )
-            )
-            .border(
-                width =
-                    if (isSelected) {
-                        1.5.dp
-                    } else {
-                        1.dp
-                    },
+                    shape =
+                        RoundedCornerShape(
+                            17.dp
+                        )
+                )
+                .border(
+                    width =
+                        if (
+                            isSelected
+                        ) {
+                            1.5.dp
+                        } else {
+                            1.dp
+                        },
 
-                color =
-                    if (isSelected) {
-                        PrimaryGreen
-                    } else {
-                        BorderColor
-                    },
+                    color =
+                        if (
+                            isSelected
+                        ) {
+                            PrimaryGreen
+                        } else {
+                            BorderColor
+                        },
 
-                shape =
-                    RoundedCornerShape(
-                        17.dp
-                    )
-            )
-            .clickable(
-                onClick =
-                    onClick
-            )
-            .padding(
-                vertical = 11.dp
-            ),
+                    shape =
+                        RoundedCornerShape(
+                            17.dp
+                        )
+                )
+                .clickable(
+                    onClick =
+                        onClick
+                )
+                .padding(
+                    vertical =
+                        11.dp
+                ),
 
         horizontalAlignment =
             Alignment.CenterHorizontally
@@ -878,11 +934,10 @@ private fun PremiumDateBox(
             fontWeight =
                 FontWeight.Bold,
 
-            letterSpacing =
-                0.7.sp,
-
             color =
-                if (isSelected) {
+                if (
+                    isSelected
+                ) {
                     BrightGreen
                 } else {
                     SecondaryText
@@ -891,7 +946,9 @@ private fun PremiumDateBox(
 
         Spacer(
             modifier =
-                Modifier.height(4.dp)
+                Modifier.height(
+                    4.dp
+                )
         )
 
         Text(
@@ -912,7 +969,9 @@ private fun PremiumDateBox(
 
         Spacer(
             modifier =
-                Modifier.height(1.dp)
+                Modifier.height(
+                    2.dp
+                )
         )
 
         Text(
@@ -930,32 +989,13 @@ private fun PremiumDateBox(
                 FontWeight.Bold,
 
             color =
-                if (isSelected) {
+                if (
+                    isSelected
+                ) {
                     PrimaryGreen
                 } else {
                     MutedText
                 }
-        )
-
-        Spacer(
-            modifier =
-                Modifier.height(7.dp)
-        )
-
-        Box(
-            modifier = Modifier
-                .size(5.dp)
-                .background(
-                    color =
-                        if (isSelected) {
-                            PrimaryGreen
-                        } else {
-                            Color.Transparent
-                        },
-
-                    shape =
-                        CircleShape
-                )
         )
     }
 }
@@ -973,13 +1013,15 @@ private fun SlotLegend() {
             Modifier.fillMaxWidth(),
 
         horizontalArrangement =
-            Arrangement.spacedBy(14.dp),
+            Arrangement.spacedBy(
+                12.dp
+            ),
 
         verticalAlignment =
             Alignment.CenterVertically
     ) {
 
-        LegendItem(
+        LegendDot(
             color =
                 PrimaryGreen,
 
@@ -987,7 +1029,7 @@ private fun SlotLegend() {
                 "Available"
         )
 
-        LegendItem(
+        LegendDot(
             color =
                 BrightGreen,
 
@@ -995,7 +1037,7 @@ private fun SlotLegend() {
                 "Selected"
         )
 
-        LegendItem(
+        LegendDot(
             color =
                 BookedText,
 
@@ -1003,23 +1045,23 @@ private fun SlotLegend() {
                 "Booked"
         )
 
-        LegendItem(
+        LegendDot(
             color =
-                MutedText,
+                ExpiredText,
 
             text =
-                "Closed"
+                "Time Passed"
         )
     }
 }
 
 
 // ============================================================
-// LEGEND ITEM
+// LEGEND DOT
 // ============================================================
 
 @Composable
-private fun LegendItem(
+private fun LegendDot(
     color: Color,
     text: String
 ) {
@@ -1030,20 +1072,25 @@ private fun LegendItem(
     ) {
 
         Box(
-            modifier = Modifier
-                .size(7.dp)
-                .background(
-                    color =
-                        color,
+            modifier =
+                Modifier
+                    .size(
+                        7.dp
+                    )
+                    .background(
+                        color =
+                            color,
 
-                    shape =
-                        CircleShape
-                )
+                        shape =
+                            CircleShape
+                    )
         )
 
         Spacer(
             modifier =
-                Modifier.width(5.dp)
+                Modifier.width(
+                    5.dp
+                )
         )
 
         Text(
@@ -1053,9 +1100,6 @@ private fun LegendItem(
             fontSize =
                 8.sp,
 
-            fontWeight =
-                FontWeight.Medium,
-
             color =
                 SecondaryText
         )
@@ -1064,11 +1108,11 @@ private fun LegendItem(
 
 
 // ============================================================
-// PREMIUM SLOT GRID
+// SLOT GRID
 // ============================================================
 
 @Composable
-private fun PremiumSlotGrid(
+private fun SlotGrid(
     slots: List<Slot>,
     selectedSlotId: Int?,
     onSlotClick: (Slot) -> Unit
@@ -1079,11 +1123,15 @@ private fun PremiumSlotGrid(
             Modifier.fillMaxWidth(),
 
         verticalArrangement =
-            Arrangement.spacedBy(11.dp)
+            Arrangement.spacedBy(
+                10.dp
+            )
     ) {
 
         slots
-            .chunked(3)
+            .chunked(
+                3
+            )
             .forEach { rowSlots ->
 
                 Row(
@@ -1091,12 +1139,14 @@ private fun PremiumSlotGrid(
                         Modifier.fillMaxWidth(),
 
                     horizontalArrangement =
-                        Arrangement.spacedBy(11.dp)
+                        Arrangement.spacedBy(
+                            10.dp
+                        )
                 ) {
 
                     rowSlots.forEach { slot ->
 
-                        PremiumSlotBox(
+                        SlotCard(
                             slot =
                                 slot,
 
@@ -1112,17 +1162,22 @@ private fun PremiumSlotGrid(
                             },
 
                             modifier =
-                                Modifier.weight(1f)
+                                Modifier.weight(
+                                    1f
+                                )
                         )
                     }
 
                     repeat(
-                        3 - rowSlots.size
+                        3 -
+                                rowSlots.size
                     ) {
 
                         Spacer(
                             modifier =
-                                Modifier.weight(1f)
+                                Modifier.weight(
+                                    1f
+                                )
                         )
                     }
                 }
@@ -1132,28 +1187,21 @@ private fun PremiumSlotGrid(
 
 
 // ============================================================
-// PREMIUM SLOT BOX
+// SLOT CARD
 // ============================================================
 
 @Composable
-private fun PremiumSlotBox(
+private fun SlotCard(
     slot: Slot,
     isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
 
-    // ========================================================
-    // IMPORTANT AVAILABILITY LOGIC
-    // ========================================================
-
     val isAvailable =
-        slot.status == "ACTIVE" &&
-                !slot.isBooked
-
-    // ========================================================
-    // COLORS
-    // ========================================================
+        slot.isBookable &&
+                !slot.isBooked &&
+                !slot.isExpired
 
     val backgroundColor =
         when {
@@ -1164,8 +1212,11 @@ private fun PremiumSlotBox(
             slot.isBooked ->
                 BookedBackground
 
-            !isAvailable ->
-                ClosedBackground
+            slot.isExpired ->
+                ExpiredBackground
+
+            !slot.isBookable ->
+                ExpiredBackground
 
             else ->
                 AvailableBackground
@@ -1180,8 +1231,11 @@ private fun PremiumSlotBox(
             slot.isBooked ->
                 BookedBorder
 
-            !isAvailable ->
-                ClosedBorder
+            slot.isExpired ->
+                ExpiredBorder
+
+            !slot.isBookable ->
+                ExpiredBorder
 
             else ->
                 AvailableBorder
@@ -1196,58 +1250,101 @@ private fun PremiumSlotBox(
             slot.isBooked ->
                 BookedText
 
-            !isAvailable ->
-                MutedText
+            slot.isExpired ->
+                ExpiredText
+
+            !slot.isBookable ->
+                ExpiredText
 
             else ->
                 AvailablePrice
         }
 
-    // ========================================================
-    // SLOT
-    // ========================================================
+    val statusText =
+        when {
+
+            isSelected ->
+                "SELECTED"
+
+            slot.isBooked ->
+                "BOOKED"
+
+            slot.isExpired ->
+                "TIME PASSED"
+
+            !slot.isBookable ->
+                "CLOSED"
+
+            else ->
+                "AVAILABLE"
+        }
+
+    val statusColor =
+        when {
+
+            isSelected ->
+                BrightGreen
+
+            slot.isBooked ->
+                BookedText
+
+            slot.isExpired ->
+                ExpiredText
+
+            !slot.isBookable ->
+                ExpiredText
+
+            else ->
+                PrimaryGreen
+        }
 
     Column(
-        modifier = modifier
-            .aspectRatio(
-                0.92f
-            )
-            .background(
-                color =
-                    backgroundColor,
+        modifier =
+            modifier
+                .height(
+                    145.dp
+                )
+                .background(
+                    color =
+                        backgroundColor,
 
-                shape =
-                    RoundedCornerShape(
-                        18.dp
-                    )
-            )
-            .border(
-                width =
-                    if (isSelected) {
-                        1.8.dp
-                    } else {
-                        1.dp
-                    },
+                    shape =
+                        RoundedCornerShape(
+                            16.dp
+                        )
+                )
+                .border(
+                    width =
+                        if (
+                            isSelected
+                        ) {
+                            2.dp
+                        } else {
+                            1.dp
+                        },
 
-                color =
-                    borderColor,
+                    color =
+                        borderColor,
 
-                shape =
-                    RoundedCornerShape(
-                        18.dp
-                    )
-            )
-            .clickable(
-                enabled =
-                    isAvailable,
+                    shape =
+                        RoundedCornerShape(
+                            16.dp
+                        )
+                )
+                .clickable(
+                    enabled =
+                        isAvailable,
 
-                onClick =
-                    onClick
-            )
-            .padding(
-                horizontal = 7.dp,
-                vertical = 10.dp
-            ),
+                    onClick =
+                        onClick
+                )
+                .padding(
+                    horizontal =
+                        6.dp,
+
+                    vertical =
+                        9.dp
+                ),
 
         horizontalAlignment =
             Alignment.CenterHorizontally,
@@ -1257,7 +1354,7 @@ private fun PremiumSlotBox(
     ) {
 
         // =====================================================
-        // START TIME
+        // START
         // =====================================================
 
         Text(
@@ -1285,11 +1382,12 @@ private fun PremiumSlotBox(
             textAlign =
                 TextAlign.Center,
 
-            maxLines = 1
+            maxLines =
+                1
         )
 
         // =====================================================
-        // END TIME
+        // END
         // =====================================================
 
         Text(
@@ -1310,12 +1408,15 @@ private fun PremiumSlotBox(
             textAlign =
                 TextAlign.Center,
 
-            maxLines = 1
+            maxLines =
+                1
         )
 
         Spacer(
             modifier =
-                Modifier.height(8.dp)
+                Modifier.height(
+                    7.dp
+                )
         )
 
         // =====================================================
@@ -1327,7 +1428,7 @@ private fun PremiumSlotBox(
                 "₹${formatPrice(slot.price)}",
 
             fontSize =
-                17.sp,
+                16.sp,
 
             fontWeight =
                 FontWeight.ExtraBold,
@@ -1338,7 +1439,8 @@ private fun PremiumSlotBox(
             textAlign =
                 TextAlign.Center,
 
-            maxLines = 1
+            maxLines =
+                1
         )
 
         Text(
@@ -1346,24 +1448,23 @@ private fun PremiumSlotBox(
                 "PER SLOT",
 
             fontSize =
-                6.5.sp,
+                6.sp,
 
             fontWeight =
                 FontWeight.Bold,
 
             letterSpacing =
-                0.7.sp,
+                0.5.sp,
 
             color =
-                MutedText,
-
-            textAlign =
-                TextAlign.Center
+                MutedText
         )
 
         Spacer(
             modifier =
-                Modifier.height(8.dp)
+                Modifier.height(
+                    7.dp
+                )
         )
 
         // =====================================================
@@ -1371,33 +1472,40 @@ private fun PremiumSlotBox(
         // =====================================================
 
         Box(
-            modifier = Modifier
-                .background(
-                    color =
-                        when {
+            modifier =
+                Modifier
+                    .background(
+                        color =
+                            when {
 
-                            isSelected ->
-                                Color(0xFF45632F)
+                                isSelected ->
+                                    Color(0xFF45632F)
 
-                            slot.isBooked ->
-                                Color(0xFF3A2226)
+                                slot.isBooked ->
+                                    Color(0xFF3A2226)
 
-                            !isAvailable ->
-                                Color(0xFF242D29)
+                                slot.isExpired ->
+                                    Color(0xFF242D29)
 
-                            else ->
-                                Color(0xFF1A4232)
-                        },
+                                !slot.isBookable ->
+                                    Color(0xFF242D29)
 
-                    shape =
-                        RoundedCornerShape(
-                            50
-                        )
-                )
-                .padding(
-                    horizontal = 7.dp,
-                    vertical = 4.dp
-                ),
+                                else ->
+                                    Color(0xFF1A4232)
+                            },
+
+                        shape =
+                            RoundedCornerShape(
+                                50.dp
+                            )
+                    )
+                    .padding(
+                        horizontal =
+                            8.dp,
+
+                        vertical =
+                            4.dp
+                    ),
 
             contentAlignment =
                 Alignment.Center
@@ -1405,71 +1513,56 @@ private fun PremiumSlotBox(
 
             Text(
                 text =
-                    when {
-
-                        isSelected ->
-                            "SELECTED"
-
-                        slot.isBooked ->
-                            "BOOKED"
-
-                        isAvailable ->
-                            "AVAILABLE"
-
-                        else ->
-                            "CLOSED"
-                    },
+                    statusText,
 
                 fontSize =
-                    6.sp,
+                    6.5.sp,
 
                 fontWeight =
                     FontWeight.Bold,
 
                 letterSpacing =
-                    0.4.sp,
+                    0.3.sp,
 
                 color =
-                    when {
+                    statusColor,
 
-                        isSelected ->
-                            BrightGreen
+                maxLines =
+                    1,
 
-                        slot.isBooked ->
-                            BookedText
-
-                        isAvailable ->
-                            PrimaryGreen
-
-                        else ->
-                            MutedText
-                    },
-
-                maxLines = 1
+                textAlign =
+                    TextAlign.Center
             )
         }
 
         // =====================================================
-        // SELECTED CHECK
+        // CHECK AREA
         // =====================================================
 
-        if (isSelected) {
+        if (
+            isSelected
+        ) {
 
             Spacer(
                 modifier =
-                    Modifier.height(6.dp)
+                    Modifier.height(
+                        5.dp
+                    )
             )
 
             Box(
-                modifier = Modifier
-                    .size(19.dp)
-                    .background(
-                        color =
-                            PrimaryGreen,
+                modifier =
+                    Modifier
+                        .size(
+                            18.dp
+                        )
+                        .background(
+                            color =
+                                PrimaryGreen,
 
-                        shape =
-                            CircleShape
-                    ),
+                            shape =
+                                CircleShape
+                        ),
 
                 contentAlignment =
                     Alignment.Center
@@ -1484,52 +1577,65 @@ private fun PremiumSlotBox(
 
                     modifier =
                         Modifier.size(
-                            12.dp
+                            11.dp
                         ),
 
                     tint =
                         Background
                 )
             }
+
+        } else {
+
+            Spacer(
+                modifier =
+                    Modifier.height(
+                        12.dp
+                    )
+            )
         }
     }
 }
 
 
 // ============================================================
-// SELECTED SLOT SUMMARY
+// SELECTED SLOT CARD
 // ============================================================
 
 @Composable
-private fun PremiumSelectedSlotCard(
-    selectedSlot: Slot,
+private fun SelectedSlotCard(
+    slot: Slot,
     bookingDate: String
 ) {
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color =
-                    SecondarySurface,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    color =
+                        SecondarySurface,
 
-                shape =
-                    RoundedCornerShape(
-                        18.dp
-                    )
-            )
-            .border(
-                width = 1.dp,
+                    shape =
+                        RoundedCornerShape(
+                            18.dp
+                        )
+                )
+                .border(
+                    width =
+                        1.dp,
 
-                color =
-                    Color(0xFF365641),
+                    color =
+                        Color(0xFF365641),
 
-                shape =
-                    RoundedCornerShape(
-                        18.dp
-                    )
-            )
-            .padding(16.dp)
+                    shape =
+                        RoundedCornerShape(
+                            18.dp
+                        )
+                )
+                .padding(
+                    16.dp
+                )
     ) {
 
         Row(
@@ -1540,22 +1646,21 @@ private fun PremiumSelectedSlotCard(
                 Alignment.CenterVertically
         ) {
 
-            // =================================================
-            // ICON
-            // =================================================
-
             Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .background(
-                        color =
-                            PrimaryGreen,
+                modifier =
+                    Modifier
+                        .size(
+                            42.dp
+                        )
+                        .background(
+                            color =
+                                PrimaryGreen,
 
-                        shape =
-                            RoundedCornerShape(
-                                13.dp
-                            )
-                    ),
+                            shape =
+                                RoundedCornerShape(
+                                    13.dp
+                                )
+                        ),
 
                 contentAlignment =
                     Alignment.Center
@@ -1580,12 +1685,16 @@ private fun PremiumSelectedSlotCard(
 
             Spacer(
                 modifier =
-                    Modifier.width(11.dp)
+                    Modifier.width(
+                        11.dp
+                    )
             )
 
             Column(
                 modifier =
-                    Modifier.weight(1f)
+                    Modifier.weight(
+                        1f
+                    )
             ) {
 
                 Text(
@@ -1607,14 +1716,16 @@ private fun PremiumSelectedSlotCard(
 
                 Spacer(
                     modifier =
-                        Modifier.height(3.dp)
+                        Modifier.height(
+                            3.dp
+                        )
                 )
 
                 Text(
                     text =
-                        "${formatTime(selectedSlot.startTime)} - ${
+                        "${formatTime(slot.startTime)} - ${
                             formatTime(
-                                selectedSlot.endTime
+                                slot.endTime
                             )
                         }",
 
@@ -1636,7 +1747,7 @@ private fun PremiumSelectedSlotCard(
 
                 Text(
                     text =
-                        "₹${formatPrice(selectedSlot.price)}",
+                        "₹${formatPrice(slot.price)}",
 
                     fontSize =
                         19.sp,
@@ -1658,9 +1769,6 @@ private fun PremiumSelectedSlotCard(
                     fontWeight =
                         FontWeight.Bold,
 
-                    letterSpacing =
-                        0.8.sp,
-
                     color =
                         MutedText
                 )
@@ -1669,21 +1777,28 @@ private fun PremiumSelectedSlotCard(
 
         Spacer(
             modifier =
-                Modifier.height(14.dp)
+                Modifier.height(
+                    14.dp
+                )
         )
 
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(
-                    Color(0xFF294537)
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(
+                        1.dp
+                    )
+                    .background(
+                        Color(0xFF294537)
+                    )
         )
 
         Spacer(
             modifier =
-                Modifier.height(11.dp)
+                Modifier.height(
+                    11.dp
+                )
         )
 
         Row(
@@ -1713,7 +1828,9 @@ private fun PremiumSelectedSlotCard(
 
             Spacer(
                 modifier =
-                    Modifier.weight(1f)
+                    Modifier.weight(
+                        1f
+                    )
             )
 
             Text(
@@ -1739,36 +1856,39 @@ private fun PremiumSelectedSlotCard(
 // ============================================================
 
 @Composable
-private fun PremiumLoadingBox(
-    message: String
+private fun LoadingBox(
+    text: String
 ) {
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color =
-                    CardBackground,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    color =
+                        CardBackground,
 
-                shape =
-                    RoundedCornerShape(
-                        18.dp
-                    )
-            )
-            .border(
-                width = 1.dp,
+                    shape =
+                        RoundedCornerShape(
+                            18.dp
+                        )
+                )
+                .border(
+                    width =
+                        1.dp,
 
-                color =
-                    BorderColor,
+                    color =
+                        BorderColor,
 
-                shape =
-                    RoundedCornerShape(
-                        18.dp
-                    )
-            )
-            .padding(
-                vertical = 28.dp
-            ),
+                    shape =
+                        RoundedCornerShape(
+                            18.dp
+                        )
+                )
+                .padding(
+                    vertical =
+                        28.dp
+                ),
 
         contentAlignment =
             Alignment.Center
@@ -1794,18 +1914,17 @@ private fun PremiumLoadingBox(
 
             Spacer(
                 modifier =
-                    Modifier.width(10.dp)
+                    Modifier.width(
+                        10.dp
+                    )
             )
 
             Text(
                 text =
-                    message,
+                    text,
 
                 fontSize =
                     12.sp,
-
-                fontWeight =
-                    FontWeight.Medium,
 
                 color =
                     SecondaryText
@@ -1816,56 +1935,117 @@ private fun PremiumLoadingBox(
 
 
 // ============================================================
+// MESSAGE BOX
+// ============================================================
+
+@Composable
+private fun MessageBox(
+    text: String
+) {
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    color =
+                        CardBackground,
+
+                    shape =
+                        RoundedCornerShape(
+                            16.dp
+                        )
+                )
+                .border(
+                    width =
+                        1.dp,
+
+                    color =
+                        Color(0xFF542B2F),
+
+                    shape =
+                        RoundedCornerShape(
+                            16.dp
+                        )
+                )
+                .padding(
+                    18.dp
+                )
+    ) {
+
+        Text(
+            text =
+                text,
+
+            fontSize =
+                13.sp,
+
+            color =
+                BookedText
+        )
+    }
+}
+
+
+// ============================================================
 // EMPTY SLOTS
 // ============================================================
 
 @Composable
-private fun PremiumEmptySlotsBox() {
+private fun EmptySlotsBox() {
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color =
-                    CardBackground,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    color =
+                        CardBackground,
 
-                shape =
-                    RoundedCornerShape(
-                        18.dp
-                    )
-            )
-            .border(
-                width = 1.dp,
+                    shape =
+                        RoundedCornerShape(
+                            18.dp
+                        )
+                )
+                .border(
+                    width =
+                        1.dp,
 
-                color =
-                    BorderColor,
+                    color =
+                        BorderColor,
 
-                shape =
-                    RoundedCornerShape(
-                        18.dp
-                    )
-            )
-            .padding(
-                horizontal = 20.dp,
-                vertical = 30.dp
-            ),
+                    shape =
+                        RoundedCornerShape(
+                            18.dp
+                        )
+                )
+                .padding(
+                    horizontal =
+                        20.dp,
+
+                    vertical =
+                        30.dp
+                ),
 
         horizontalAlignment =
             Alignment.CenterHorizontally
     ) {
 
         Box(
-            modifier = Modifier
-                .size(50.dp)
-                .background(
-                    color =
-                        SecondarySurface,
+            modifier =
+                Modifier
+                    .size(
+                        50.dp
+                    )
+                    .background(
+                        color =
+                            SecondarySurface,
 
-                    shape =
-                        RoundedCornerShape(
-                            16.dp
-                        )
-                ),
+                        shape =
+                            RoundedCornerShape(
+                                16.dp
+                            )
+                    ),
 
             contentAlignment =
                 Alignment.Center
@@ -1890,7 +2070,9 @@ private fun PremiumEmptySlotsBox() {
 
         Spacer(
             modifier =
-                Modifier.height(12.dp)
+                Modifier.height(
+                    12.dp
+                )
         )
 
         Text(
@@ -1909,7 +2091,9 @@ private fun PremiumEmptySlotsBox() {
 
         Spacer(
             modifier =
-                Modifier.height(4.dp)
+                Modifier.height(
+                    4.dp
+                )
         )
 
         Text(
@@ -1927,148 +2111,7 @@ private fun PremiumEmptySlotsBox() {
 
 
 // ============================================================
-// MESSAGE BOX
-// ============================================================
-
-@Composable
-private fun PremiumMessageBox(
-    message: String,
-    isError: Boolean
-) {
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color =
-                    CardBackground,
-
-                shape =
-                    RoundedCornerShape(
-                        16.dp
-                    )
-            )
-            .border(
-                width = 1.dp,
-
-                color =
-                    if (isError) {
-                        Color(0xFF542B2F)
-                    } else {
-                        BorderColor
-                    },
-
-                shape =
-                    RoundedCornerShape(
-                        16.dp
-                    )
-            )
-            .padding(18.dp)
-    ) {
-
-        Text(
-            text =
-                message,
-
-            fontSize =
-                13.sp,
-
-            color =
-                if (isError) {
-                    BookedText
-                } else {
-                    SecondaryText
-                }
-        )
-    }
-}
-
-
-// ============================================================
-// SECTION HEADER
-// ============================================================
-
-@Composable
-private fun SectionHeader(
-    title: String,
-    subtitle: String,
-    icon: (@Composable () -> Unit)? = null
-) {
-
-    Row(
-        modifier =
-            Modifier.fillMaxWidth(),
-
-        verticalAlignment =
-            Alignment.CenterVertically
-    ) {
-
-        if (icon != null) {
-
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .background(
-                        color =
-                            SecondarySurface,
-
-                        shape =
-                            RoundedCornerShape(
-                                12.dp
-                            )
-                    ),
-
-                contentAlignment =
-                    Alignment.Center
-            ) {
-
-                icon()
-            }
-
-            Spacer(
-                modifier =
-                    Modifier.width(10.dp)
-            )
-        }
-
-        Column {
-
-            Text(
-                text =
-                    title,
-
-                fontSize =
-                    18.sp,
-
-                fontWeight =
-                    FontWeight.ExtraBold,
-
-                color =
-                    PrimaryText
-            )
-
-            Spacer(
-                modifier =
-                    Modifier.height(2.dp)
-            )
-
-            Text(
-                text =
-                    subtitle,
-
-                fontSize =
-                    10.sp,
-
-                color =
-                    SecondaryText
-            )
-        }
-    }
-}
-
-
-// ============================================================
-// PRICE FORMATTER
+// PRICE FORMAT
 // ============================================================
 
 private fun formatPrice(
@@ -2095,7 +2138,7 @@ private fun formatPrice(
 
 
 // ============================================================
-// TIME FORMATTER
+// TIME FORMAT
 // ============================================================
 
 private fun formatTime(
@@ -2103,6 +2146,28 @@ private fun formatTime(
 ): String {
 
     return try {
+
+        val cleanTime =
+            time
+                .substringBefore(".")
+                .substringBefore("+")
+                .trim()
+
+        val normalizedTime =
+            when {
+
+                cleanTime.length == 5 ->
+                    "$cleanTime:00"
+
+                cleanTime.length >= 8 ->
+                    cleanTime.substring(
+                        0,
+                        8
+                    )
+
+                else ->
+                    cleanTime
+            }
 
         val inputFormat =
             SimpleDateFormat(
@@ -2116,10 +2181,17 @@ private fun formatTime(
                 Locale.getDefault()
             )
 
-        val date =
-            inputFormat.parse(time)
+        inputFormat.isLenient =
+            false
 
-        if (date != null) {
+        val date =
+            inputFormat.parse(
+                normalizedTime
+            )
+
+        if (
+            date != null
+        ) {
 
             outputFormat.format(
                 date
@@ -2127,11 +2199,11 @@ private fun formatTime(
 
         } else {
 
-            time
+            cleanTime
         }
 
     } catch (
-        e: Exception
+        _: Exception
     ) {
 
         time

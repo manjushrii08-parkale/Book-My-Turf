@@ -30,6 +30,27 @@ data class Slot(
     val isBooked: Boolean = false,
 
     // =========================================================
+    // DATE-SPECIFIC EXPIRY STATUS
+    // =========================================================
+
+    @SerializedName("is_expired")
+    val isExpired: Boolean = false,
+
+    // =========================================================
+    // FINAL BOOKING AVAILABILITY
+    // =========================================================
+
+    @SerializedName("is_bookable")
+    val isBookable: Boolean = true,
+
+    // =========================================================
+    // HUMAN-READABLE AVAILABILITY STATUS
+    // =========================================================
+
+    @SerializedName("availability_status")
+    val availabilityStatus: String = "AVAILABLE",
+
+    // =========================================================
     // BOOKING ID
     // =========================================================
 
