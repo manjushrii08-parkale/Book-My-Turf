@@ -1047,6 +1047,20 @@ private fun BookingStatusBadge(
 
     when {
 
+        normalizedStatus.contains("COMPLETED") -> {
+
+            backgroundColor =
+                PrimaryGreen.copy(
+                    alpha = 0.10f
+                )
+
+            contentColor =
+                LightGreen
+
+            icon =
+                Icons.Default.CheckCircle
+        }
+
         normalizedStatus.contains("CONFIRMED") ||
                 normalizedStatus.contains("PAID") ||
                 normalizedStatus.contains("SUCCESS") -> {

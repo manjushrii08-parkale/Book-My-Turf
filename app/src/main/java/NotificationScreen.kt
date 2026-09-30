@@ -1187,24 +1187,46 @@ private fun formatNotificationDate(
     value: String
 ): String {
 
+    if (value.isBlank()) {
+        return ""
+    }
+
     return try {
 
+        val trimmed =
+            value.trim()
+
+        val hasUtcTimezone =
+            trimmed.endsWith("Z", ignoreCase = true)
+
         val normalized =
-            value.substringBefore(".")
+            if (trimmed.length >= 19) {
+                trimmed.substring(0, 19)
+            } else {
+                trimmed.substringBefore(".")
+            }
 
         val inputFormat =
             if (normalized.contains("T")) {
 
                 SimpleDateFormat(
                     "yyyy-MM-dd'T'HH:mm:ss",
-                    Locale.getDefault()
-                )
+                    Locale.US
+                ).apply {
+
+                    if (hasUtcTimezone) {
+                        timeZone =
+                            java.util.TimeZone.getTimeZone(
+                                "UTC"
+                            )
+                    }
+                }
 
             } else {
 
                 SimpleDateFormat(
                     "yyyy-MM-dd HH:mm:ss",
-                    Locale.getDefault()
+                    Locale.US
                 )
             }
 
@@ -1215,7 +1237,7 @@ private fun formatNotificationDate(
 
             SimpleDateFormat(
                 "dd MMM yyyy, hh:mm a",
-                Locale.getDefault()
+                Locale.US
             ).format(date)
 
         } else {

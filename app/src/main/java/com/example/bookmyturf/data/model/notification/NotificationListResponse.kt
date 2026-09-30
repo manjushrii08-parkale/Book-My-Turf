@@ -31,6 +31,15 @@ data class NotificationItem(
     @SerializedName("booking_id")
     val bookingId: Int? = null,
 
+    @SerializedName("booking_date")
+    val bookingDate: String? = null,
+
+    @SerializedName("start_time")
+    val startTime: String? = null,
+
+    @SerializedName("end_time")
+    val endTime: String? = null,
+
     @SerializedName("is_read")
     val isRead: Boolean = false,
 

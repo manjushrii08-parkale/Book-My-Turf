@@ -65,6 +65,7 @@ import com.example.bookmyturf.viewmodel.NotificationViewModel
 
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
 
 
 // =============================================================
@@ -271,9 +272,7 @@ private fun NotificationTopBar(
                     )
                 )
             )
-            .windowInsetsPadding(
-                WindowInsets.statusBars
-            )
+
     ) {
 
         Column(
@@ -1170,9 +1169,8 @@ private fun NotificationError(
     }
 }
 
-
 // =============================================================
-// DATE FORMATTER
+// NOTIFICATION DATE FORMATTER
 // =============================================================
 
 private fun formatNotificationDate(
@@ -1183,14 +1181,62 @@ private fun formatNotificationDate(
         return ""
     }
 
-
     return try {
+
+        // -----------------------------------------------------
+        // CLEAN TIMESTAMP
+        // -----------------------------------------------------
+
+        val timestamp =
+            createdAt.trim()
+
+        // -----------------------------------------------------
+        // CONVERT MICROSECONDS TO MILLISECONDS
+        //
+        // Example:
+        // 2026-09-30T05:30:00.000000Z
+        //
+        // becomes:
+        // 2026-09-30T05:30:00.000Z
+        // -----------------------------------------------------
+
+        val normalizedTimestamp =
+            Regex(
+                """\.(\d+)(Z|[+-]\d{2}:?\d{2})$"""
+            ).replace(
+                timestamp
+            ) { matchResult ->
+
+                val fraction =
+                    matchResult
+                        .groupValues[1]
+                        .padEnd(
+                            3,
+                            '0'
+                        )
+                        .take(3)
+
+                val zone =
+                    matchResult
+                        .groupValues[2]
+
+                ".$fraction$zone"
+            }
+
+        // -----------------------------------------------------
+        // INPUT FORMAT
+        // X = UTC / timezone offset
+        // -----------------------------------------------------
 
         val inputFormat =
             SimpleDateFormat(
-                "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
-                Locale.getDefault()
+                "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+                Locale.US
             )
+
+        // -----------------------------------------------------
+        // OUTPUT FORMAT
+        // -----------------------------------------------------
 
         val outputFormat =
             SimpleDateFormat(
@@ -1198,26 +1244,44 @@ private fun formatNotificationDate(
                 Locale.getDefault()
             )
 
+        // Device local timezone
+        outputFormat.timeZone =
+            java.util.TimeZone.getDefault()
+
+        // -----------------------------------------------------
+        // PARSE
+        // -----------------------------------------------------
+
         val date =
-            inputFormat.parse(createdAt)
+            inputFormat.parse(
+                normalizedTimestamp
+            )
 
         if (date != null) {
 
-            outputFormat.format(date)
+            outputFormat.format(
+                date
+            )
 
         } else {
 
-            createdAt
+            timestamp
         }
 
-    } catch (exception: Exception) {
+    } catch (
+        _: Exception
+    ) {
+
+        // -----------------------------------------------------
+        // FALLBACK: TIMESTAMP WITHOUT FRACTIONS
+        // -----------------------------------------------------
 
         try {
 
-            val fallbackInput =
+            val fallbackFormat =
                 SimpleDateFormat(
-                    "yyyy-MM-dd'T'HH:mm:ss'Z'",
-                    Locale.getDefault()
+                    "yyyy-MM-dd'T'HH:mm:ssX",
+                    Locale.US
                 )
 
             val outputFormat =
@@ -1226,19 +1290,28 @@ private fun formatNotificationDate(
                     Locale.getDefault()
                 )
 
+            outputFormat.timeZone =
+                java.util.TimeZone.getDefault()
+
             val date =
-                fallbackInput.parse(createdAt)
+                fallbackFormat.parse(
+                    createdAt.trim()
+                )
 
             if (date != null) {
 
-                outputFormat.format(date)
+                outputFormat.format(
+                    date
+                )
 
             } else {
 
                 createdAt
             }
 
-        } catch (fallbackException: Exception) {
+        } catch (
+            _: Exception
+        ) {
 
             createdAt
         }
